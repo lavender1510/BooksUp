@@ -1,4 +1,4 @@
-# BooksUp 3.0 – Desktop (Electron) & Android
+# BooksUp 3.1 – Desktop (Electron) & Android
 
 **Originales BooksUp-Design und derselbe Web-App-Code auf allen Plattformen.**
 Keine neue Oberfläche: `www/index.html` ist die HTML-Datei aus dem angelieferten Archiv. Der Reader samt `pdf.js` und `JSZip` liegt lokal in `www/lib`.
@@ -93,3 +93,18 @@ BooksUp-Electron-Android/
 ## Teststatus
 
 `npm run test:static` überprüft die statischen Bestandteile. Ein echtes Android-Build und ein Electron-Lauf benötigen die Plattform-Abhängigkeiten. Die Build-Workflows sind im Projekt eingerichtet; ein erfolgreicher Compilerlauf auf einem realen Gerät ist damit **nicht** behauptet.
+
+
+## Neu in BooksUp 3.1
+
+- Profil live bearbeiten, Avatar-/Bannerbilder zuschneiden, positionieren und zoomen.
+- Profile aus Bücher- und Manga-Bereich auf Knopfdruck synchronisieren (optional auch künftige Änderungen). Bücher und Fortschritt bleiben getrennt.
+- Mehrfachimport von PDF/EPUB/CBZ/ZIP-Dateien sowie mehreren physischen Buchtiteln.
+- Bücher direkt aus dem Regal lesen; Langdruck oder „Details / Bearbeiten“ öffnet das Menü.
+- Titel, Autor, Genre, Jahr, Seitenzahl, Reihe, Tags und Cover nachträglich bearbeiten.
+- PDF-Vorschaubild aus der ersten Seite erzeugen; eigenes Cover weiterhin möglich.
+- Automatisches Starten/Beenden einer Lesesitzung beim Ein-/Ausschalten des Vollbildmodus.
+- Online-Buchsuche mit Google Books und Open Library einschließlich deutscher/englischer Ausgaben (Internet erforderlich).
+- Empfehlungsliste nach Lieblingsbüchern, ähnlichen Genres und ausgeschlossenen Genres steuern.
+
+**Hinweise:** Die Android-Version muss durch GitHub Actions neu gebaut werden. Bereits lokal gespeicherte Bücher bleiben in der App erhalten, sofern die App mit derselben Android-Paketkennung aktualisiert wird. Mach vor größeren Updates sicherheitshalber ein ZIP-Backup unter Einstellungen.
