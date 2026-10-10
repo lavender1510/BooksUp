@@ -22,6 +22,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -A
+          git reset HEAD -- .github/workflows/build-android.yml .github/workflows/build-desktop.yml
           git diff --cached --quiet || git commit -m "feat: add complete BooksUp desktop and Android project"
           git push
       - uses: actions/setup-node@v4
