@@ -41,6 +41,8 @@ jobs:
 
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
+        with:
+          packages: 'platform-tools'
 
       - name: Install Android SDK 36
         run: sdkmanager --install 'platforms;android-36' 'build-tools;36.0.0'
@@ -78,7 +80,10 @@ jobs:
           **BooksUp-debug.apk** is an installable Android debug APK for testing.
           This is **not** a production-signed Play Store release.
 
-          - Live profile previews, avatar crop/zoom and profile synchronization\n          - Multi-book import, PDF covers, metadata editing and automatic fullscreen sessions\n          - Improved online book search and recommendation controls\n          - Same BooksUp web interface as Electron desktop edition
+          - Live profile previews, avatar crop/zoom and profile synchronization
+          - Multi-book import, PDF covers, metadata editing and automatic fullscreen sessions
+          - Improved online book search and recommendation controls
+          - Same BooksUp web interface as Electron desktop edition
           - PDF/EPUB/comic reading and local library
           - Android packaging with Capacitor
           - Offline assets bundled into the APK
