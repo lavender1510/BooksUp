@@ -1,0 +1,4 @@
+/* Local Inter font keeps BooksUp readable even without an internet connection. */
+@font-face {font-family:Inter;src:url(Inter-Regular.otf) format("opentype");font-style:normal;font-weight:400;font-display:swap}
+@font-face {font-family:Inter;src:url(Inter-Medium.otf) format("opentype");font-style:normal;font-weight:500;font-display:swap}
+@font-face {font-family:Inter;src:url(Inter-SemiBold.otf) format("opentype");font-style:normal;font-weight:600;font-display:swap}

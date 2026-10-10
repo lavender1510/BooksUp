@@ -1,0 +1,8 @@
+node_modules/
+android/
+release/
+dist/
+*.log
+*.keystore
+*.jks
+.DS_Store

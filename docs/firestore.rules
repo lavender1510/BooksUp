@@ -1,0 +1,28 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{db}/documents {
+    // ID-Suche: jeder Angemeldete darf lesen, nur die eigene ID einmalig anlegen
+    match /codes/{code} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null && request.resource.data.id == request.auth.uid;
+    }
+    // Öffentliches Profil (Name, Bio, Statistik, Orden): nur der Besitzer schreibt
+    match /profiles/{uid} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null && request.auth.uid == uid;
+    }
+    // Freundschaftsanfragen: jeder darf an andere senden, nur der Empfänger liest/löscht
+    match /inbox/{to}/reqs/{from} {
+      allow create: if request.auth != null && request.auth.uid == from;
+      allow read, delete: if request.auth != null && request.auth.uid == to;
+    }
+    // Chats: nur die beiden Beteiligten (die Chat-ID besteht aus beiden IDs)
+    match /chats/{pair}/msgs/{m} {
+      allow read: if request.auth != null && request.auth.uid in pair.split('_');
+      allow create: if request.auth != null
+        && request.auth.uid in pair.split('_')
+        && request.resource.data.from == request.auth.uid
+        && (!('text' in request.resource.data) || request.resource.data.text.size() < 2000);
+    }
+  }
+}
