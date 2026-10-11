@@ -42,8 +42,8 @@ async function auth(){
     state.initialized=true;
   }
   const result=await s.login({provider:'google',options:{scopes:[DRIVE_SCOPE,'email','profile'],filterByAuthorizedAccounts:false}});
-  const token=result?.result?.accessToken?.token;
-  if(!token)throw Error('Google hat keinen Drive-Zugriffstoken geliefert. Prüfe die OAuth-Freigabe.');
+  const token=result?.result?.accessToken?.token||result?.result?.accessToken;
+  if(typeof token!=='string'||!token)throw Error('Google hat keinen Drive-Zugriffstoken geliefert. Prüfe die OAuth-Freigabe.');
   state.token=token;state.email=result.result.profile?.email||'';state.authorized=true;
 }
 async function request(url,opts={}){
@@ -54,7 +54,7 @@ async function request(url,opts={}){
   return res;
 }
 async function list(name){
-  const q=new URLSearchParams({spaces:'appDataFolder',q:"name = '"+name.replace(/'/g,"\\'")+"' and trashed = false",fields:'nextPageToken,files(id,name,modifiedTime,size)',page_size:'100'});
+  const q=new URLSearchParams({spaces:'appDataFolder',q:"name = '"+name.replace(/'/g,"\\'")+"' and trashed = false",fields:'nextPageToken,files(id,name,modifiedTime,size)',pageSize:'100'});
   const r=await request(API+'?'+q);const j=await r.json();return j.files||[];
 }
 async function create(name,mime){
@@ -69,7 +69,7 @@ async function upsert(name,blob,knownId){
   const uri=start.headers.get('Location');
   if(!uri||!uri.startsWith('https://'))throw Error('Google Drive hat keine Upload-Adresse geliefert.');
   if(blob.size===0){
-    const r=await request(uri,{method:'PUT',headers:{'Content-Range':'bytes */0'},body:new Blob()});
+    await request(uri,{method:'PUT',headers:{'Content-Length':'0'},body:new Blob()});
     return id;
   }
   for(let offset=0;offset<blob.size;offset+=CHUNK){
