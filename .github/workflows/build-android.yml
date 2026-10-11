@@ -50,6 +50,11 @@ jobs:
       - name: Install NPM dependencies
         run: npm install --no-audit --no-fund
 
+      - name: Configure Google OAuth (optional until Cloud Console is set up)
+        env:
+          BOOKSUP_GOOGLE_WEB_CLIENT_ID: ${{ secrets.BOOKSUP_GOOGLE_WEB_CLIENT_ID }}
+        run: |
+          node -e "const fs=require('fs');fs.writeFileSync('www/cloud-drive-config.js','window.BOOKSUP_GOOGLE_WEB_CLIENT_ID='+JSON.stringify(process.env.BOOKSUP_GOOGLE_WEB_CLIENT_ID||'')+';\\n')"
       - name: Check BooksUp source
         run: npm run test:static
 
@@ -73,9 +78,9 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         shell: bash
         run: |
-          TAG="v3.2.2-test.1"
+          TAG="v3.3.0-test.1"
           cat > release-notes.md <<'NOTES'
-          # BooksUp 3.2.2 – Android backup fix
+          # BooksUp 3.3.0 – Android backup fix
 
           **BooksUp-debug.apk** is an installable Android debug APK for testing.
           This is **not** a production-signed Play Store release.
@@ -94,7 +99,7 @@ jobs:
           NOTES
           if gh release view "$TAG" >/dev/null 2>&1; then
             gh release upload "$TAG" release/BooksUp-debug.apk --clobber
-            gh release edit "$TAG" --title 'BooksUp 3.2.2 – Android Backup-Fix' --notes-file release-notes.md --prerelease
+            gh release edit "$TAG" --title 'BooksUp 3.3.0 – Android Backup-Fix' --notes-file release-notes.md --prerelease
           else
-            gh release create "$TAG" release/BooksUp-debug.apk --title 'BooksUp 3.2.2 – Android Backup-Fix' --notes-file release-notes.md --prerelease --target "$GITHUB_SHA"
+            gh release create "$TAG" release/BooksUp-debug.apk --title 'BooksUp 3.3.0 – Android Backup-Fix' --notes-file release-notes.md --prerelease --target "$GITHUB_SHA"
           fi
