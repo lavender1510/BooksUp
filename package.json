@@ -9,7 +9,7 @@
   "scripts": {
     "start": "electron .",
     "desktop": "electron .",
-    "desktop:windows": "electron-builder --win nsis portable",
+    "desktop:windows": "electron-builder --win nsis portable --publish never",
     "desktop:linux": "electron-builder --linux AppImage",
     "desktop:mac": "electron-builder --mac dmg",
     "android:init": "node tools/android-init.cjs",
