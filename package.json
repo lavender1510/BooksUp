@@ -1,8 +1,8 @@
 {
   "name": "booksup",
-  "version": "3.2.2",
+  "version": "3.3.0",
   "private": true,
-  "description": "BooksUp — Android-Backups und Desktop-Updates",
+  "description": "BooksUp – Android Google Drive cloud backup beta",
   "productName": "BooksUp",
   "main": "electron/main.cjs",
   "type": "commonjs",
@@ -26,7 +26,8 @@
     "@capacitor/share": "^8.0.0",
     "@capacitor/android": "^8.5.2",
     "@capacitor/splash-screen": "^8.0.0",
-    "electron-updater": "^6.6.2"
+    "electron-updater": "^6.6.2",
+    "@capgo/capacitor-social-login": "^8.5.15"
   },
   "devDependencies": {
     "@capacitor/cli": "^8.5.2",
