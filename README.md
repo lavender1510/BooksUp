@@ -1,6 +1,30 @@
-# BooksUp 3.2.2 — Android & Windows
+# BooksUp 3.3.0 — Cloud Backup beta (Android) & Windows
 
 **Android APK + Windows installer/portable EXE** are published by GitHub Actions after a successful build. All release assets are **test builds**. Windows installers are unsigned and may trigger SmartScreen warnings. Existing library data is local to each device: use **Einstellungen → Backup mit Büchern** before migrating or reinstalling.
+
+## Update 3.3.0 – Google Drive Cloud-Backup (Android beta)
+
+- Google OAuth login with dedicated `drive.appdata` access, not full Drive access.
+- Upload both profiles, bookshelf data and imported books into hidden BooksUp Drive application storage.
+- Pull to a freshly installed tablet, reconcile device changes, warn rather than silently overwrite divergent libraries.
+- Sync runs only when app is in the foreground and Google auth is connected; no promised background service.
+- Google OAuth configuration is not included in public source. **Cloud login is inactive until publisher configures Google Cloud OAuth.**
+
+### Required publisher setup
+
+1. Create Google Cloud OAuth consent screen and enable Google Drive API. Request `https://www.googleapis.com/auth/drive.appdata`; configure scopes/testing or verification as applicable.
+2. Create an OAuth **Web client ID** and an **Android client** for package `dev.lyvt.booksup` and the signing certificate SHA-1. Android client matches the certificate of the APK actually shipped.
+3. Set GitHub Actions secret `BOOKSUP_GOOGLE_WEB_CLIENT_ID` to the Web OAuth client ID (ends with `.apps.googleusercontent.com`). This ID is a non-secret identifier; the workflow injects it into `www/cloud-drive-config.js` at build time.
+4. Release stable APK signing is required before reliable in-place Android upgrades: GitHub Actions ephemeral debug signing keys may differ per build.
+5. Run Android sign-in, large-file cloud restore, offline and conflict tests on two devices before declaring the cloud feature production-ready.
+
+### Limitations
+
+- Windows Google Drive sync is not yet implemented; Windows remains a local app.
+- Google login/Drive upload requires an OAuth client ID configured by the publisher; no Google account can connect until that happens.
+- Tokens are session-only and the user may need to reconnect after reopening the app. Automatic cloud sync only works while the app is in the foreground and the account is connected.
+- Stored books and reader data in Google Drive's application folder count against the user's Google storage quota.
+- Before enabling cloud sync, export a local ZIP backup.
 
 ## Update 3.2.2
 
