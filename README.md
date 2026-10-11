@@ -1,3 +1,20 @@
+# BooksUp 3.2 — Android & Windows
+
+**Android APK + Windows installer/portable EXE** are published by GitHub Actions after a successful build. All release assets are **test builds**. Windows installers are unsigned and may trigger SmartScreen warnings. Existing library data is local to each device: use **Einstellungen → Backup mit Büchern** before migrating or reinstalling.
+
+## Neu in 3.2
+
+- Fixed profile editing, live avatar crop and zoom, explicit one-time profile copying (optional continuous sync)
+- Scrolling book dialogs; ISBN multi-entry and scanning queue; editable genre, tags, series/band, publisher, year, language and price
+- Separate physical editions with ISBN, language, bindings, individual price and cover; works with existing physical book data
+- Google Books/Open Library metadata and alternative covers, with manual overrides. **Not every ISBN has complete edition metadata or a verified UVP**, so unknown details remain editable.
+- Shelf filters **Alle / Digital / Physisch**, long-title wrapping, completion date and better discovery filters
+- IndexedDB-first persistent storage prevents localStorage image quota errors; backups recommended
+
+## Download
+
+The Actions **BooksUp Android APK + GitHub Release** and **BooksUp Windows EXE + Release** upload builds to [Releases](https://github.com/lavender1510/BooksUp/releases) under `v3.2.0-test.1` once successful. Windows binaries are built on GitHub `windows-latest` rather than on Linux.
+
 # BooksUp 3.1 – Desktop (Electron) & Android
 
 **Originales BooksUp-Design und derselbe Web-App-Code auf allen Plattformen.**

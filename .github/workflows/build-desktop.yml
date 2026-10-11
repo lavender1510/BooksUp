@@ -35,7 +35,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          $tag='v3.1.0-windows-test.1'
+          $tag='v3.2.0-windows-test.1'
           $assets=@(Get-ChildItem release -Filter *.exe | Select-Object -ExpandProperty FullName)
           gh release view $tag 2>$null
           if ($LASTEXITCODE -ne 0) {

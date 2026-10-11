@@ -46,8 +46,8 @@ label{font-size:12px;color:var(--mut)}
 .rk{font:600 22px var(--sf);width:20px;color:var(--mut)}
 .badge{display:inline-block;border:1px solid var(--bd);background:var(--card);border-radius:999px;padding:6px 12px;margin:0 6px 6px 0;cursor:pointer;font-size:13px}
 .shelf{display:grid;grid-template-columns:repeat(3,1fr);gap:22px 12px;padding:8px 18px}
-.book{font-size:12px;cursor:pointer;border-bottom:5px solid var(--bd);padding-bottom:8px}.book .th{width:100%;height:auto;aspect-ratio:2/3;padding:6px;text-align:center;font-size:13px;box-shadow:2px 3px 8px #0003;margin-bottom:6px}
-.modal{position:fixed;inset:0;background:#0007;display:flex;align-items:center;justify-content:center;padding:20px;overflow:auto}.modal>div{background:var(--card);border-radius:20px;padding:22px;max-width:360px;width:100%}
+.book{font-size:12px;cursor:pointer;border-bottom:5px solid var(--bd);padding-bottom:8px;min-width:0;overflow-wrap:anywhere}.book>b{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;line-clamp:2;overflow:hidden;line-height:1.35;min-height:2.7em;overflow-wrap:anywhere}.book .th{width:100%;height:auto;aspect-ratio:2/3;padding:6px;text-align:center;font-size:13px;box-shadow:2px 3px 8px #0003;margin-bottom:6px}
+.modal{position:fixed;inset:0;background:#0007;display:flex;align-items:safe center;justify-content:center;padding:12px;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}.modal>div{background:var(--card);border-radius:20px;padding:18px;max-width:360px;width:100%;max-height:calc(100dvh - 36px);overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;flex-shrink:0}.modal input,.modal textarea,.modal select{scroll-margin:24px}
 .sw{width:16px;height:16px;border-radius:50%;display:inline-block;vertical-align:-3px;margin-right:6px}
 h3{margin:22px 18px 4px;font-size:20px}.hb{margin:8px 0;font-size:13px}
 .msg{max-width:80%;padding:9px 13px;border-radius:16px;margin:6px 0;background:var(--card);border:1px solid var(--bd);word-wrap:break-word}.msg.me{margin-left:auto;background:var(--ink);color:var(--bg);border-color:var(--ink)}.msg.bk{cursor:pointer;display:flex;gap:10px;align-items:center}.msg .th{width:34px;height:50px}
@@ -134,7 +134,7 @@ mark{background:#ffe27a;color:#000;border-radius:3px;padding:0 1px}
 .cropbox:active{cursor:grabbing}.crop-actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center}.crop-actions input{flex:1}
 .book{touch-action:pan-y}.book:focus-visible{outline:3px solid var(--acc)}
 .book .detail-btn{display:block;font-size:12px;margin:6px 0 0;padding:5px 7px;border:1px solid var(--bd);border-radius:8px;background:var(--card);color:var(--ink)}
-.search-results .li{cursor:pointer}.search-results small{color:var(--mut)}
+.choices-scroll{max-height:22vh;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}.book-form .btn{margin:3px 4px 8px 0}.cover-choice{background:transparent;border:0;padding:3px;cursor:pointer}.cover-choice img{width:64px;height:90px;object-fit:cover;border-radius:7px}.search-results .li{cursor:pointer}.edition-row{padding:12px;border:1px solid var(--bd);border-radius:14px;margin:10px 0}.edition-row .cset{overflow-x:auto}.book-actions{display:flex;gap:8px;flex-wrap:wrap}.info-details{border:1px solid var(--bd);border-radius:12px;padding:10px;margin-bottom:14px}.info-details summary{cursor:pointer;font-weight:600}.isbn-queue{max-height:26vh;overflow-y:auto}.crop-help{font-size:12px;color:var(--mut)}.search-results small{color:var(--mut)}
 </style></head><body><div id="app"></div>
 <script>
 const T=[['Pastell Rosa','#f0a4bd','Pastell'],['Pastell Blau','#96bfea','Pastell'],['Pastell Mint','#93d9bb','Pastell'],['Neon Pink','#ff2e93','Neon'],['Neon Grün','#39ff14','Neon'],['Neon Blau','#00e5ff','Neon'],['Pastell Lavendel','#c3b1e8','Pastell'],['Pastell Pfirsich','#f7b98f','Pastell'],['Pastell Zitrone','#efe08a','Pastell'],['Neon Violett','#b026ff','Neon'],['Neon Orange','#ff7a00','Neon'],['Neon Gelb','#f4ff00','Neon'],['Bordeaux','#8c2f39','Klassisch'],['Tannengrün','#2f6b4f','Klassisch'],['Marine','#2d4a7a','Klassisch'],['Graphit','#4a4f57','Klassisch'],['Kupfer','#b4693c','Klassisch'],['Gold','#c9a227','Klassisch']],PAP=[['Creme','#f5f0e8'],['Weiß · AMOLED','#ffffff'],['Kühl · Mitternacht','#dfe7f3'],['Salbei · Wald','#dbe7d6']];
@@ -203,18 +203,18 @@ let ALL={book:NEW(),manga:NEW('Manga-Fan'),friends:[]},sp='book';
 try{const r=localStorage.getItem('booksup3');if(r)ALL=Object.assign(ALL,JSON.parse(r));else{const o=localStorage.getItem('booksup2');if(o)ALL.book=JSON.parse(o)}}catch(e){}
 ALL.book=Object.assign(NEW(),ALL.book);ALL.manga=Object.assign(NEW('Manga-Fan'),ALL.manga);
 let S=ALL[sp];const CAT_=()=>sp=='manga'?CATM:CATB;
-function sw(){sp=sp=='book'?'manga':'book';S=ALL[sp];shf='digital';view='home';modal=null;render()}
-let view='home',addType=null,draft={},modal=null,shf='digital',cur=null,shFolder='alle',shSort='added';
+function sw(){sp=sp=='book'?'manga':'book';S=ALL[sp];shf='all';view='home';modal=null;render()}
+let view='home',addType=null,draft={},modal=null,shf='all',cur=null,shFolder='alle',shSort='added';
 const $=i=>document.getElementById(i),iso=t=>new Date(t).toISOString().slice(0,10);
 const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const tg=s=>String(s||'').toLowerCase().split(',').map(x=>x.trim()).filter(Boolean);
-function save(){if(!store())alert('Speicher voll (Bild zu groß?)');render()}
+function save(){store();render()}
 function go(v,id){stopAuto();if(rdFull)leaveFull();view=v;cur=(id===undefined?null:id);addType=null;draft={};modal=null;profileDraft=null;render()}
 function raw(accept,cb,multiple=false){const i=document.createElement('input');i.type='file';i.accept=accept;i.multiple=multiple;i.onchange=()=>{if(i.files.length)cb(multiple?[...i.files]:i.files[0])};i.click()}
 function urlOf(f,cb,mx=600){const r=new FileReader();r.onload=()=>{if(!/^data:image\/(png|jpe?g)/.test(r.result))return cb(r.result);const im=new Image();im.onload=()=>{const k=Math.min(1,mx/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=Math.round(im.width*k);c.height=Math.round(im.height*k);c.getContext('2d').drawImage(im,0,0,c.width,c.height);cb(c.toDataURL('image/jpeg',.82))};im.onerror=()=>cb(r.result);im.src=r.result};r.readAsDataURL(f)}
 // Offline-Dateispeicher (IndexedDB)
 const db=()=>new Promise((ok,er)=>{const r=indexedDB.open('bu',1);r.onupgradeneeded=()=>r.result.createObjectStore('f');r.onsuccess=()=>ok(r.result);r.onerror=er});
-async function put(k,v){try{const d=await db();return new Promise(ok=>{const t=d.transaction('f','readwrite');t.objectStore('f').put(v,k);t.oncomplete=ok})}catch(e){}}
+async function put(k,v){try{const d=await db();return new Promise(ok=>{const t=d.transaction('f','readwrite');t.objectStore('f').put(v,k);t.oncomplete=()=>ok(true);t.onerror=()=>ok(false);t.onabort=()=>ok(false)})}catch(e){console.error('IndexedDB:',e);return false}}
 async function openPdf(id){try{const d=await db();d.transaction('f').objectStore('f').get(id).onsuccess=e=>{if(e.target.result)window.open(URL.createObjectURL(e.target.result),'_blank');else alert('PDF nicht gefunden')}}catch(e){alert('Speicher nicht verfügbar')}}
 const bar=(t,back='home')=>`<div class="bar"><button class="ib" aria-label="Zurück" onclick="go('${back}')">${ic('back')}</button><h2>${t}</h2></div>`;
 const cov0=b=>(b.covers&&b.covers[0])||b.cover||null;
@@ -237,22 +237,29 @@ function trend(){const now=Date.now(),p30=l=>l.date>=iso(now-29*864e5),p60=l=>l.
   const a=S.log.filter(p30).reduce((t,l)=>t+l.pages,0)/30,b=S.log.filter(p60).reduce((t,l)=>t+l.pages,0)/30;
   if(!b)return{txt:'Noch nicht genug Daten',dir:0};const d=((a-b)/b*100);return{txt:`${d>=0?'+':''}${d.toFixed(0)}% ggü. den 30 Tagen davor`,dir:d>2?1:d<-2?-1:0}}
 function completion(){const t=S.books.length;return t?Math.round(read().length/t*100):0}
-function bookValue(){return S.books.filter(b=>b.type=='physical').reduce((t,b)=>t+(b.price||0)*(b.qty||1),0)}
+function bookValue(){return S.books.filter(b=>b.type=='physical').reduce((t,b)=>t+editionsOf(b).reduce((v,e)=>v+(e.price||0)*e.qty,0),0)}
 const money=v=>v.toLocaleString('de-DE',{minimumFractionDigits:2,maximumFractionDigits:2})+' '+S.currency;
 
 const fm=m=>m>=60?`${Math.floor(m/60)} Std ${m%60} Min`:`${m} Min`;
 function recs(){
-  const selected=(S.rec.sources||[]).map(id=>S.books.find(b=>String(b.id)===String(id))).filter(Boolean);
-  const last=selected.length?selected:[...read()].sort((a,b)=>String(b.finished).localeCompare(String(a.finished))).slice(0,3);
-  const gs={},ts={},ignored=new Set((S.rec.exclude||[]).map(x=>x.toLowerCase()));
-  const likedGenres=new Set(last.map(b=>norm(b.genre)).filter(Boolean)),likedTags=new Set(last.flatMap(b=>tg(b.tags)));
-  last.forEach(b=>{if(!b.genre||ignored.has(b.genre.toLowerCase()))return;gs[b.genre]=(gs[b.genre]||0)+1;tg(b.tags).forEach(t=>ts[t]=(ts[t]||0)+1)});
-  const have=new Set(S.books.map(b=>b.title.toLowerCase())),out=[];
-  const good=b=>!ignored.has(norm(b.genre)) && !(b.rating!=null&&b.rating<=4) && (!S.rec.onlySimilar||!selected.length||likedGenres.has(norm(b.genre))||tg(b.tags).some(t=>likedTags.has(t)));
-  if(S.rec.own)S.books.filter(b=>!b.finished&&good(b)).forEach(b=>out.push({...b,own:1}));
-  if(S.rec.cat)CAT_().filter(c=>!have.has(c.title.toLowerCase())&&good(c)).forEach(c=>out.push(c));
-  out.forEach(b=>{const m=gs[b.genre]?3*gs[b.genre]:0;b.sc=(S.rec.vary?(m?-5:2):m)+tg(b.tags).reduce((t,x)=>t+(S.rec.vary?0:ts[x]||0),0)+Math.random()*.4});
-  return{list:out.sort((a,b)=>b.sc-a.sc).slice(0,5),last};
+  const rec=S.rec||{};const selected=(rec.sources||[]).map(id=>S.books.find(b=>String(b.id)===String(id))).filter(Boolean);
+  const last=selected.length?selected:[...read()].sort((a,b)=>String(b.finished).localeCompare(String(a.finished))).slice(0,4);
+  const normalizeTitle=b=>norm(b.title).replace(/[^a-z0-9]/g,'');
+  const have=new Set(S.books.map(normalizeTitle));const finished=new Set(read().map(normalizeTitle));
+  const ignored=new Set((rec.exclude||[]).map(norm)),allowedG=new Set((rec.includeGenres||[]).map(norm)),allowedT=new Set((rec.includeTags||[]).map(norm));
+  const likedG=new Set(last.map(b=>norm(b.genre)).filter(Boolean)),likedT=new Set(last.flatMap(b=>tg(b.tags)));
+  const match=b=>{const g=norm(b.genre),ts=tg(b.tags);if(ignored.has(g)||finished.has(normalizeTitle(b)))return false;
+    if(allowedG.size&&!allowedG.has(g))return false;
+    if(allowedT.size&&!ts.some(t=>allowedT.has(t)))return false;
+    if(b.rating!=null&&+b.rating<=4)return false;
+    if(rec.onlySimilar&&last.length&&!likedG.has(g)&&!ts.some(t=>likedT.has(t)))return false;
+    return true;};
+  const out=[];
+  if(rec.own!==false)S.books.filter(b=>!b.finished&&match(b)).forEach(b=>out.push({...b,own:1}));
+  if(rec.cat!==false)CAT_().filter(b=>!have.has(normalizeTitle(b))&&match(b)).forEach(b=>out.push({...b,own:0}));
+  const score=b=>{const g=norm(b.genre),tags=tg(b.tags);return(rec.vary?0:last.filter(v=>norm(v.genre)===g).length*4)+tags.filter(t=>likedT.has(t)).length*2+(allowedG.has(g)?3:0)+tags.filter(t=>allowedT.has(t)).length*3};
+  out.sort((a,b)=>score(b)-score(a)||a.title.localeCompare(b.title,'de'));
+  return{list:out.slice(0,6),last};
 }
 
 function render(){
@@ -329,13 +336,13 @@ function stats(){
 }
 
 function shelf(){
-  let l=S.books.filter(b=>b.type==shf);
+  let l=S.books.filter(b=>shf==='all'||b.type===shf);
   if(shFolder=='ohne')l=l.filter(b=>!b.folder);else if(shFolder!='alle')l=l.filter(b=>b.folder==shFolder);
   const sorters={added:(a,b)=>(b.added||b.id)-(a.added||a.id),title:(a,b)=>a.title.localeCompare(b.title),author:(a,b)=>(a.author||'').localeCompare(b.author||''),rating:(a,b)=>(b.rating==null?-1:b.rating)-(a.rating==null?-1:a.rating),progress:(a,b)=>(b.page||0)-(a.page||0)};
   l=[...l].sort(sorters[shSort]||sorters.added);
   const folderChip=(key,label)=>`<button class="chip ${shFolder==key?'on':''}" onclick="shFolder='${key}';render()">${esc(label)}${shFolder==key&&key!='alle'&&key!='ohne'?`<span class="xoff" onclick="event.stopPropagation();delFolder('${key}')">✕</span>`:''}</button>`;
-  return bar('Bücherregal')+`<div class="row"><button class="chip ${shf=='digital'?'on':''}" onclick="shf='digital';shFolder='alle';render()">Digital</button><button class="chip ${shf=='physical'?'on':''}" onclick="shf='physical';shFolder='alle';render()">Physisch</button></div>
-  <div class="row"><button class="btn o" onclick="pickNext()">Was lese ich als Nächstes?</button><button class="btn o" onclick="view='add';addType='digital';draft={};render()">+ Digitales Buch</button><button class="chip" onclick="batchChoose()">Mehrere Dateien</button></div>
+  return bar('Bücherregal')+`<div class="row"><button class="chip ${shf=='all'?'on':''}" onclick="shf='all';shFolder='alle';render()">Alle</button><button class="chip ${shf=='digital'?'on':''}" onclick="shf='digital';shFolder='alle';render()">Digital</button><button class="chip ${shf=='physical'?'on':''}" onclick="shf='physical';shFolder='alle';render()">Physisch</button></div>
+  <div class="row"><button class="btn o" onclick="pickNext()">Was lese ich als Nächstes?</button><button class="btn o" onclick="addType='physical';view='add';draft={};render()">+ Physisches Buch</button><button class="btn o" onclick="view='add';addType='digital';draft={};render()">+ Digitales Buch</button><button class="chip" onclick="batchChoose()">Mehrere Dateien</button></div>
   <div class="row">${folderChip('alle','Alle')}${S.folders.map(f=>folderChip(f,f)).join('')}${folderChip('ohne','Ohne Ordner')}<button class="chip" onclick="newFolder()">+ Ordner</button></div>
   <div class="sortbar"><label style="margin:0">Sortieren:</label><select onchange="shSort=this.value;render()">
    <option value="added" ${shSort=='added'?'selected':''}>Zuletzt hinzugefügt</option>
@@ -349,12 +356,12 @@ function shelf(){
 function newFolder(){modal=`<h3 style="margin:0 0 10px">Neuer Ordner</h3><input id="nf" placeholder="z.B. Lieblingsbücher"><button class="btn" onclick="const v=$('nf').value.trim();if(v&&!S.folders.includes(v))S.folders.push(v);modal=null;save()">Erstellen</button>`;render()}
 function delFolder(f){if(!confirm('Ordner "'+f+'" löschen? Die Bücher bleiben erhalten, verlieren aber die Zuordnung.'))return;S.folders=S.folders.filter(x=>x!=f);S.books.forEach(b=>{if(b.folder==f)delete b.folder});shFolder='alle';save()}
 function bookM(id){const b=S.books.find(x=>x.id==id);window._r=(b.rating==null?5:b.rating);const st=b.started||iso(b.added||b.id);
-  modal=`<h3 style="margin:0 0 4px">${esc(b.title)}</h3>${b.type=='physical'?`<p style="color:var(--mut);margin:0 0 6px">${b.qty>1?`${b.qty} Exemplare im Besitz`:''}${b.price!=null?`${b.qty>1?' · ':''}${money(b.price)} pro Stück · Gesamtwert ${money(b.price*(b.qty||1))}`:''}</p><div style="display:flex;gap:8px;align-items:center;margin-bottom:10px"><input id="pr" type="number" min="0" step="0.01" placeholder="Preis pro Exemplar" value="${b.price==null?'':b.price}" style="margin:0"><button class="chip" onclick="setPrice(${id})">Speichern</button></div>`:''}${(b.covers&&b.covers.length>1)?`<div class="cset">${b.covers.map(c=>`<img src="${c}">`).join('')}</div>`:''}<p style="margin:6px 0">Bewertung: <b id="rv">${window._r}</b> / 10</p><input type="range" min="0" max="10" step="0.1" value="${window._r}" oninput="$('rv').textContent=this.value;window._r=+this.value"><label>Lesebeginn</label><input type="date" id="rs" value="${st}">
+  modal=`<h3 style="margin:0 0 4px">${esc(b.title)}</h3>${b.type=='physical'?`<p style="color:var(--mut);margin:0 0 6px">${b.qty>1?`${b.qty} Exemplare im Besitz`:''}${b.price!=null?`${b.qty>1?' · ':''}${money(b.price)} pro Stück · Gesamtwert ${money(b.price*(b.qty||1))}`:''}</p><div style="display:flex;gap:8px;align-items:center;margin-bottom:10px"><input id="pr" type="number" min="0" step="0.01" placeholder="Preis pro Exemplar" value="${b.price==null?'':b.price}" style="margin:0"><button class="chip" onclick="setPrice(${id})">Speichern</button></div>`:''}${b.type==='physical'?`<div class="hint">${editionsOf(b).map(e=>esc(`${e.format||'Ausgabe'} · ${e.language||'Sprache offen'} · ${e.isbn||'ohne ISBN'} · ${e.qty}× · ${e.price==null?'Preis offen':e.price+' '+S.currency}`)).join('<br>')}</div>`:''}${(b.covers&&b.covers.length)?`<div class="cset">${b.covers.map(c=>`<img src="${esc(c)}">`).join('')}</div>`:''}<p style="margin:6px 0">Bewertung: <b id="rv">${window._r}</b> / 10</p><input type="range" min="0" max="10" step="0.1" value="${window._r}" oninput="$('rv').textContent=this.value;window._r=+this.value"><label>Lesebeginn</label><input type="date" id="rs" value="${st}"><label>Fertig gelesen am (optional)</label><input type="date" id="rf" value="${esc(b.finished||'')}">
   <label>Ordner</label><select onchange="setFolder(${id},this.value)"><option value="" ${!b.folder?'selected':''}>Kein Ordner</option>${S.folders.map(f=>`<option value="${esc(f)}" ${b.folder==f?'selected':''}>${esc(f)}</option>`).join('')}</select>
-  <div style="display:flex;flex-wrap:wrap;gap:8px"><button class="btn" onclick="setRate(${id},false)">Speichern</button><button class="btn o" onclick="setRate(${id},true)">Fertig gelesen</button><button class="btn o" onclick="go('reader',${id})">Lesen &amp; tracken</button><button class="btn o" onclick="editBook(${id})">Informationen bearbeiten</button><button class="btn o" onclick="delBook(${id})">Löschen</button></div>${b.finished?`<p><small>Gelesen am ${b.finished}</small></p>`:''}`;render()}
+  <div style="display:flex;flex-wrap:wrap;gap:8px"><button class="btn" onclick="setRate(${id},false)">Speichern</button><button class="btn o" onclick="setRate(${id},true)">Fertig gelesen</button><button class="btn o" onclick="go('reader',${id})">Lesen &amp; tracken</button><button class="btn o" onclick="editBook(${id})">Informationen bearbeiten</button><button class="chip" onclick="coverGallery('book',${id})">Andere Cover suchen</button><button class="btn o" onclick="delBook(${id})">Löschen</button></div>${b.finished?`<p><small>Gelesen am ${b.finished}</small></p>`:''}`;render()}
 function setFolder(id,f){const b=S.books.find(x=>x.id==id);if(f)b.folder=f;else delete b.folder;save()}
-function setPrice(id){const b=S.books.find(x=>x.id==id),v=$('pr').value;b.price=v===''?null:+v;bookM(id)}
-function setRate(id,fin){const b=S.books.find(x=>x.id==id);b.rating=window._r;b.ratedAt=Date.now();b.started=$('rs').value;if(fin&&!b.finished)b.finished=iso(Date.now());modal=null;save()}
+function setPrice(id){const b=S.books.find(x=>x.id==id),v=$('pr').value;if(!b)return;b.price=v===''?null:+v;if(b.type==='physical'){const ed=editionsOf(b);if(ed.length===1){ed[0].price=b.price;b.editions=ed;unifyBookEd(b)}}persist();bookM(id)}
+function setRate(id,fin){const b=S.books.find(x=>x.id==id);if(!b)return;b.rating=window._r;b.ratedAt=Date.now();b.started=$('rs').value;const f=$('rf')?.value||'';b.finished=f||(fin?iso(Date.now()):b.finished||null);if(b.finished&&b.started&&b.finished<b.started){toast('Enddatum darf nicht vor dem Lesebeginn liegen.');return}modal=null;save()}
 function delBook(id){if(confirm('Buch löschen?')){S.books=S.books.filter(b=>b.id!=id);modal=null;save()}}
 
 function reader(){
@@ -853,21 +860,44 @@ if(navigator.getBattery)navigator.getBattery().then(bt=>{const upd=()=>{const e=
 
 setInterval(()=>{if(view!='reader')return;const e=$('tm'),r=$('rdtm');let t='';if(S.sess){const s=Math.floor((Date.now()-S.sess.start)/1000);t=String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0')}if(e&&S.sess)e.textContent=t;if(r)r.textContent=t},1000);
 
+/* BooksUp 3.2: Book metadata / edition helpers; auto fields remain user-editable. */
+const fmtKinds=['Unbekannt','Hardcover','Paperback','Taschenbuch','E-Book','Special Edition','Andere'];
+const safeCover=u=>/^https:\/\/[^\s"'<>]+$/i.test(String(u||''))?u:null;
+const uniqueCovers=(a)=>[...new Set(a.filter(Boolean))].slice(0,16);
+const copyEdition=e=>({isbn:isbnClean(e.isbn),language:String(e.language||''),format:String(e.format||'Unbekannt'),edition:String(e.edition||''),price:e.price==null||e.price===''?null:Math.max(0,+e.price||0),qty:Math.max(1,+e.qty||1),cover:e.cover||null});
+const editionsOf=b=>(Array.isArray(b.editions)&&b.editions.length?b.editions:[{isbn:b.isbn||'',language:b.language||'',format:b.format||'Unbekannt',edition:b.edition||'',price:b.price,qty:b.qty||1,cover:cov0(b)}]).map(copyEdition);
+function unifyBookEd(b){if(b.type!=='physical')return;b.editions=editionsOf(b);b.qty=b.editions.reduce((n,e)=>n+e.qty,0);b.price=b.editions.length?b.editions.reduce((v,e)=>v+((e.price||0)*e.qty),0)/b.qty:null;b.covers=uniqueCovers([...(b.covers||[]),...b.editions.map(e=>e.cover)]);}
+function mergePhysical(book){const ex=S.books.find(b=>b.type==='physical'&&norm(b.title)===norm(book.title)&&norm(b.author)===norm(book.author));if(!ex){unifyBookEd(book);S.books.push(book);return book}const incoming=editionsOf(book);ex.editions=[...editionsOf(ex),...incoming];for(const k of ['genre','tags','series','seriesNumber','publisher','year','pages'])if(!ex[k]&&book[k])ex[k]=book[k];ex.covers=uniqueCovers([...(ex.covers||[]),...(book.covers||[])]);unifyBookEd(ex);return ex}
+function metadataGoogle(v={},item={}){const pr=item.saleInfo?.listPrice;return{title:v.title||'',author:(v.authors||[]).join(', '),year:(v.publishedDate||'').slice(0,4),genre:(v.categories||[])[0]||'',tags:(v.categories||[]).slice(0,3).join(', '),publisher:v.publisher||'',pages:v.pageCount||'',language:v.language||'',cover:safeCover(v.imageLinks?.thumbnail?.replace(/^http:/,'https:'))||null,price:pr?.amount||'',isbn:(v.industryIdentifiers||[]).find(x=>x.type==='ISBN_13')?.identifier||'',series:v.seriesInfo?.bookDisplayNumber?'':undefined,source:'Google Books'}}
+function metadataOL(d={}){return{title:d.title||'',author:(d.authors||[]).map(a=>a.name).join(', '),year:((d.publish_date||'').match(/\d{4}/)||[''])[0],genre:(d.subjects||[])[0]?.name||'',tags:(d.subjects||[]).slice(0,4).map(x=>x.name).join(', '),publisher:(d.publishers||[]).map(x=>x.name).join(', '),pages:d.number_of_pages||'',cover:safeCover(d.cover?.large||d.cover?.medium),language:(d.languages||[]).map(x=>x.key?.split('/').pop()).join(', '),series:(d.series||[])[0]||'',format:d.physical_format||'',edition:d.edition_name||'',source:'Open Library'}}
+async function fetchMetaUrl(url){const ac=new AbortController(),timer=setTimeout(()=>ac.abort(),7500);try{const r=await fetch(url,{signal:ac.signal});if(!r.ok)throw Error('HTTP '+r.status);return await r.json()}finally{clearTimeout(timer)}}
+async function autoBookMeta(){keep();const title=draft.title?.trim();if(!title||title.length<3)return;const token=++searchSeq;toast('Buchdaten werden gesucht …');try{const j=await fetchMetaUrl('https://www.googleapis.com/books/v1/volumes?q='+encodeURIComponent('intitle:'+title+(draft.author?' inauthor:'+draft.author:''))+'&maxResults=5');if(token!==searchSeq||view!=='add')return;keep();const v=j.items?.[0];if(!v){toast('Keine automatischen Daten gefunden.');return}const info=metadataGoogle(v.volumeInfo,v);for(const k of ['author','year','genre','tags','publisher','pages','language','series','isbn','price'])if(!draft[k]&&info[k])draft[k]=info[k];if(info.cover&&!(draft.covers||[]).length)draft.covers=[info.cover];render();toast('Gefundene Daten übernommen – alle Felder editierbar.')}catch(e){toast('Onlinesuche nicht verfügbar, manuelle Eingabe bleibt möglich.')}}
+function coverGallery(target='draft',id=null){if(target==='draft')keep();window._covTarget={target,id};modal='<h3>Cover suchen</h3><p class="hint">Suche nach anderen Ausgaben; wähle ein Cover oder lade ein eigenes hoch.</p><p id="covermsg" class="hint">Suche läuft …</p><div class="cset" id="coverlist"></div><button class="btn o" onclick="pickCoverFromGallery()">Eigenes Cover hochladen</button>';render();findCoverCandidates(target==='draft'?draft:S.books.find(b=>b.id==id)).then(cs=>{window._coverChoices=cs;const el=$('coverlist'),msg=$('covermsg');if(msg)msg.textContent=cs.length?'Cover antippen, um es zu übernehmen.':'Keine weiteren Cover gefunden.';if(el)el.innerHTML=cs.map((u,i)=>`<button class="cover-choice" onclick="chooseOnlineCover(${i})" aria-label="Cover ${i+1} auswählen"><img src="${esc(u)}" loading="lazy"></button>`).join('')}).catch(e=>{if($('covermsg'))$('covermsg').textContent='Suche derzeit nicht verfügbar.'})}
+async function findCoverCandidates(b){if(!b)return[];let urls=[...(b.covers||[])].filter(x=>safeCover(x));const q=b.isbn?'isbn:'+b.isbn:'intitle:'+b.title;try{const j=await fetchMetaUrl('https://www.googleapis.com/books/v1/volumes?q='+encodeURIComponent(q)+'&maxResults=30');urls.push(...(j.items||[]).map(v=>v.volumeInfo?.imageLinks?.thumbnail?.replace(/^http:/,'https:')).filter(Boolean))}catch(e){}try{const j=await fetchMetaUrl('https://openlibrary.org/search.json?'+(b.isbn?'isbn='+encodeURIComponent(b.isbn):'title='+encodeURIComponent(b.title))+'&limit=20&fields=cover_i,isbn');urls.push(...(j.docs||[]).filter(x=>x.cover_i).map(x=>'https://covers.openlibrary.org/b/id/'+x.cover_i+'-L.jpg'))}catch(e){}return uniqueCovers(urls.filter(safeCover))}
+function chooseOnlineCover(i){const url=window._coverChoices?.[i],t=window._covTarget;if(!url||!t)return;if(t.target==='draft')draft.covers=uniqueCovers([url,...(draft.covers||[])]);else{const b=S.books.find(x=>x.id==t.id);if(b){b.covers=uniqueCovers([url,...(b.covers||[])]);persist()}}modal=null;render();toast('Cover übernommen.')}
+function pickCoverFromGallery(){const t=window._covTarget;modal=null;if(t?.target==='draft')pickCover();else if(t?.id)editCover(t.id)}
+function newEdition(){keep();draft.editions=[...(draft.editions||[]),{language:draft.language||'',format:'Hardcover',edition:'',isbn:'',qty:1,price:'',cover:''}];render()}
+function removeEdition(i){keep();draft.editions.splice(i,1);render()}
+const formatSelect=(v,id)=>`<select id="${id}">${fmtKinds.map(f=>`<option ${v===f?'selected':''}>${esc(f)}</option>`).join('')}</select>`;
+const editionRows=(arr,prefix,editable=true)=>arr.map((e,i)=>`<div class="edition-row"><b>Exemplar / Ausgabe ${i+2}</b><label>ISBN</label><input id="${prefix}_${i}_isbn" value="${esc(e.isbn||'')}"><label>Sprache</label><input id="${prefix}_${i}_language" value="${esc(e.language||'')}"><label>Einband</label>${formatSelect(e.format||'Paperback',`${prefix}_${i}_format`)}<label>Edition / Sonderausgabe</label><input id="${prefix}_${i}_edition" value="${esc(e.edition||'')}"><label>Preis</label><input id="${prefix}_${i}_price" type="number" min="0" step="0.01" value="${esc(e.price??'')}"><label>Anzahl</label><input id="${prefix}_${i}_qty" type="number" min="1" value="${esc(e.qty||1)}"><label>Cover-Adresse (optional)</label><input id="${prefix}_${i}_cover" value="${esc(e.cover||'')}">${editable?`<button class="chip" onclick="removeEdition(${i})">Ausgabe entfernen</button>`:''}</div>`).join('');
 function add(){
-  if(!addType)return bar('Hinzufügen')+`<div class="grid"><button class="tile" onclick="addType='digital';render()"><b>Digital</b><small>PDF importieren, wird automatisch getrackt</small></button><button class="tile" onclick="addType='physical';render()"><b>Physisch</b><small>Buch registrieren, Tracking manuell</small></button></div><div class="pad"><button class="btn o" onclick="gqPick()">Von Goodreads importieren (CSV)</button><button class="btn o" onclick="addManyNames()" style="margin-top:8px">Mehrere Buchtitel hinzufügen</button><p class="hint">Export aus Goodreads: Mein Konto → Tools → Import/Export. Bereits vorhandene Bücher werden übersprungen.</p></div>`;
-  const f=k=>`<input id="f_${k}" value="${esc(draft[k])}">`;
+  if(!addType)return bar('Hinzufügen')+`<div class="grid"><button class="tile" onclick="addType='digital';render()"><b>Digital</b><small>PDF, EPUB und Comics</small></button><button class="tile" onclick="addType='physical';render()"><b>Physisch</b><small>Buch oder ISBN registrieren</small></button></div><div class="pad"><button class="btn o" onclick="gqPick()">Goodreads-CSV importieren</button><button class="btn o" onclick="addManyNames()">Mehrere Titel hinzufügen</button></div>`;
+  const f=(k,label,extra='')=>`<label>${label}</label><input id="f_${k}" value="${esc(draft[k]??'')}" ${extra}>`;
   const covers=draft.covers||[];
-  return bar(addType=='digital'?'Digitales Buch':'Physisches Buch')+`<div class="pad">
-  ${addType=='digital'?`<button class="btn o" onclick="pickPdf()">${draft.pdfName?'✓ '+esc(draft.pdfName):'Datei auswählen (PDF, EPUB, Comic)'}</button><br><br>`:''}${addType=='digital'?`<button class="btn o" onclick="batchChoose()">Mehrere Dateien gleichzeitig hinzufügen</button><br><br>`:`<button class="btn o" onclick="addManyNames()">Mehrere Buchtitel hinzufügen</button><br><br>`}<button class="btn o" onclick="isbnM()">ISBN scannen / eingeben</button><br><br>
-  <label>Buch suchen (Deutsch, Englisch, Autor oder ISBN)</label><input id="q" placeholder="z.B. Hunger Games oder Panem" oninput="search()"><div id="res" class="search-results" role="status"></div>
-  <label>Name</label>${f('title')}<label>Autor</label>${f('author')}<label>Erscheinungsjahr</label>${f('year')}<label>Genre</label>${f('genre')}<label>Tags (Komma)</label>${f('tags')}<label>Reihe</label>${f('series')}
-  ${addType=='physical'?`<label>Seitenzahl (optional)</label>${f('pages')}`:''}
-  ${addType=='physical'?`<label>Anzahl der Exemplare</label><input id="f_qty" type="number" min="1" value="${draft.qty||1}">`:''}
-  ${addType=='physical'?`<label>Preis pro Exemplar (optional)</label><input id="f_price" type="number" min="0" step="0.01" value="${draft.price||''}" placeholder="z.B. 12.99">`:''}
-  ${covers.length?`<div class="cset">${covers.map(c=>`<img src="${c}">`).join('')}</div>`:''}
-  <button class="btn o" onclick="pickCover()">${covers.length?`+ weiteres Cover (${covers.length})`:'Cover (png/jpg)'}</button><br><br><button class="btn" onclick="saveBook()">Hinzufügen</button></div>`;
+  return bar(addType==='digital'?'Digitales Buch':'Physisches Buch')+`<div class="pad book-form">
+   ${addType==='digital'?`<button class="btn o" onclick="pickPdf()">${draft.pdfName?'✓ '+esc(draft.pdfName):'PDF / EPUB / Comic wählen'}</button><button class="btn o" onclick="batchChoose()">Mehrere Dateien hinzufügen</button>`:'<button class="btn o" onclick="addManyNames()">Mehrere Titel hinzufügen</button>'}
+   <button class="btn o" onclick="isbnM()">ISBN scannen / mehrere ISBNs</button>
+   <label>Suche nach Titel, Autor oder ISBN</label><input id="q" placeholder="Titel, Reihe, Autor oder ISBN" oninput="search()"><div id="res" class="search-results" role="status"></div>
+   ${f('title','Buchtitel','onchange="autoBookMeta()"')}${f('author','Autor')}${f('year','Erscheinungsjahr')}${f('genre','Genre')}${f('tags','Tags (mit Komma trennen)')}${f('series','Reihe')}${f('seriesNumber','Band / Reihenfolge')}${f('publisher','Verlag')}${f('price',addType==='physical'?'Preis (UVP, falls bekannt)':'Listenpreis (falls bekannt)','type="number" min="0" step="0.01"')}
+   ${addType==='physical'?f('qty','Anzahl Exemplare','type="number" min="1"'):''}
+   <details class="info-details" ${draft.detailsOpen?'open':''} ontoggle="draft.detailsOpen=this.open"><summary>Erweiterte Details</summary>${f('language','Sprache (z. B. de, en)')}${f('isbn','ISBN-10 / ISBN-13')}${f('pages','Seitenzahl')}${f('edition','Edition / Ausgabebezeichnung')}<label>Einband</label>${formatSelect(draft.format||'Unbekannt','f_format')}</details>
+   ${covers.length?`<div class="cset">${covers.map(c=>`<img src="${esc(c)}" alt="Buchcover" loading="lazy">`).join('')}</div>`:''}
+   <div class="book-actions"><button class="btn o" onclick="pickCover()">Cover selbst auswählen</button><button class="btn o" onclick="coverGallery()">Andere Cover online</button></div>
+   ${addType==='physical'?`<h3>Weitere Exemplare / Ausgaben</h3><p class="hint">Gleiches Werk, unterschiedliche Sprache, Cover, Preis oder Ausgabe.</p>${editionRows(draft.editions||[],'ex')}<button class="btn o" onclick="newEdition()">+ Weitere Ausgabe hinzufügen</button>`:''}
+   <div style="height:16px"></div><button class="btn" onclick="saveBook()">Buch hinzufügen</button>
+  </div>`;
 }
-function keep(){['title','author','year','genre','tags','series','qty','price','pages'].forEach(k=>{const e=$('f_'+k);if(e)draft[k]=e.value})}
+function keep(){for(const k of ['title','author','year','genre','tags','series','seriesNumber','publisher','qty','price','pages','language','isbn','edition','format']){const e=$('f_'+k);if(e)draft[k]=e.value}if(draft.editions)draft.editions.forEach((ed,i)=>{for(const k of ['isbn','language','format','edition','qty','price','cover']){const v=$(`ex_${i}_${k}`);if(v)ed[k]=v.value}})}
 function pickPdf(){keep();raw('application/pdf,application/epub+zip,.epub,.cbz,.zip,application/vnd.comicbook+zip',async f=>{
   const n=f.name.toLowerCase();draft.fmt=/\.epub$/.test(n)?'epub':/\.(cbz|zip)$/.test(n)?'cbz':'pdf';draft.pdfFile=f;draft.pdfName=f.name;
   const base=f.name.replace(/\.[^.]+$/,'');
@@ -894,7 +924,7 @@ async function searchOnline(q,tk){
   try{
     const urls=[`https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(q)}&maxResults=20&printType=books`,
       `https://openlibrary.org/search.json?q=${encodeURIComponent(q)}&limit=20&fields=title,author_name,first_publish_year,language,isbn,cover_i`];
-    const res=await Promise.allSettled(urls.map(async(u,i)=>{const r=await fetch(u,{signal:ctl.signal});if(!r.ok)throw Error('HTTP '+r.status);const j=await r.json();return i===0?(j.items||[]).map(x=>{const v=x.volumeInfo||{};return{title:v.title,author:(v.authors||[]).join(', '),year:(v.publishedDate||'').slice(0,4),genre:(v.categories||[])[0]||'',pages:v.pageCount,lang:v.language||'',source:'Google Books'}}):(j.docs||[]).map(v=>({title:v.title,author:(v.author_name||[]).slice(0,2).join(', '),year:v.first_publish_year,lang:(v.language||[]).includes('ger')?'de':(v.language||[]).includes('eng')?'en':'',source:'Open Library'}))}));
+    const res=await Promise.allSettled(urls.map(async(u,i)=>{const r=await fetch(u,{signal:ctl.signal});if(!r.ok)throw Error('HTTP '+r.status);const j=await r.json();return i===0?(j.items||[]).map(x=>{const v=x.volumeInfo||{};return{title:v.title,author:(v.authors||[]).join(', '),year:(v.publishedDate||'').slice(0,4),genre:(v.categories||[])[0]||'',pages:v.pageCount,lang:v.language||'',...metadataGoogle(v,x),source:'Google Books'}}):(j.docs||[]).map(v=>({title:v.title,author:(v.author_name||[]).slice(0,2).join(', '),year:v.first_publish_year,lang:(v.language||[]).includes('ger')?'de':(v.language||[]).includes('eng')?'en':'',cover:v.cover_i?'https://covers.openlibrary.org/b/id/'+v.cover_i+'-L.jpg':null,isbn:(v.isbn||[])[0]||'',source:'Open Library'}))}));
     if(tk!==searchSeq||!$('q')||$('q').value.trim()!==q)return;
     for(const it of res){if(it.status==='fulfilled')pool.push(...it.value.filter(x=>x.title))}
     const unique=new Set();window._res=pool.filter(v=>{const k=norm(v.title)+'|'+norm(v.author);if(unique.has(k))return false;unique.add(k);return true}).slice(0,30);
@@ -902,18 +932,18 @@ async function searchOnline(q,tk){
   }catch(e){if(tk===searchSeq)showResults(window._res.length?'':'Onlinesuche nicht erreichbar. Manuelle Eingabe ist möglich.')}
   finally{clearTimeout(timeout)}
 }
-function fill(i){keep();draft={...draft,...window._res[i]};render()}
+function fill(i){keep();const v=window._res[i];if(!v)return;const c=v.cover;draft={...draft,...Object.fromEntries(Object.entries(v).filter(([k,val])=>val!==undefined&&val!==null&&val!==''))};if(c)draft.covers=uniqueCovers([c,...(draft.covers||[])]);render()}
 
-async function saveBook(){keep();if(!(draft.title||'').trim())return;const id=Date.now(),{pdfFile,pdfName,qty,price,...d}=draft;if(d.pages!==undefined)d.pages=+d.pages||undefined;
-  if(addType=='physical'){
-    const q=Math.max(1,+qty||1),pr=price!==undefined&&price!==''?+price:null,ex=S.books.find(b=>b.type=='physical'&&b.title.trim().toLowerCase()==d.title.trim().toLowerCase()&&(b.author||'').trim().toLowerCase()==(d.author||'').trim().toLowerCase());
-    if(ex){
-      if(pr!=null)ex.price=ex.price!=null?((ex.price*(ex.qty||1))+pr*q)/((ex.qty||1)+q):pr;
-      ex.qty=(ex.qty||1)+q;ex.covers=[...(ex.covers||(ex.cover?[ex.cover]:[])),...(d.covers||[])];shf='physical';view='shelf';addType=null;draft={};return save()}
-    S.books.push({id,added:id,type:'physical',...d,qty:q,price:pr,rating:null});shf='physical';view='shelf';addType=null;draft={};return save();
+async function saveBook(){keep();if(!(draft.title||'').trim())return toast('Bitte Titel eingeben.');
+  const id=Date.now(),{pdfFile,pdfName,qty,price,editions:extras=[],detailsOpen,...d}=draft;if(d.pages!==undefined)d.pages=+d.pages||undefined;
+  if(addType==='physical'){
+    const primary=copyEdition({...d,qty,price,cover:(d.covers||[])[0]||null});
+    const all=[primary,...extras.map(copyEdition)];
+    const b={id,added:id,type:'physical',...d,price:primary.price,qty:primary.qty,editions:all,rating:null};
+    mergePhysical(b);shf='physical';view='shelf';addType=null;draft={};save();toast('Physisches Buch gespeichert.');return
   }
   if(pdfFile&&!(await put(id,pdfFile))){toast('Die Datei konnte nicht gespeichert werden. Bitte Speicherplatz prüfen.');return}
-  S.books.push({id,added:id,type:addType,...d,pdf:!!pdfFile,rating:null});shf=addType;view='shelf';addType=null;draft={};save()}
+  S.books.push({id,added:id,type:'digital',...d,price:price===''?null:+price,pdf:!!pdfFile,rating:null});shf='digital';view='shelf';addType=null;draft={};save()}
 
 /* ---------- BooksUp 3.1: schnelle Regalaktionen & Bearbeitung ---------- */
 let holdTimer=0,heldBook=0,holdAt=null,ignoreClick=false;
@@ -924,9 +954,22 @@ document.addEventListener('pointermove',e=>{if(holdAt&&Math.hypot(e.clientX-hold
 document.addEventListener('contextmenu',e=>{if(e.target.closest('.book'))e.preventDefault()});
 function shelfClick(e,id){if(ignoreClick){ignoreClick=false;return}if(e.target.closest('.detail-btn'))return;shelfOpen(id)}
 function shelfOpen(id){const b=S.books.find(x=>x.id===id);if(!b)return;if(b.pdf)go('reader',id);else bookM(id)}
-function editBook(id){const b=S.books.find(x=>x.id===id);if(!b)return;
-  modal=`<h3>Buchinformationen bearbeiten</h3>${['title','author','year','genre','tags','series','pages'].map(k=>`<label>${{title:'Titel',author:'Autor',year:'Jahr',genre:'Genre',tags:'Tags',series:'Reihe',pages:'Seitenzahl'}[k]}</label><input id="ed_${k}" value="${esc(b[k]??'')}">`).join('')}<label>Art</label><select id="ed_type"><option value="digital" ${b.type==='digital'?'selected':''}>Digital</option><option value="physical" ${b.type==='physical'?'selected':''}>Physisch</option></select><p class="hint">Buchdateien und Lesefortschritt bleiben erhalten. Bei einem Wechsel auf physisch bleibt die importierte Datei weiterhin gespeichert.</p><div class="cset">${(b.covers||[]).map(c=>`<img src="${c}">`).join('')}</div><div class="row"><button class="btn o" onclick="editCover(${id})">Cover ersetzen</button><button class="chip" onclick="clearCover(${id})">Eigenes Cover entfernen</button></div><div class="row"><button class="btn" onclick="saveEdit(${id})">Änderungen speichern</button><button class="btn o" onclick="bookM(${id})">Zurück</button></div>`;render()}
-function saveEdit(id){const b=S.books.find(x=>x.id===id);if(!b)return;for(const k of ['title','author','year','genre','tags','series','pages']){const v=$('ed_'+k).value.trim();if(k==='title'&&!v)return toast('Ein Titel ist erforderlich.');b[k]=k==='pages'?(+v||0):v}b.type=$('ed_type').value;if(b.type==='physical')b.qty=b.qty||1;modal=null;save()}
+let editDraft=null;
+function editBook(id){const b=S.books.find(x=>x.id===id);if(!b)return;editDraft={...b,editions:editionsOf(b).map(e=>({...e}))};drawEditBook()}
+function captureEdit(){if(!editDraft)return;for(const k of ['title','author','year','genre','tags','series','seriesNumber','publisher','pages','language','isbn','edition','price']){const el=$('ed_'+k);if(el)editDraft[k]=el.value}editDraft.type=$('ed_type')?.value||editDraft.type;for(let i=0;i<editDraft.editions.length;i++)for(const k of ['isbn','language','format','edition','price','qty','cover']){const el=$(`ee_${i}_${k}`);if(el)editDraft.editions[i][k]=el.value}}
+function editAddEdition(){captureEdit();editDraft.editions.push({isbn:'',language:'',format:'Hardcover',edition:'',price:'',qty:1,cover:''});drawEditBook()}
+function editRemoveEdition(i){captureEdit();editDraft.editions.splice(i,1);if(!editDraft.editions.length)editDraft.editions=[{qty:1,format:'Paperback'}];drawEditBook()}
+function drawEditBook(){if(!editDraft)return;const b=editDraft;
+  const f=(k,label,extras='')=>`<label>${label}</label><input id="ed_${k}" value="${esc(b[k]??'')}" ${extras}>`;
+  modal=`<h3>Buchinformationen bearbeiten</h3><p class="hint">Änderungen an Cover, Genre, Verlag, Tags und Ausgaben sind unabhängig vom Lesefortschritt möglich.</p>
+  ${f('title','Titel')}${f('author','Autor')}${f('year','Erscheinungsjahr')}${f('genre','Genre')}${f('tags','Tags')}${f('series','Reihe')}${f('seriesNumber','Band / Reihenfolge')}${f('publisher','Verlag')}${f('price','UVP / Preis','type="number" step="0.01" min="0"')}
+  <details class="info-details"><summary>Erweiterte Details</summary>${f('pages','Seitenzahl','type="number" min="0"')}${f('language','Sprache')}${f('isbn','ISBN')}${f('edition','Ausgabe')}</details>
+  <label>Medium</label><select id="ed_type"><option value="digital" ${b.type==='digital'?'selected':''}>Digital</option><option value="physical" ${b.type==='physical'?'selected':''}>Physisch</option></select>
+  <div class="cset">${(b.covers||[]).map(c=>`<img src="${esc(c)}" alt="Cover">`).join('')}</div>
+  <div class="book-actions"><button class="btn o" onclick="editCover(${b.id})">Cover selbst auswählen</button><button class="chip" onclick="coverGallery('book',${b.id})">Andere Cover online</button></div>
+  ${b.type==='physical'?`<h3>Ausgaben & Exemplare</h3>${b.editions.map((e,i)=>`<div class="edition-row"><b>Ausgabe ${i+1}</b><label>ISBN</label><input id="ee_${i}_isbn" value="${esc(e.isbn||'')}"><label>Sprache</label><input id="ee_${i}_language" value="${esc(e.language||'')}"><label>Einband</label>${formatSelect(e.format||'Paperback',`ee_${i}_format`)}<label>Edition / Sonderausgabe</label><input id="ee_${i}_edition" value="${esc(e.edition||'')}"><label>Preis</label><input id="ee_${i}_price" type="number" step="0.01" min="0" value="${esc(e.price??'')}"><label>Anzahl</label><input id="ee_${i}_qty" type="number" min="1" value="${esc(e.qty||1)}"><label>Cover-Link (optional)</label><input id="ee_${i}_cover" value="${esc(e.cover||'')}"><button class="chip" onclick="editRemoveEdition(${i})">Ausgabe entfernen</button></div>`).join('')}<button class="chip" onclick="editAddEdition()">+ Ausgabe hinzufügen</button>`:''}
+  <div class="book-actions"><button class="btn" onclick="saveEdit(${b.id})">Änderungen speichern</button><button class="btn o" onclick="bookM(${b.id})">Abbrechen</button></div>`;render()}
+function saveEdit(id){const b=S.books.find(x=>x.id===id);if(!b||!editDraft)return;captureEdit();if(!String(editDraft.title||'').trim())return toast('Titel ist erforderlich.');for(const k of ['title','author','year','genre','tags','series','seriesNumber','publisher','pages','language','isbn','edition','price'])b[k]=editDraft[k];b.pages=+b.pages||0;b.price=b.price===''?null:+b.price;b.type=editDraft.type;if(b.type==='physical'){b.editions=editDraft.editions.map(copyEdition);unifyBookEd(b)}else b.qty=1;editDraft=null;modal=null;save();toast('Buch aktualisiert.')}
 function editCover(id){const b=S.books.find(x=>x.id===id);if(!b)return;raw('image/png,image/jpeg',f=>urlOf(f,c=>{b.covers=[c];persist();bookM(id)}))}
 function clearCover(id){const b=S.books.find(x=>x.id===id);if(!b)return;delete b.covers;delete b.cover;persist();bookM(id)}
 async function pdfCover(file){const L=await pdfjs(),doc=await L.getDocument({data:await file.arrayBuffer()}).promise;try{const pg=await doc.getPage(1),v=pg.getViewport({scale:1}),scale=Math.min(1.6,480/Math.max(v.width,v.height)),vp=pg.getViewport({scale}),c=document.createElement('canvas');c.width=Math.max(1,Math.round(vp.width));c.height=Math.max(1,Math.round(vp.height));await pg.render({canvasContext:c.getContext('2d'),viewport:vp}).promise;return c.toDataURL('image/jpeg',.83)}finally{await doc.destroy().catch(()=>{})}}
@@ -954,9 +997,21 @@ function finishAutoSession(){const x=S.sess;if(!x||!x.automatic)return;const b=S
 addEventListener('pagehide',()=>{if(rdFull)finishAutoSession()});
 /* ---------- Profile abgleichen und Empfehlungen filtern ---------- */
 function syncProfileOnce(silent=false){const dst=sp==='book'?'manga':'book';if(!silent&&!confirm(`Profil aus ${sp==='book'?'Bücher':'Manga'} in ${dst==='book'?'Bücher':'Manga'} kopieren? Das bestehende Profilbild, der Name und die Bio dort werden ersetzt; die Bücher bleiben erhalten.`))return;ALL[dst].profile={...S.profile};save();toast('Beide Profile sind jetzt identisch.')}
-function recToggle(k,value){const a=new Set(S.rec[k]||[]);if(a.has(value))a.delete(value);else a.add(value);S.rec[k]=[...a];persist()}
-function recPicker(){const list=S.books,genres=[...new Set([...CAT_(),...list].map(b=>b.genre).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'de'));
-  modal=`<h3>Empfehlungen personalisieren</h3><p class="hint">Wenn du hier Bücher auswählst, basiert die Bewertung von Genres und Tags nur auf diesen Titeln. Ohne Auswahl werden die zuletzt gelesenen Bücher verwendet.</p><div style="max-height:26vh;overflow:auto">${list.length?list.map(b=>`<label class="li"><input type="checkbox" ${S.rec.sources?.includes(b.id)?'checked':''} onchange="recToggle('sources',${b.id})" style="width:auto"><span>${esc(b.title)}</span></label>`).join(''):'<p class="hint">Füge zuerst ein paar Bücher hinzu.</p>'}</div><label class="li"><input type="checkbox" style="width:auto" ${S.rec.onlySimilar?'checked':''} onchange="S.rec.onlySimilar=this.checked;persist()"> <span>Nur Bücher mit ähnlichen Genres oder Tags empfehlen</span></label><h3>Diese Genres ausschließen</h3><div style="max-height:24vh;overflow:auto">${genres.map((g,i)=>`<label class="li"><input type="checkbox" ${S.rec.exclude?.includes(g.toLowerCase())?'checked':''} onchange="recToggle('exclude',window.recGenres[${i}])" style="width:auto"><span>${esc(g)}</span></label>`).join('')}</div><div class="row"><button class="btn" onclick="modal=null;save()">Fertig</button><button class="chip" onclick="S.rec.sources=[];S.rec.exclude=[];modal=null;save()">Zurücksetzen</button></div>`;window.recGenres=genres.map(g=>g.toLowerCase());render()}
+function recToggle(k,value){const a=new Set(S.rec[k]||[]);if(a.has(value))a.delete(value);else a.add(value);S.rec[k]=[...a];persist()}function recPicker(){
+  const r=S.rec,books=S.books;
+  const genres=[...new Set([...CAT_(),...books].map(b=>norm(b.genre)).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'de'));
+  const tags=[...new Set([...CAT_(),...books].flatMap(b=>tg(b.tags)))].sort((a,b)=>a.localeCompare(b,'de'));
+  window.recGenres=genres;window.recTags=tags;
+  const groups=(key,vals,limit=160)=>`<div class="choices-scroll">${vals.slice(0,limit).map((v,i)=>`<label class="li"><input type="checkbox" style="width:auto" ${(r[key]||[]).includes(v)?'checked':''} onchange="recToggle('${key}',window.${key==='includeTags'?'recTags':'recGenres'}[${i}])"><span>${esc(v)}</span></label>`).join('')||'<p class="hint">Noch keine Auswahl verfügbar.</p>'}</div>`;
+  modal=`<h3>Empfehlungen anpassen</h3><p class="hint">Gelesene Bücher werden ausgefiltert. Bücher aus deiner Bibliothek erscheinen nicht unter neuen Entdeckungen.</p>
+  <label class="li"><input type="checkbox" style="width:auto" ${r.own!==false?'checked':''} onchange="S.rec.own=this.checked;persist()">Ungelesene Bücher aus meiner Bibliothek</label>
+  <label class="li"><input type="checkbox" style="width:auto" ${r.cat!==false?'checked':''} onchange="S.rec.cat=this.checked;persist()">Neue Bücher entdecken (nicht im Besitz)</label>
+  <label class="li"><input type="checkbox" style="width:auto" ${r.onlySimilar?'checked':''} onchange="S.rec.onlySimilar=this.checked;persist()">Nur ähnliche Bücher</label>
+  <h3>Empfehlungsbasis</h3><p class="hint">Wenn nichts ausgewählt ist, werden die zuletzt gelesenen Bücher genutzt.</p><div class="choices-scroll">${books.map(b=>`<label class="li"><input type="checkbox" style="width:auto" ${(r.sources||[]).some(x=>String(x)===String(b.id))?'checked':''} onchange="recToggle('sources',${b.id})"><span>${esc(b.title)}</span></label>`).join('')||'<p class="hint">Noch keine Bücher.</p>'}</div>
+  <h3>Erwünschte Genres</h3><p class="hint">Ohne Auswahl sind alle Genres erlaubt.</p>${groups('includeGenres',genres)}
+  <h3>Erwünschte Tags</h3><p class="hint">Ohne Auswahl sind alle Tags erlaubt.</p>${groups('includeTags',tags)}
+  <h3>Genres ausschließen</h3>${groups('exclude',genres)}
+  <button class="btn" onclick="modal=null;save()">Fertig</button><button class="chip" onclick="S.rec={own:true,cat:true,vary:false};modal=null;save()">Filter zurücksetzen</button>`;render()}
 
 /* ---------- Goodreads-Import ---------- */
 function parseCSV(text){
@@ -1005,6 +1060,16 @@ function newGoal(){const t=+$('gt').value,u=$('gu').value,p=$('gp').value;if(t<1
 function inc(id){const g=S.goals.find(x=>x.id==id);g.progress++;if(g.progress>=g.target){g.done=true;g.doneOn=iso(Date.now())}save()}
 function delGoal(id){S.goals=S.goals.filter(g=>g.id!=id);save()}
 
+/* BooksUp 3.2: Profil-Editor, Bild-Zuschnitt und Profilabgleich */
+let profileDraft=null,cropState=null;
+function profileData(){return profileDraft||(profileDraft={...S.profile})}
+function previewUpdate(){const p=profileData(),n=$('pn'),b=$('pb');if(n)p.name=n.value;if(b)p.bio=b.value;const pn=$('prevname'),pb=$('prevbio');if(pn)pn.textContent=p.name||'Dein Name';if(pb)pb.textContent=p.bio||'Deine Bio erscheint hier.'}
+function profileSave(){previewUpdate();const p=profileData();if(!p.name?.trim())return toast('Bitte gib einen Namen ein.');S.profile={...p,name:p.name.trim()};if(ALL.syncProfiles){ALL[sp==='book'?'manga':'book'].profile={...S.profile}}profileDraft=null;save();toast('Profil gespeichert.')}
+function chooseFrame(id,color){previewUpdate();const p=profileData();p.frame=id;if(color)p.frameColor=color;render()}
+function setImg(field){previewUpdate();raw('image/png,image/jpeg,image/webp',f=>{const reader=new FileReader();reader.onload=()=>{const img=new Image();img.onload=()=>{cropState={field,img,scale:1,dx:0,dy:0,drag:null};showCrop()};img.onerror=()=>toast('Bild konnte nicht geöffnet werden.');img.src=reader.result};reader.onerror=()=>toast('Bild konnte nicht gelesen werden.');reader.readAsDataURL(f)})}
+function showCrop(){if(!cropState)return;const wide=cropState.field==='banner';modal=`<h3>${wide?'Banner':'Profilbild'} anpassen</h3><p class="crop-help">Ziehen zum Verschieben, Regler zum Zoomen. Der Ausschnitt ist sofort sichtbar.</p><canvas id="cropcanvas" class="cropbox" width="${wide?540:320}" height="${wide?220:320}" style="height:auto;aspect-ratio:${wide?'27/11':'1'}"></canvas><label>Zoom</label><input id="cropzoom" type="range" min="1" max="4" value="${cropState.scale}" step="0.02" oninput="cropState.scale=+this.value;drawCrop()"><div class="crop-actions"><button class="btn" onclick="applyCrop()">Ausschnitt übernehmen</button><button class="btn o" onclick="cropState=null;modal=null;render()">Abbrechen</button></div>`;render();requestAnimationFrame(drawCrop)}
+function drawCrop(){const c=$('cropcanvas'),st=cropState;if(!c||!st)return;const ctx=c.getContext('2d'),w=c.width,h=c.height,img=st.img;const base=Math.max(w/img.width,h/img.height)*st.scale,dw=img.width*base,dh=img.height*base;ctx.clearRect(0,0,w,h);ctx.drawImage(img,(w-dw)/2+st.dx,(h-dh)/2+st.dy,dw,dh);c.onpointerdown=e=>{c.setPointerCapture(e.pointerId);st.drag={x:e.clientX,y:e.clientY,dx:st.dx,dy:st.dy}};c.onpointermove=e=>{if(!st.drag)return;const r=c.getBoundingClientRect();st.dx=st.drag.dx+(e.clientX-st.drag.x)*(w/r.width);st.dy=st.drag.dy+(e.clientY-st.drag.y)*(h/r.height);drawCrop()};c.onpointerup=c.onpointercancel=()=>st.drag=null}
+function applyCrop(){const c=$('cropcanvas'),st=cropState;if(!c||!st)return;drawCrop();const out=document.createElement('canvas'),max=st.field==='avatar'?320:700;out.width=max;out.height=Math.round(max*c.height/c.width);out.getContext('2d').drawImage(c,0,0,out.width,out.height);profileData()[st.field]=out.toDataURL('image/jpeg',.76);cropState=null;modal=null;render()}
 function pedit(){const p=profileData();
   const style=p.frame==='custom'?`--fc:${esc(p.frameColor||'#C98A3B')}`:'';
   return bar('Profil bearbeiten')+`<div class="profile-preview"><div class="banner" style="${p.banner?`background-image:url(${p.banner})`:''}"></div><div class="avframe frm-${p.frame||'none'}" style="${style}"><div class="av" style="${p.avatar?`background-image:url(${p.avatar})`:''}">${p.avatar?'':ic('user')}</div></div><div class="preview-body"><b id="prevname">${esc(p.name||'Dein Name')}</b><p id="prevbio" class="hint">${esc(p.bio||'Deine Bio erscheint hier.')}</p><small>Live-Vorschau · Noch nicht gespeichert</small></div></div>
@@ -1163,21 +1228,26 @@ matchMedia('(prefers-color-scheme:dark)').addEventListener('change',()=>{if(S.mo
 try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){}
 function progBar(b){if(!(b.pages&&b.page))return'';const pc=Math.min(100,Math.round(b.page/b.pages*100));return`<div class="prog" style="margin:0 0 4px"><i style="width:${pc}%"></i></div><small style="color:var(--mut);display:block">${S.pf?'S. '+b.page+' / '+b.pages:pc+' %'}</small>`}
 /* ====== BooksUp v3: Sicherheit, Backup, Erinnerungen, ISBN, Statistik, Systemtest, Einführung ====== */
-const APP_VERSION='3.1.0';
+const APP_VERSION='3.2.0';
 const TINY_PDF='JVBERi0xLjMKJZOMi54gUmVwb3J0TGFiIEdlbmVyYXRlZCBQREYgZG9jdW1lbnQgKG9wZW5zb3VyY2UpCjEgMCBvYmoKPDwKL0YxIDIgMCBSCj4+CmVuZG9iagoyIDAgb2JqCjw8Ci9CYXNlRm9udCAvSGVsdmV0aWNhIC9FbmNvZGluZyAvV2luQW5zaUVuY29kaW5nIC9OYW1lIC9GMSAvU3VidHlwZSAvVHlwZTEgL1R5cGUgL0ZvbnQKPj4KZW5kb2JqCjMgMCBvYmoKPDwKL0NvbnRlbnRzIDcgMCBSIC9NZWRpYUJveCBbIDAgMCAxMjAgODAgXSAvUGFyZW50IDYgMCBSIC9SZXNvdXJjZXMgPDwKL0ZvbnQgMSAwIFIgL1Byb2NTZXQgWyAvUERGIC9UZXh0IC9JbWFnZUIgL0ltYWdlQyAvSW1hZ2VJIF0KPj4gL1JvdGF0ZSAwIC9UcmFucyA8PAoKPj4gCiAgL1R5cGUgL1BhZ2UKPj4KZW5kb2JqCjQgMCBvYmoKPDwKL1BhZ2VNb2RlIC9Vc2VOb25lIC9QYWdlcyA2IDAgUiAvVHlwZSAvQ2F0YWxvZwo+PgplbmRvYmoKNSAwIG9iago8PAovQXV0aG9yIChhbm9ueW1vdXMpIC9DcmVhdGlvbkRhdGUgKEQ6MjAyNjEwMDgwODIzNDErMDAnMDAnKSAvQ3JlYXRvciAoYW5vbnltb3VzKSAvS2V5d29yZHMgKCkgL01vZERhdGUgKEQ6MjAyNjEwMDgwODIzNDErMDAnMDAnKSAvUHJvZHVjZXIgKFJlcG9ydExhYiBQREYgTGlicmFyeSAtIFwob3BlbnNvdXJjZVwpKSAKICAvU3ViamVjdCAodW5zcGVjaWZpZWQpIC9UaXRsZSAodW50aXRsZWQpIC9UcmFwcGVkIC9GYWxzZQo+PgplbmRvYmoKNiAwIG9iago8PAovQ291bnQgMSAvS2lkcyBbIDMgMCBSIF0gL1R5cGUgL1BhZ2VzCj4+CmVuZG9iago3IDAgb2JqCjw8Ci9GaWx0ZXIgWyAvQVNDSUk4NURlY29kZSAvRmxhdGVEZWNvZGUgXSAvTGVuZ3RoIDEwNgo+PgpzdHJlYW0KR2FwUWgwRT1GLDBVXEgzVFxwTllUXlFLaz90Yz5JUCw7VyNVMV4yM2loUEVNXz9DVDMhSzNIMz1Xa1dsVGdmJVQobjJ0LWo9NGgmamxeN21MREZQUUtPY05iQlJ1QnNEdWZyaTVvLTN+PmVuZHN0cmVhbQplbmRvYmoKeHJlZgowIDgKMDAwMDAwMDAwMCA2NTUzNSBmIAowMDAwMDAwMDYxIDAwMDAwIG4gCjAwMDAwMDAwOTIgMDAwMDAgbiAKMDAwMDAwMDE5OSAwMDAwMCBuIAowMDAwMDAwMzkxIDAwMDAwIG4gCjAwMDAwMDA0NTkgMDAwMDAgbiAKMDAwMDAwMDcyMCAwMDAwMCBuIAowMDAwMDAwNzc5IDAwMDAwIG4gCnRyYWlsZXIKPDwKL0lEIApbPGRiNmZiZWZmMTQ5OTAxZjc3ZmNjMjBmZWYyMTlkYWMwPjxkYjZmYmVmZjE0OTkwMWY3N2ZjYzIwZmVmMjE5ZGFjMD5dCiUgUmVwb3J0TGFiIGdlbmVyYXRlZCBQREYgZG9jdW1lbnQgLS0gZGlnZXN0IChvcGVuc291cmNlKQoKL0luZm8gNSAwIFIKL1Jvb3QgNCAwIFIKL1NpemUgOAo+PgpzdGFydHhyZWYKOTc1CiUlRU9GCg==';
 /* ---- Speicher mit zweitem Sicherungsort (IndexedDB) ---- */
-let mirT=null;
+let mirT=null,lastSaveWarning=0;
 function store(){
-  try{localStorage.setItem('booksup3',JSON.stringify(ALL))}catch(e){return false}
-  clearTimeout(mirT);mirT=setTimeout(()=>{try{put('__state',JSON.stringify(ALL))}catch(e){}},800);return true}
+  ALL._savedAt=Date.now();const snapshot=JSON.stringify(ALL);
+  // Large covers belong in IndexedDB. localStorage is best-effort bootstrap only.
+  if(snapshot.length<1300000){try{localStorage.setItem('booksup3',snapshot)}catch(e){console.warn('LocalStorage limit, IndexedDB active:',e.name)}}
+  clearTimeout(mirT);mirT=setTimeout(async()=>{const ok=await put('__state',snapshot);if(!ok&&Date.now()-lastSaveWarning>15000){lastSaveWarning=Date.now();toast('Speichern fehlgeschlagen. Bitte erstelle ein Backup und prüfe freien Speicherplatz.')}},150);
+  return true
+}
 function toast(m){let t=$('toast');if(!t){t=document.createElement('div');t.id='toast';t.className='toast';t.setAttribute('role','status');document.body.appendChild(t)}t.textContent=m;t.classList.add('on');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('on'),3200)}
-const lsWasEmpty=!localStorage.getItem('booksup3');
-if(!ALL.firstRun){ALL.firstRun=Date.now()}
-if(lsWasEmpty){(async()=>{try{
-  const d=await db(),r=await new Promise(res=>{const q=d.transaction('f').objectStore('f').get('__state');q.onsuccess=()=>res(q.result);q.onerror=()=>res(null)});
-  if(!r)return;const j=JSON.parse(r);if(!j.book||!(j.book.books.length||j.manga.books.length))return;
-  Object.assign(ALL,j);ALL.book=Object.assign(NEW(),ALL.book);ALL.manga=Object.assign(NEW('Manga-Fan'),ALL.manga);S=ALL[sp];store();render();toast('Deine Daten wurden wiederhergestellt.')}catch(e){}})()}
-else store();
+if(!ALL.firstRun)ALL.firstRun=Date.now();
+// Always recover the freshest snapshot; the localStorage copy may be stale after quota errors.
+(async()=>{try{
+  const d=await db(),saved=await new Promise(res=>{const q=d.transaction('f').objectStore('f').get('__state');q.onsuccess=()=>res(q.result);q.onerror=()=>res(null)});
+  if(saved){const j=JSON.parse(saved);if(j.book&&j.manga&&(j._savedAt||0)>(ALL._savedAt||0)){
+    Object.assign(ALL,j);ALL.book=Object.assign(NEW(),ALL.book);ALL.manga=Object.assign(NEW('Manga-Fan'),ALL.manga);S=ALL[sp];render();toast('Letzten Speicherstand wiederhergestellt.')
+  }}
+}catch(e){console.warn('Datenwiederherstellung:',e)}})();
 /* ---- Dateien ausgeben (Teilen / Download) ---- */
 async function saveFileOut(name,blob){
   const C=window.Capacitor&&Capacitor.Plugins;
@@ -1250,40 +1320,55 @@ function isbnValid(v){v=isbnClean(v);
   if(v.length==10&&/^\d{9}[\dX]$/.test(v)){let s=0;for(let i=0;i<10;i++)s+=(v[i]=='X'?10:+v[i])*(10-i);return s%11==0}
   return false}
 async function lookupIsbn(i){
-  const T=async u=>{const c=new AbortController(),t=setTimeout(()=>c.abort(),9000);try{const r=await fetch(u,{signal:c.signal});if(!r.ok)throw 0;return await r.json()}finally{clearTimeout(t)}};
-  try{const j=await T(`https://openlibrary.org/api/books?bibkeys=ISBN:${i}&format=json&jscmd=data`),d=j['ISBN:'+i];
-    if(d)return{title:d.title+(d.subtitle?': '+d.subtitle:''),author:(d.authors||[]).map(a=>a.name).join(', '),year:((d.publish_date||'').match(/\d{4}/)||[''])[0],pages:d.number_of_pages||'',tags:(d.subjects||[]).slice(0,3).map(s=>s.name).join(', '),cover:d.cover&&(d.cover.large||d.cover.medium)}}catch(e){}
-  try{const j=await T(`https://www.googleapis.com/books/v1/volumes?q=isbn:${i}`),v=j.items&&j.items[0]&&j.items[0].volumeInfo;
-    if(v)return{title:v.title+(v.subtitle?': '+v.subtitle:''),author:(v.authors||[]).join(', '),year:((v.publishedDate||'').match(/\d{4}/)||[''])[0],pages:v.pageCount||'',tags:(v.categories||[]).slice(0,3).join(', '),cover:v.imageLinks&&(v.imageLinks.thumbnail||'').replace('http:','https:')}}catch(e){}
-  return null}
+  const candidates=[];
+  const results=await Promise.allSettled([
+    fetchMetaUrl(`https://openlibrary.org/api/books?bibkeys=ISBN:${i}&format=json&jscmd=data`),
+    fetchMetaUrl(`https://www.googleapis.com/books/v1/volumes?q=isbn:${i}`)]);
+  if(results[0].status==='fulfilled'){const d=results[0].value['ISBN:'+i];if(d)candidates.push(metadataOL(d))}
+  if(results[1].status==='fulfilled'){const x=results[1].value.items?.[0];if(x)candidates.push(metadataGoogle(x.volumeInfo,x))}
+  if(!candidates.length)return null;
+  const d={};for(const c of candidates)for(const [key,val]of Object.entries(c))if((d[key]===undefined||d[key]==='')&&val!==undefined&&val!==null&&val!=='')d[key]=val;
+  d.isbn=i;
+  // Physical format is edition-specific; never guess if the provider does not list it.
+  return d;
+}
 async function fetchCover(u){try{const r=await fetch(u);if(!r.ok)return null;const b=await r.blob();if(!/^image\//.test(b.type)||b.size<800)return null;return await new Promise(ok=>urlOf(b,ok,500))}catch(e){return null}}
 let camStream=null,camT=0;
 function camStop(){clearTimeout(camT);camT=0;if(camStream){camStream.getTracks().forEach(t=>t.stop());camStream=null}}
 window.camStop=camStop;
-function isbnM(){keep();
-  const can='BarcodeDetector' in window&&navigator.mediaDevices&&navigator.mediaDevices.getUserMedia;
-  modal=`<h3 style="margin:0 0 8px">ISBN scannen oder eingeben</h3>${can?'<video id="cam" playsinline muted style="width:100%;border-radius:12px;background:#000;max-height:240px;margin-bottom:6px"></video>':''}<p class="hint" id="cmsg">${can?'Halte den Strichcode auf der Buchrückseite ins Bild.':'Barcode-Scan wird auf diesem Gerät nicht unterstützt. Tippe die ISBN ein.'}</p><input id="isbn" inputmode="numeric" placeholder="ISBN (10 oder 13 Ziffern)" onkeydown="if(event.key=='Enter')isbnGo($('isbn').value)"><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn" onclick="isbnGo($('isbn').value)">Suchen</button><button class="btn o" onclick="isbnPhoto()">Foto wählen</button><button class="btn o" onclick="modal=null;render()">Abbrechen</button></div>`;
-  render();if(can)camStart()}
+let isbnQueue=[],isbnBusy=false;
+function queueStatus(){const el=$('isbnQueueList');if(el)el.innerHTML=isbnQueue.map((x,i)=>`<div class="li"><div><b>${esc(x.title||x.isbn)}</b><br><small>${esc(x.isbn)} · ${esc(x.format||'Edition unbekannt')} · ${esc(x.language||'Sprache unbekannt')}</small></div><button class="chip" onclick="isbnQueue.splice(${i},1);queueStatus()">✕</button></div>`).join('')||'<p class="hint">Noch keine ISBNs in der Liste.</p>'}
+function isbnM(){keep();isbnQueue=[];const can='BarcodeDetector' in window&&navigator.mediaDevices?.getUserMedia;
+  modal=`<h3>ISBN erfassen</h3>${can?'<video id="cam" playsinline muted style="width:100%;max-height:170px;background:#000;border-radius:12px"></video>':''}
+  <p class="hint" id="cmsg">${can?'Scanne nacheinander mehrere ISBNs.':'ISBN manuell eingeben oder per Foto scannen.'}</p>
+  <label>Eine oder mehrere ISBNs (Zeilen oder Komma getrennt)</label><textarea id="isbn" rows="3" placeholder="978...&#10;978..."></textarea>
+  <div class="book-actions"><button class="btn o" onclick="isbnAddMany($('isbn').value)">Zur Sammelliste hinzufügen</button><button class="chip" onclick="isbnPhoto()">Foto scannen</button></div>
+  <h3>Gesammelte Bücher</h3><div class="isbn-queue" id="isbnQueueList"></div>
+  <div class="book-actions"><button class="btn" onclick="isbnSaveQueue()">Alle als physische Bücher speichern</button><button class="chip" onclick="isbnGo($('isbn').value)">Ein Buch bearbeiten</button><button class="chip" onclick="camStop();modal=null;render()">Abbrechen</button></div>`;
+  render();queueStatus();if(can)camStart()}
+async function isbnAddMany(v){const vals=[...new Set(String(v||'').split(/[\s,;]+/).map(isbnClean).filter(Boolean))];if(isbnBusy)return;isbnBusy=true;const m=$('cmsg');let ok=0;
+  try{for(const isbn of vals){if(!isbnValid(isbn)){if(m)m.textContent='Ungültige ISBN übersprungen: '+isbn;continue}if(isbnQueue.some(x=>x.isbn===isbn))continue;if(m)m.textContent='Suche nach '+isbn+' …';const d=await lookupIsbn(isbn);if(d){isbnQueue.push(d);ok++;queueStatus()}else if(m)m.textContent='Nicht gefunden: '+isbn}
+    if(m&&ok)m.textContent=`${isbnQueue.length} Buchausgaben gesammelt. Du kannst weiterscannen oder alle speichern.`}
+  finally{isbnBusy=false}}
+function isbnSaveQueue(){if(!isbnQueue.length)return toast('Bitte zuerst ISBNs hinzufügen.');let n=0;for(const d of isbnQueue){const b={id:Date.now()*100+n++,added:Date.now()+n,type:'physical',title:d.title||d.isbn,author:d.author||'',genre:d.genre||'',tags:d.tags||'',year:d.year||'',series:d.series||'',publisher:d.publisher||'',pages:d.pages||'',isbn:d.isbn,format:d.format||'Unbekannt',language:d.language||'',edition:d.edition||'',price:d.price||null,covers:d.cover?[d.cover]:[],qty:1,rating:null};b.editions=[copyEdition({...b,cover:d.cover})];mergePhysical(b)}camStop();isbnQueue=[];modal=null;shf='physical';view='shelf';save();toast(n+' Bücher/Editionen hinzugefügt.')}
 async function camStart(){
   const v=$('cam');if(!v)return;
   try{camStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}});v.srcObject=camStream;await v.play();
     const det=new BarcodeDetector({formats:['ean_13','ean_8','upc_a']});
-    const loop=async()=>{if(!camStream)return;try{const r=await det.detect(v);const hit=r.map(x=>x.rawValue).find(isbnValid);if(hit){camStop();isbnGo(hit);return}}catch(e){}camT=setTimeout(loop,350)};loop()}
+    const loop=async()=>{if(!camStream)return;try{const r=await det.detect(v);const hit=r.map(x=>x.rawValue).find(isbnValid);if(hit){await isbnAddMany(hit);camT=setTimeout(loop,1400);return}}catch(e){}camT=setTimeout(loop,350)};loop()}
   catch(e){const m=$('cmsg');if(m)m.textContent='Kamera nicht verfügbar oder nicht erlaubt. Tippe die ISBN ein.';v.remove()}}
 function isbnPhoto(){raw('image/*',async f=>{const m=$('cmsg');
   if(!('BarcodeDetector' in window)){if(m)m.textContent='Dieses Gerät kann Barcodes in Fotos nicht lesen. Bitte tippe die ISBN ein.';return}
   try{const r=await new BarcodeDetector({formats:['ean_13','ean_8','upc_a']}).detect(await createImageBitmap(f)),hit=r.map(x=>x.rawValue).find(isbnValid);
-    if(hit)isbnGo(hit);else if(m)m.textContent='Kein Barcode erkannt. Versuche es näher oder tippe die ISBN ein.'}catch(e){if(m)m.textContent='Foto konnte nicht gelesen werden.'}})}
+    if(hit)await isbnAddMany(hit);else if(m)m.textContent='Kein Barcode erkannt. Versuche es näher oder tippe die ISBN ein.'}catch(e){if(m)m.textContent='Foto konnte nicht gelesen werden.'}})}
 async function isbnGo(v){
-  const i=isbnClean(v),m=$('cmsg');
-  if(!isbnValid(i)){if(m)m.textContent='Ungültige ISBN: Länge oder Prüfziffer stimmt nicht.';return}
-  camStop();if(m)m.textContent='Suche …';
-  const d=await lookupIsbn(i);
-  if(!d){if(m)m.textContent=navigator.onLine===false?'Keine Internetverbindung.':'Zu dieser ISBN wurde nichts gefunden. Du kannst die Daten manuell eintragen.';return}
-  const cv=d.cover?await fetchCover(d.cover):null;
-  draft={...draft,title:d.title||draft.title,author:d.author||draft.author,year:d.year||draft.year,tags:d.tags||draft.tags,pages:d.pages||draft.pages,isbn:i};
-  if(cv)draft.covers=[...(draft.covers||[]),cv];
-  modal=null;render();toast('Daten zur ISBN übernommen.')}
+  const i=isbnClean(String(v||'').split(/[\s,;]+/).find(Boolean));const m=$('cmsg');
+  if(!isbnValid(i)){if(m)m.textContent='Ungültige ISBN: Prüfziffer kontrollieren.';return}
+  camStop();if(m)m.textContent='Buch wird gesucht …';const d=await lookupIsbn(i);
+  if(!d){if(m)m.textContent='Keine Daten gefunden. Bitte ISBN oder Internet prüfen.';return}
+  draft={...draft,...Object.fromEntries(Object.entries(d).filter(([k,v])=>v!=null&&v!=='')),detailsOpen:true};
+  if(d.cover)draft.covers=uniqueCovers([d.cover,...(draft.covers||[])]);
+  addType='physical';modal=null;render();toast('ISBN-Daten übernommen. Du kannst alle Angaben ändern.')}
 /* ---- Statistik: Tempo, Prognose, Jahresziel ---- */
 function pph(){const r=S.log.filter(l=>l.date>=iso(Date.now()-29*864e5)),m=r.reduce((t,l)=>t+l.mins,0),p=r.reduce((t,l)=>t+l.pages,0);return m>=10?Math.round(p/m*60):0}
 const ppd14=()=>S.log.filter(l=>l.date>=iso(Date.now()-13*864e5)).reduce((t,l)=>t+l.pages,0)/14;

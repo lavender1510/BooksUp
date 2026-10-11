@@ -73,7 +73,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         shell: bash
         run: |
-          TAG="v3.1.0-test.1"
+          TAG="v3.2.0-test.1"
           cat > release-notes.md <<'NOTES'
           # BooksUp 3.1 – Android test build
 
