@@ -1,6 +1,7 @@
 'use strict';
 
-const { app, BrowserWindow, protocol, net, shell, session, dialog } = require('electron');
+const { app, BrowserWindow, protocol, net, shell, session, dialog, ipcMain } = require('electron');
+const { autoUpdater } = require('electron-updater');
 const path = require('node:path');
 const { pathToFileURL } = require('node:url');
 const { stat } = require('node:fs/promises');
@@ -42,6 +43,7 @@ function createWindow() {
     autoHideMenuBar: true,
     show: false,
     webPreferences: {
+      preload: path.join(__dirname, 'preload.cjs'),
       nodeIntegration: false,
       contextIsolation: true,
       sandbox: true,
@@ -72,6 +74,53 @@ function createWindow() {
   if (process.env.BOOKSUP_DEVTOOLS === '1') mainWindow.webContents.openDevTools();
 }
 
+
+/* Signed-in user data stays in Electron's existing booksup:// origin during upgrades. */
+let updateBusy=false;
+autoUpdater.autoDownload=false;
+autoUpdater.autoInstallOnAppQuit=false;
+autoUpdater.allowPrerelease=true;
+autoUpdater.allowDowngrade=false;
+autoUpdater.setFeedURL({provider:'github',owner:'lavender1510',repo:'BooksUp',releaseType:'prerelease'});
+autoUpdater.on('update-available', async info=>{
+  if(!mainWindow||mainWindow.isDestroyed())return;
+  const {response}=await dialog.showMessageBox(mainWindow,{
+    type:'info',buttons:['Herunterladen','Später'],defaultId:0,cancelId:1,
+    title:'BooksUp-Update',message:'BooksUp '+info.version+' ist verfügbar.',
+    detail:'Das Update wird heruntergeladen und nach deiner Bestätigung installiert.'
+  });
+  if(response===0){try{await autoUpdater.downloadUpdate()}catch(e){dialog.showErrorBox('Update konnte nicht geladen werden',String(e.message||e))}}
+});
+autoUpdater.on('update-downloaded',async info=>{
+  if(!mainWindow||mainWindow.isDestroyed())return;
+  const {response}=await dialog.showMessageBox(mainWindow,{
+    type:'info',buttons:['Jetzt installieren','Später'],defaultId:0,cancelId:1,
+    title:'BooksUp-Update bereit',message:'BooksUp '+info.version+' wurde heruntergeladen.',
+    detail:'BooksUp wird zum Installieren neu gestartet. Deine Bibliotheksdaten bleiben auf diesem Gerät.'
+  });
+  if(response===0)autoUpdater.quitAndInstall(false,true);
+});
+async function checkBooksUpUpdates(manual=false){
+  if(!app.isPackaged||process.platform!=='win32'||process.env.PORTABLE_EXECUTABLE_DIR){
+    return {message:'Automatische Installation ist nur in der installierten Windows-Version verfügbar.'};
+  }
+  if(updateBusy)return {message:'Eine Update-Prüfung läuft bereits.'};
+  updateBusy=true;
+  try{
+    const result=await autoUpdater.checkForUpdates();
+    if(!result?.updateInfo||!result.isUpdateAvailable){
+      if(manual)await dialog.showMessageBox(mainWindow,{type:'info',message:'BooksUp ist aktuell.'});
+      return {message:'Update-Prüfung abgeschlossen.'};
+    }
+    return {message:'Update gefunden: '+result.updateInfo.version};
+  }catch(e){
+    const msg=String(e.message||e);
+    if(manual)await dialog.showMessageBox(mainWindow,{type:'warning',message:'Update-Prüfung fehlgeschlagen',detail:msg});
+    return {message:'Update-Prüfung fehlgeschlagen.'};
+  }finally{updateBusy=false}
+}
+ipcMain.handle('booksup-update:check',()=>checkBooksUpUpdates(true));
+
 app.whenReady().then(() => {
   protocol.handle('booksup', serveApp);
   // Camera scan is opt-in. Other requests are not silently approved.
@@ -85,6 +134,7 @@ app.whenReady().then(() => {
     callback(response === 0);
   });
   createWindow();
+  if(app.isPackaged&&process.platform==='win32')setTimeout(()=>checkBooksUpUpdates(false),12000);
   app.on('activate', () => { if (!BrowserWindow.getAllWindows().length) createWindow(); });
 });
 app.on('window-all-closed', () => { if (process.platform !== 'darwin') app.quit(); });

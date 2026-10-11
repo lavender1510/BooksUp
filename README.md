@@ -1,6 +1,13 @@
-# BooksUp 3.2 — Android & Windows
+# BooksUp 3.2.2 — Android & Windows
 
 **Android APK + Windows installer/portable EXE** are published by GitHub Actions after a successful build. All release assets are **test builds**. Windows installers are unsigned and may trigger SmartScreen warnings. Existing library data is local to each device: use **Einstellungen → Backup mit Büchern** before migrating or reinstalling.
+
+## Update 3.2.2
+
+- Android backup export writes ZIP content in 128 KiB blocks to avoid memory spikes; backup file layout remains compatible.
+- Android checks for APK updates on GitHub and opens the download (installation requires Android confirmation and compatible APK signature).
+- The installed Windows app checks for updates and can download/install after confirmation (portable EXEs require manual replacement).
+- Windows release publishes latest.yml metadata for electron-updater; existing local database stays intact.
 
 ## Neu in 3.2
 

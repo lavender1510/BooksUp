@@ -1,8 +1,8 @@
 {
   "name": "booksup",
-  "version": "3.2.0",
+  "version": "3.2.2",
   "private": true,
-  "description": "BooksUp – Offline-Bibliothek, Lese-Tracker und Reader für Desktop und Android",
+  "description": "BooksUp — Android-Backups und Desktop-Updates",
   "productName": "BooksUp",
   "main": "electron/main.cjs",
   "type": "commonjs",
@@ -25,7 +25,8 @@
     "@capacitor/local-notifications": "^8.0.0",
     "@capacitor/share": "^8.0.0",
     "@capacitor/android": "^8.5.2",
-    "@capacitor/splash-screen": "^8.0.0"
+    "@capacitor/splash-screen": "^8.0.0",
+    "electron-updater": "^6.6.2"
   },
   "devDependencies": {
     "@capacitor/cli": "^8.5.2",
@@ -71,7 +72,15 @@
       "target": [
         "dmg"
       ]
-    }
+    },
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "lavender1510",
+        "repo": "BooksUp",
+        "releaseType": "prerelease"
+      }
+    ]
   },
   "engines": {
     "node": ">=22.0.0"

@@ -1104,7 +1104,7 @@ function settings(){
   ${hasCl()?'':`<h3>Freunde-Server</h3><div class="pad"><label>Firebase API-Schlüssel</label><input id="fbk" value="${esc(FBCFG.apiKey)}" autocomplete="off" autocapitalize="off"><label>Firebase Projekt-ID</label><input id="fbp" value="${esc(FBCFG.projectId)}" autocomplete="off" autocapitalize="off"><button class="btn" onclick="saveFb()">Speichern</button><p style="color:var(--mut);font-size:13px">Nur für Freunde und Chat. Einrichtung: siehe FIREBASE.md. Ohne diese Angaben bleibt alles offline.</p></div>`}<h3>Erinnerung</h3><div class="pad"><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><button class="chip ${RM().on?'on':''}" aria-pressed="${RM().on}" onclick="setRemind(${!RM().on})">${RM().on?'An':'Aus'}</button><input type="time" value="${RM().time}" onchange="setRemindTime(this.value)" aria-label="Uhrzeit" style="width:auto;margin:0"><button class="chip" onclick="testRemind()">Test</button></div><p class="hint">Täglich zur gewählten Uhrzeit, mit deiner Lese-Serie und deinem nächsten Ziel.</p></div>
   <h3>Import</h3><div class="row"><button class="btn o" onclick="gqPick()">Goodreads-Export importieren (CSV)</button></div><p class="pad hint">Export aus Goodreads: Mein Konto → Tools → Import/Export. Bücher werden als physisch angelegt, der Status (gelesen / wird gelesen) kommt aus deinen Goodreads-Regalen, bereits vorhandene Titel werden übersprungen.</p>
   <h3>Daten sichern</h3><div class="row"><button class="btn" onclick="backupFull()">Backup mit Büchern (ZIP)</button><button class="btn o" onclick="backup()">Nur Daten (JSON)</button><button class="btn o" onclick="restore()">Backup laden</button></div><p class="pad hint">Das ZIP enthält beide Bereiche (Bücher und Manga) mit allen Daten und die Bücherdateien, die JSON-Datei nur die Daten. Letztes Backup: ${ALL.lastBackup?new Date(ALL.lastBackup).toLocaleDateString('de-DE'):'noch nie'}. Teile die Datei nicht mit anderen, sie enthält auch deine Freunde-Identität.</p>
-  <h3>Hilfe</h3><div class="row"><button class="chip" onclick="showIntro(0)">Einführung ansehen</button><button class="chip" onclick="runDiag()">Systemtest</button></div><p class="pad hint">BooksUp ${APP_VERSION}</p>`}
+  <h3>Hilfe</h3><div class="row"><button class="chip" onclick="showIntro(0)">Einführung ansehen</button><button class="chip" onclick="runDiag()">Systemtest</button></div><div class="pad"><button class="btn o" onclick="booksupCheckUpdate(false)">Auf Updates prüfen</button><p class="hint">BooksUp ${APP_VERSION} · Android: Installation nach Bestätigung · Windows: Updates im installierten Programm.</p></div>`}
 function saveFb(){FBCFG={apiKey:$('fbk').value.trim(),projectId:$('fbp').value.trim()};try{localStorage.setItem(FBK,JSON.stringify(FBCFG))}catch(e){}fbAuth=null;socialReady=false;socialErr=false;errDrawn=false;lastTry=0;US=DB=null;alert('Gespeichert.');render()}
 // ---- Freunde & Chat (online, braucht ein Claude-Konto) ----
 let DB=null,US=null,ME=null,msgs=[],unsub=null,subFor=null,lastSync='',socialTried=false,socialReady=false;
@@ -1228,7 +1228,7 @@ matchMedia('(prefers-color-scheme:dark)').addEventListener('change',()=>{if(S.mo
 try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){}
 function progBar(b){if(!(b.pages&&b.page))return'';const pc=Math.min(100,Math.round(b.page/b.pages*100));return`<div class="prog" style="margin:0 0 4px"><i style="width:${pc}%"></i></div><small style="color:var(--mut);display:block">${S.pf?'S. '+b.page+' / '+b.pages:pc+' %'}</small>`}
 /* ====== BooksUp v3: Sicherheit, Backup, Erinnerungen, ISBN, Statistik, Systemtest, Einführung ====== */
-const APP_VERSION='3.2.0';
+const APP_VERSION='3.2.2';
 const TINY_PDF='JVBERi0xLjMKJZOMi54gUmVwb3J0TGFiIEdlbmVyYXRlZCBQREYgZG9jdW1lbnQgKG9wZW5zb3VyY2UpCjEgMCBvYmoKPDwKL0YxIDIgMCBSCj4+CmVuZG9iagoyIDAgb2JqCjw8Ci9CYXNlRm9udCAvSGVsdmV0aWNhIC9FbmNvZGluZyAvV2luQW5zaUVuY29kaW5nIC9OYW1lIC9GMSAvU3VidHlwZSAvVHlwZTEgL1R5cGUgL0ZvbnQKPj4KZW5kb2JqCjMgMCBvYmoKPDwKL0NvbnRlbnRzIDcgMCBSIC9NZWRpYUJveCBbIDAgMCAxMjAgODAgXSAvUGFyZW50IDYgMCBSIC9SZXNvdXJjZXMgPDwKL0ZvbnQgMSAwIFIgL1Byb2NTZXQgWyAvUERGIC9UZXh0IC9JbWFnZUIgL0ltYWdlQyAvSW1hZ2VJIF0KPj4gL1JvdGF0ZSAwIC9UcmFucyA8PAoKPj4gCiAgL1R5cGUgL1BhZ2UKPj4KZW5kb2JqCjQgMCBvYmoKPDwKL1BhZ2VNb2RlIC9Vc2VOb25lIC9QYWdlcyA2IDAgUiAvVHlwZSAvQ2F0YWxvZwo+PgplbmRvYmoKNSAwIG9iago8PAovQXV0aG9yIChhbm9ueW1vdXMpIC9DcmVhdGlvbkRhdGUgKEQ6MjAyNjEwMDgwODIzNDErMDAnMDAnKSAvQ3JlYXRvciAoYW5vbnltb3VzKSAvS2V5d29yZHMgKCkgL01vZERhdGUgKEQ6MjAyNjEwMDgwODIzNDErMDAnMDAnKSAvUHJvZHVjZXIgKFJlcG9ydExhYiBQREYgTGlicmFyeSAtIFwob3BlbnNvdXJjZVwpKSAKICAvU3ViamVjdCAodW5zcGVjaWZpZWQpIC9UaXRsZSAodW50aXRsZWQpIC9UcmFwcGVkIC9GYWxzZQo+PgplbmRvYmoKNiAwIG9iago8PAovQ291bnQgMSAvS2lkcyBbIDMgMCBSIF0gL1R5cGUgL1BhZ2VzCj4+CmVuZG9iago3IDAgb2JqCjw8Ci9GaWx0ZXIgWyAvQVNDSUk4NURlY29kZSAvRmxhdGVEZWNvZGUgXSAvTGVuZ3RoIDEwNgo+PgpzdHJlYW0KR2FwUWgwRT1GLDBVXEgzVFxwTllUXlFLaz90Yz5JUCw7VyNVMV4yM2loUEVNXz9DVDMhSzNIMz1Xa1dsVGdmJVQobjJ0LWo9NGgmamxeN21MREZQUUtPY05iQlJ1QnNEdWZyaTVvLTN+PmVuZHN0cmVhbQplbmRvYmoKeHJlZgowIDgKMDAwMDAwMDAwMCA2NTUzNSBmIAowMDAwMDAwMDYxIDAwMDAwIG4gCjAwMDAwMDAwOTIgMDAwMDAgbiAKMDAwMDAwMDE5OSAwMDAwMCBuIAowMDAwMDAwMzkxIDAwMDAwIG4gCjAwMDAwMDA0NTkgMDAwMDAgbiAKMDAwMDAwMDcyMCAwMDAwMCBuIAowMDAwMDAwNzc5IDAwMDAwIG4gCnRyYWlsZXIKPDwKL0lEIApbPGRiNmZiZWZmMTQ5OTAxZjc3ZmNjMjBmZWYyMTlkYWMwPjxkYjZmYmVmZjE0OTkwMWY3N2ZjYzIwZmVmMjE5ZGFjMD5dCiUgUmVwb3J0TGFiIGdlbmVyYXRlZCBQREYgZG9jdW1lbnQgLS0gZGlnZXN0IChvcGVuc291cmNlKQoKL0luZm8gNSAwIFIKL1Jvb3QgNCAwIFIKL1NpemUgOAo+PgpzdGFydHhyZWYKOTc1CiUlRU9GCg==';
 /* ---- Speicher mit zweitem Sicherungsort (IndexedDB) ---- */
 let mirT=null,lastSaveWarning=0;
@@ -1248,24 +1248,87 @@ if(!ALL.firstRun)ALL.firstRun=Date.now();
     Object.assign(ALL,j);ALL.book=Object.assign(NEW(),ALL.book);ALL.manga=Object.assign(NEW('Manga-Fan'),ALL.manga);S=ALL[sp];render();toast('Letzten Speicherstand wiederhergestellt.')
   }}
 }catch(e){console.warn('Datenwiederherstellung:',e)}})();
-/* ---- Dateien ausgeben (Teilen / Download) ---- */
+/* ---- Backup: kleine native Schreibblöcke statt kompletter Base64-Kopie ---- */
+const nativeBackupPlugins=()=>window.Capacitor?.Plugins?.Filesystem&&window.Capacitor?.Plugins?.Share?window.Capacitor.Plugins:null;
+let busyBackup=false;
+function b64bytes(a){let t='';for(let i=0;i<a.length;i+=8192)t+=String.fromCharCode(...a.subarray(i,i+8192));return btoa(t)}
+async function nativeFileWriter(name) {
+  const F=nativeBackupPlugins().Filesystem, dir='CACHE';let created=false,location='';
+  return {async append(bytes){
+    for(let i=0;i<bytes.length||(!created&&i===0);i+=131072){
+      const part=bytes.subarray(i,i+131072),data=b64bytes(part);
+      if(!created){const w=await F.writeFile({path:name,directory:dir,data});location=w.uri;created=true}
+      else await F.appendFile({path:name,directory:dir,data});
+    }
+  }, async share(){await nativeBackupPlugins().Share.share({title:name,url:location})},
+  async cleanup(){try{await F.deleteFile({path:name,directory:dir})}catch(e){}}
+  };
+}
 async function saveFileOut(name,blob){
-  const C=window.Capacitor&&Capacitor.Plugins;
-  try{if(C&&C.Filesystem&&C.Share){
-    const b64=await new Promise(r=>{const fr=new FileReader();fr.onload=()=>r(String(fr.result).split(',')[1]);fr.readAsDataURL(blob)});
-    const w=await C.Filesystem.writeFile({path:name,data:b64,directory:'CACHE'});await C.Share.share({title:name,url:w.uri});return true}}
-  catch(e){if(/cancel/i.test(String((e&&e.message)||e)))return false}
-  try{const f=new File([blob],name,{type:blob.type});if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f]});return true}}catch(e){if(e&&e.name=='AbortError')return false}
-  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},4000);return true}
+  if(nativeBackupPlugins()){
+    const w=await nativeFileWriter(name);
+    try{for(let i=0;i<blob.size;i+=131072)await w.append(new Uint8Array(await blob.slice(i,i+131072).arrayBuffer()));await w.share();return true}
+    catch(e){await w.cleanup();if(/cancel|dismiss|abort/i.test(String(e)))return false;throw e}
+  }
+  try{const file=new File([blob],name,{type:blob.type});if(navigator.canShare?.({files:[file]})){await navigator.share({files:[file]});return true}}catch(e){if(e?.name==='AbortError')return false}
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},4000);return true
+}
+const ZIP_CRC_TABLE=(()=>{const t=new Uint32Array(256);for(let i=0;i<256;i++){let c=i;for(let j=0;j<8;j++)c=c&1?0xedb88320^(c>>>1):c>>>1;t[i]=c>>>0}return t})();
+function zipCrc(c,bytes){for(let i=0;i<bytes.length;i++)c=(c>>>8)^ZIP_CRC_TABLE[(c^bytes[i])&255];return c>>>0}
+function zipBytes(n,fill){const a=new Uint8Array(n);fill(new DataView(a.buffer),a);return a}
+async function nativeBackupZip(name,items){
+  const w=await nativeFileWriter(name),enc=new TextEncoder();let pos=0;const list=[];
+  async function write(a){await w.append(a);pos+=a.length;if(pos>0xffffffff)throw Error('Backup zu groß (maximal 4 GB).')}
+  try{
+    for await(const item of items){
+      if(!item.blob)continue;
+      const fname=enc.encode(item.name),start=pos;
+      if(fname.length>65535||list.length>=65535)throw Error('Zu viele Dateien im Backup.');
+      await write(zipBytes(30+fname.length,(d,a)=>{d.setUint32(0,0x04034b50,true);d.setUint16(4,20,true);d.setUint16(6,0x808,true);d.setUint16(26,fname.length,true);a.set(fname,30)}));
+      let crc=0xffffffff,size=0;
+      for(let i=0;i<item.blob.size;i+=131072){
+        const a=new Uint8Array(await item.blob.slice(i,i+131072).arrayBuffer());
+        crc=zipCrc(crc,a);size+=a.length;await write(a);
+      }
+      crc=(crc^0xffffffff)>>>0;
+      await write(zipBytes(16,d=>{d.setUint32(0,0x08074b50,true);d.setUint32(4,crc,true);d.setUint32(8,size,true);d.setUint32(12,size,true)}));
+      list.push({fname,start,crc,size});
+    }
+    const central=pos;
+    for(const e of list)await write(zipBytes(46+e.fname.length,(d,a)=>{d.setUint32(0,0x02014b50,true);d.setUint16(4,20,true);d.setUint16(6,20,true);d.setUint16(8,0x808,true);d.setUint32(16,e.crc,true);d.setUint32(20,e.size,true);d.setUint32(24,e.size,true);d.setUint16(28,e.fname.length,true);d.setUint32(42,e.start,true);a.set(e.fname,46)}));
+    const centralSize=pos-central;
+    await write(zipBytes(22,d=>{d.setUint32(0,0x06054b50,true);d.setUint16(8,list.length,true);d.setUint16(10,list.length,true);d.setUint32(12,centralSize,true);d.setUint32(16,central,true)}));
+    await w.share();return true;
+  }catch(e){await w.cleanup();if(/cancel|dismiss|abort/i.test(String(e)))return false;throw e}
+}
 async function backup(){
-  if(await saveFileOut('booksup_daten_'+iso(Date.now())+'.json',new Blob([JSON.stringify(ALL)],{type:'application/json'}))){ALL.lastBackup=Date.now();persist();render()}}
+  if(busyBackup)return;busyBackup=true;
+  try{if(await saveFileOut('booksup_daten_'+iso(Date.now())+'.json',new Blob([JSON.stringify(ALL)],{type:'application/json'}))){ALL.lastBackup=Date.now();persist();render();toast('Datensicherung erstellt.')}}
+  catch(e){alert('Backup fehlgeschlagen: '+String(e?.message||e))}
+  finally{busyBackup=false}
+}
 async function backupFull(){
-  try{toast('Backup wird erstellt …');const Z=await jszip(),z=new Z();z.file('booksup_backup.json',JSON.stringify(ALL));
-    const d=await db(),ids=new Set([...ALL.book.books,...ALL.manga.books].filter(b=>b.pdf).map(b=>b.id));
-    for(const id of ids){const f=await new Promise(res=>{const q=d.transaction('f').objectStore('f').get(id);q.onsuccess=()=>res(q.result);q.onerror=()=>res(null)});if(f)z.file('files/'+id,f)}
-    const blob=await z.generateAsync({type:'blob',compression:'STORE'});
-    if(await saveFileOut('booksup_backup_'+iso(Date.now())+'.zip',blob)){ALL.lastBackup=Date.now();persist();render();toast('Backup gespeichert.')}}
-  catch(e){alert('Backup fehlgeschlagen: '+((e&&e.message)||e))}}
+  if(busyBackup)return;busyBackup=true;
+  try{
+    toast('Backup wird erstellt …');
+    const ids=new Set([...ALL.book.books,...ALL.manga.books].filter(b=>b.pdf).map(b=>b.id));
+    const d=await db(),name='booksup_backup_'+iso(Date.now())+'.zip';
+    let done=false;
+    if(nativeBackupPlugins()){
+      async function* entries(){
+        yield {name:'booksup_backup.json',blob:new Blob([JSON.stringify(ALL)],{type:'application/json'})};
+        for(const id of ids){const f=await new Promise(res=>{const q=d.transaction('f').objectStore('f').get(id);q.onsuccess=()=>res(q.result);q.onerror=()=>res(null)});if(f)yield {name:'files/'+id,blob:f instanceof Blob?f:new Blob([f])}}
+      }
+      done=await nativeBackupZip(name,entries());
+    }else{
+      const Z=await jszip(),z=new Z();z.file('booksup_backup.json',JSON.stringify(ALL));
+      for(const id of ids){const f=await new Promise(res=>{const q=d.transaction('f').objectStore('f').get(id);q.onsuccess=()=>res(q.result);q.onerror=()=>res(null)});if(f)z.file('files/'+id,f)}
+      done=await saveFileOut(name,await z.generateAsync({type:'blob',compression:'STORE'}));
+    }
+    if(done){ALL.lastBackup=Date.now();persist();render();toast('Backup gespeichert.')}
+  }catch(e){alert('Backup fehlgeschlagen: '+String(e?.message||e))}
+  finally{busyBackup=false}
+}
 function restore(){raw('application/json,application/zip,.zip,.json',async f=>{try{
   let txt,files=[];
   if(/\.zip$/i.test(f.name)||/zip/.test(f.type)){const Z=await jszip(),z=await Z.loadAsync(f),j=z.file('booksup_backup.json');if(!j)throw 0;txt=await j.async('string');
@@ -1425,5 +1488,51 @@ if(!ALL.onboarded){if(ALL.book.books.length+ALL.manga.books.length)ALL.onboarded
 addEventListener('load',()=>{try{const A=window.Capacitor&&Capacitor.Plugins&&Capacitor.Plugins.App;if(A&&A.addListener)A.addListener('backButton',()=>{if(!window.androidBack())A.exitApp()})}catch(e){}});
 /* Datenreparatur: 'finished' muss ein Datum sein */
 (function(){try{for(const k of ['book','manga']){const t=ALL[k];if(!t||!t.books)continue;t.books.forEach(b=>{if(b.finished&&typeof b.finished!=='string'){b.finished=iso(b.added||b.id||Date.now());persist()}if(b.started&&typeof b.started!=='string'){b.started=iso(b.added||b.id||Date.now());persist()}})}}catch(e){}})();
+
+/* BooksUp 3.2.2: update checks (no user data is changed by this process) */
+let booksupCheckingUpdate=false;
+const booksupPlatform=()=>window.Capacitor?.getPlatform?.()==='android'?'android':window.booksupDesktopUpdate?'windows':'web';
+const booksupVersion=v=>String(v||'0').split('.').slice(0,3).map(x=>parseInt(x,10)||0);
+const booksupNewer=v=>{const a=booksupVersion(v),b=booksupVersion(APP_VERSION);return a[0]>b[0]||(a[0]===b[0]&&(a[1]>b[1]||(a[1]===b[1]&&a[2]>b[2])))};
+async function booksupOpenRelease(url){
+  if(!/^https:\/\/github\.com\/lavender1510\/BooksUp\//.test(url))return;
+  const browser=window.Capacitor?.Plugins?.Browser;
+  if(browser?.open)await browser.open({url});
+  else if(window.Capacitor?.getPlatform?.()==='android')location.href=url;
+  else window.open(url,'_blank','noopener,noreferrer');
+}
+async function booksupCheckUpdate(silent=false){
+  if(booksupCheckingUpdate)return;
+  booksupCheckingUpdate=true;
+  try{
+    if(booksupPlatform()==='windows'){
+      if(window.booksupDesktopUpdate?.check){const msg=await window.booksupDesktopUpdate.check();if(!silent&&msg?.message)toast(msg.message)}
+      else if(!silent)toast('Windows-Updateprüfung nur in der installierten App verfügbar.');
+      return;
+    }
+    if(booksupPlatform()!=='android'){if(!silent)toast('Automatische Updates sind für Android und Windows verfügbar.');return}
+    const controller=new AbortController();
+    const timeout=setTimeout(()=>controller.abort(),12000);
+    let response;
+    try{response=await fetch('https://api.github.com/repos/lavender1510/BooksUp/releases?per_page=30',{headers:{Accept:'application/vnd.github+json'},cache:'no-store',signal:controller.signal})}
+    finally{clearTimeout(timeout)}
+    if(!response.ok)throw Error('HTTP '+response.status);
+    const releases=await response.json();
+    const available=releases.filter(r=>!r.draft&&r.assets?.some(a=>/\.apk$/i.test(a.name))).map(r=>({...r,ver:r.tag_name?.match(/^v(\d+\.\d+\.\d+)/)?.[1]})).filter(r=>r.ver&&booksupNewer(r.ver));
+    available.sort((a,b)=>{const x=booksupVersion(a.ver),y=booksupVersion(b.ver);return y[0]-x[0]||y[1]-x[1]||y[2]-x[2]});
+    const latest=available[0];
+    if(!latest){if(!silent)toast('BooksUp '+APP_VERSION+' ist aktuell.');return}
+    const key='booksup-update-noticed-'+latest.ver;
+    if(silent&&sessionStorage.getItem(key))return;
+    sessionStorage.setItem(key,'1');
+    if(confirm('BooksUp '+latest.ver+' ist verfügbar. Möchtest du die neue APK herunterladen? Android fragt danach, ob du sie installieren möchtest.')){
+      const asset=latest.assets.find(a=>/\.apk$/i.test(a.name));
+      await booksupOpenRelease(asset?.browser_download_url||latest.html_url);
+    }
+  }catch(e){if(!silent)toast('Updateprüfung fehlgeschlagen: '+String(e?.message||e))}
+  finally{booksupCheckingUpdate=false}
+}
+setTimeout(()=>booksupCheckUpdate(true),5000);
+
 render();
 </script></body></html>
