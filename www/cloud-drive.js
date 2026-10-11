@@ -46,6 +46,21 @@ async function auth(){
   if(typeof token!=='string'||!token)throw Error('Google hat keinen Drive-Zugriffstoken geliefert. Prüfe die OAuth-Freigabe.');
   state.token=token;state.email=result.result.profile?.email||'';state.authorized=true;
 }
+async function resumeSession(){
+  if(!enabled()||!ready()||state.authorized||state.connecting)return;
+  try{
+    if(!state.initialized){await sdk().initialize({google:{webClientId:client(),mode:'online'}});state.initialized=true}
+    const existing=await sdk().isLoggedIn({provider:'google'});
+    if(!existing?.isLoggedIn)return;
+    await sdk().refresh({provider:'google',options:{scopes:[DRIVE_SCOPE,'email','profile']}});
+    const credentials=await sdk().getAuthorizationCode({provider:'google'});
+    const token=credentials?.accessToken;
+    if(!token)return;
+    state.token=token;state.authorized=true;
+    await sync();
+    hooks?.render?.();
+  }catch(e){state.lastError='Automatische Wiederverbindung nicht möglich: '+String(e.message||e)}
+}
 async function request(url,opts={}){
   if(!state.token)throw Error('Google-Konto erneut verbinden.');
   const res=await fetch(url,{...opts,headers:{Authorization:'Bearer '+state.token,...opts.headers}});
@@ -170,6 +185,7 @@ function setup(api){
   window.addEventListener('focus',()=>{if(enabled()&&state.authorized&&Date.now()-lastChecked>120000){lastChecked=Date.now();sync().catch(()=>{})}});
   document.addEventListener('visibilitychange',()=>{if(!document.hidden&&enabled()&&state.authorized)sync().catch(()=>{})});
   interval=setInterval(()=>{if(!document.hidden&&enabled()&&state.authorized)sync().catch(()=>{})},180000);
+  if(enabled())setTimeout(()=>resumeSession().catch(()=>{}),2000);
 }
 window.BooksUpCloud={setup,ui,connect,disconnect,enable,upload:()=>uploadImpl(),restore:()=>restoreImpl(true),changed:schedule,ready};
 })();
