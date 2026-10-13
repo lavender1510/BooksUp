@@ -1,8 +1,8 @@
 {
   "name": "booksup",
-  "version": "4.0.0",
+  "version": "4.1.0",
   "private": true,
-  "description": "BooksUp 4 — reading-first home, book detail pages, themed UI and desktop workspace",
+  "description": "BooksUp 4.1 – library tools, Goodreads mappings, wishlist, prices and recommendations",
   "productName": "BooksUp",
   "main": "electron/main.cjs",
   "type": "commonjs",

@@ -1,3 +1,18 @@
+# BooksUp 4.1 – Bibliothek & Goodreads
+
+### Neu und verbessert
+- Größere Scrollbereiche, scrollbare Dialoge und abgeschnittene lange Regaltitel.
+- UVP und tatsächlicher Kaufpreis getrennt; gebraucht/neu als Zustand; kaufbezogene Felder bearbeitbar.
+- Bücherregal-Suche, Mehrfachauswahl zum Löschen und zur Ordnerzuordnung.
+- Goodreads-Import mit Shelf-Auswahl, Shelf→Ordner und Leseliste, einstellbarer Bewertungsskala und fünf frei anpassbaren Importwerten.
+- Individuelle Leselisten mit Wunschbüchern, die man noch nicht besitzt.
+- Discover-Vorschläge zu ungelesenen eigenen Büchern, Reihenfolge-Berücksichtigung; Empfehlungen zeigen Buchdetails statt Add-Formular.
+- Online-Cover-Auswahl und erste Informationen aus Google Books und Open Library, soweit verfügbar.
+- Notizen in den Buchdetails und größeres ISBN-Kamerafenster.
+
+### Datensicherheit
+Backups vor jeder Installation prüfen. Android-Debug-APKs aus GitHub Actions sind nur bei identischem Signaturzertifikat als Update installierbar. Die Cloud-Synchronisation braucht weiterhin OAuth-Konfiguration.
+
 # BooksUp 4.0 – Library & Reader Edition
 
 **New test release for Android and Windows.** Screens inspired by the user-provided Wattpad screenshots, palettes inspired by the user-provided FanFiktion.de theme templates. No branding or artwork is copied from those screenshots.
