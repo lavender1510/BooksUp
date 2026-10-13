@@ -93,11 +93,29 @@ async function buCatalogEnrich(){
  const m=metadataGoogle(item.volumeInfo,item);target.innerHTML='<b>Zusätzliche Online-Daten</b><p>'+[m.publisher,m.year,m.pages?m.pages+' Seiten':'',m.language,m.tags].filter(Boolean).map(esc).join(' · ')+'</p>';
  }catch(e){target.textContent='Weitere Daten derzeit nicht verfügbar (offline oder kein Treffer).'}
 }
-let buCoverLookups=0;
+const buCoverCache=new Map();
 async function buLoadRecCovers(){
- if(view!=='home')return;
+ if(view!=='home'||navigator.onLine===false)return;
  const items=[...document.querySelectorAll('[data-bu-cover-search]')].slice(0,10);
- for(const node of items){if(!node.isConnected)continue;const isbn=node.dataset.buCoverIsbn;if(isbn&&/^\d{10,13}$/.test(isbn)){const img=new Image();img.loading='lazy';img.alt='Buchcover';img.onload=()=>{if(node.isConnected){node.replaceChildren(img);img.className='bu-internet-cover'}};img.onerror=()=>{};img.src='https://covers.openlibrary.org/b/isbn/'+encodeURIComponent(isbn)+'-M.jpg?default=false'}}
+ async function load(node){
+  if(!node.isConnected)return;
+  const title=node.dataset.buCoverTitle,isbn=String(node.dataset.buCoverIsbn||'').replace(/\D/g,'');
+  const key=isbn||buNorm(title);if(!key)return;
+  let url=buCoverCache.get(key)||null;
+  if(!buCoverCache.has(key)){
+   if(isbn.length>=10)url='https://covers.openlibrary.org/b/isbn/'+encodeURIComponent(isbn)+'-M.jpg?default=false';
+   else try{
+    const r=await fetchMetaUrl('https://openlibrary.org/search.json?title='+encodeURIComponent(title)+'&limit=1&fields=cover_i');
+    const cover=r.docs?.[0]?.cover_i;if(cover)url='https://covers.openlibrary.org/b/id/'+cover+'-M.jpg';
+   }catch(e){}
+   buCoverCache.set(key,url);
+  }
+  if(!url||!node.isConnected)return;
+  const img=new Image();img.loading='lazy';img.alt='Cover: '+title;
+  img.onload=()=>{if(node.isConnected){node.replaceChildren(img);img.className='bu-internet-cover'}};
+  img.src=url;
+ }
+ await Promise.allSettled(items.map(load));
 }
 function buRatingConfig(){if(!ALL.goodreadsMapping)ALL.goodreadsMapping={1:2,2:4,3:6,4:8,5:10};return ALL.goodreadsMapping}
 function buRatingScale(){return ALL.ratingScale===5?5:10}
