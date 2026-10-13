@@ -1,4 +1,34 @@
-# BooksUp 3.3.0 — Cloud Backup beta (Android) & Windows
+# BooksUp 4.0 – Library & Reader Edition
+
+**New test release for Android and Windows.** Screens inspired by the user-provided Wattpad screenshots, palettes inspired by the user-provided FanFiktion.de theme templates. No branding or artwork is copied from those screenshots.
+
+## Changes
+
+- Discover homepage replaces the dashboard's old profile-like home. Original profile remains available via Profile.
+- 22 themes, including pastel, nature, warm and dark palettes with previews.
+- Responsive Windows sidebar, wider cover rails and separate detail/reader settings pages.
+- Book detail view with full metadata, editions, read button, edit button, ratings, progress and page-linked notes.
+- Reader adds current book/chapter heading, expandable chapter navigation and notes from selected text. Highlights inside the current reader DOM are temporary; notes and passages are stored with the book.
+- Manga view is titled Manga, Comics & Graphic Novels. Imported books of these formats share this collection.
+- Profile GIF banners preserve source GIF bytes in IndexedDB instead of flattening animations in canvas. ZIP backups include saved GIFs.
+- Backup restore now requires explicit confirmation and can include GIF binaries. Existing backups are read in the legacy ZIP format.
+- Preferences organized into ten categories. A basic localization covers redesigned UI in German, English, French, Spanish and Italian; some legacy dialogs remain German.
+- Windows has a desktop-specific workspace layout, keyboard search (Ctrl+K) and a full detail sidebar.
+
+## Critical update and data safety
+
+**Do not uninstall your current Android app unless you have a successfully verified backup.** GitHub-hosted test APKs were previously assembled with ephemeral debug certificates. Android cannot update an installed app signed with a different certificate. To permit future in-place upgrades, configure GitHub secret `BOOKSUP_ANDROID_DEBUG_KEYSTORE_BASE64` with the base64 representation of a persistently saved Android debug.keystore that matches the certificate used by the installed app. This secret is never printed in logs. If the old signing key was lost, an in-place upgrade cannot be guaranteed, regardless of the new code.
+
+This test release does not bypass Android's platform installation confirmation. In-app APK silent installation is not supported on standard Android. Windows installed builds use Electron updater metadata from the GitHub release; portable EXEs require manual replacement.
+
+Google Drive synchronization still requires the Google OAuth client ID and Android OAuth registration. Cloud synchronization remains beta and requires device testing.
+
+## Testing
+
+- JavaScript static checks for app and add-on scripts.
+- Windows and Android GitHub Actions must finish before downloads are considered available.
+- Actual device backup restoration, large libraries and in-place signing updates still require manual end-to-end verification.
+
 
 **Android APK + Windows installer/portable EXE** are published by GitHub Actions after a successful build. All release assets are **test builds**. Windows installers are unsigned and may trigger SmartScreen warnings. Existing library data is local to each device: use **Einstellungen → Backup mit Büchern** before migrating or reinstalling.
 

@@ -1,8 +1,8 @@
 {
   "name": "booksup",
-  "version": "3.3.0",
+  "version": "4.0.0",
   "private": true,
-  "description": "BooksUp – Android Google Drive cloud backup beta",
+  "description": "BooksUp 4 — reading-first home, book detail pages, themed UI and desktop workspace",
   "productName": "BooksUp",
   "main": "electron/main.cjs",
   "type": "commonjs",

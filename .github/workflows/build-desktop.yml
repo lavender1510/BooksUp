@@ -38,7 +38,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          $tag='v3.3.0'
+          $tag='v4.0.0'
           $assets=@(Get-ChildItem release -File | Where-Object { $_.Name -like '*.exe' -or $_.Name -like '*.blockmap' -or $_.Name -eq 'latest.yml' } | Select-Object -ExpandProperty FullName)
           gh release view $tag 2>$null
           if ($LASTEXITCODE -ne 0) {

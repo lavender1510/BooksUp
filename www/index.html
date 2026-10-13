@@ -135,8 +135,8 @@ mark{background:#ffe27a;color:#000;border-radius:3px;padding:0 1px}
 .book{touch-action:pan-y}.book:focus-visible{outline:3px solid var(--acc)}
 .book .detail-btn{display:block;font-size:12px;margin:6px 0 0;padding:5px 7px;border:1px solid var(--bd);border-radius:8px;background:var(--card);color:var(--ink)}
 .choices-scroll{max-height:22vh;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}.book-form .btn{margin:3px 4px 8px 0}.cover-choice{background:transparent;border:0;padding:3px;cursor:pointer}.cover-choice img{width:64px;height:90px;object-fit:cover;border-radius:7px}.search-results .li{cursor:pointer}.edition-row{padding:12px;border:1px solid var(--bd);border-radius:14px;margin:10px 0}.edition-row .cset{overflow-x:auto}.book-actions{display:flex;gap:8px;flex-wrap:wrap}.info-details{border:1px solid var(--bd);border-radius:12px;padding:10px;margin-bottom:14px}.info-details summary{cursor:pointer;font-weight:600}.isbn-queue{max-height:26vh;overflow-y:auto}.crop-help{font-size:12px;color:var(--mut)}.search-results small{color:var(--mut)}
-</style></head><body><div id="app"></div>
-<script src="cloud-drive-config.js"></script><script src="cloud-drive.js"></script>
+</style><link rel="stylesheet" href="booksup-next.css"></head><body><div id="app"></div>
+<script src="booksup-next.js"></script><script src="cloud-drive-config.js"></script><script src="cloud-drive.js"></script>
 <script>
 const T=[['Pastell Rosa','#f0a4bd','Pastell'],['Pastell Blau','#96bfea','Pastell'],['Pastell Mint','#93d9bb','Pastell'],['Neon Pink','#ff2e93','Neon'],['Neon Grün','#39ff14','Neon'],['Neon Blau','#00e5ff','Neon'],['Pastell Lavendel','#c3b1e8','Pastell'],['Pastell Pfirsich','#f7b98f','Pastell'],['Pastell Zitrone','#efe08a','Pastell'],['Neon Violett','#b026ff','Neon'],['Neon Orange','#ff7a00','Neon'],['Neon Gelb','#f4ff00','Neon'],['Bordeaux','#8c2f39','Klassisch'],['Tannengrün','#2f6b4f','Klassisch'],['Marine','#2d4a7a','Klassisch'],['Graphit','#4a4f57','Klassisch'],['Kupfer','#b4693c','Klassisch'],['Gold','#c9a227','Klassisch']],PAP=[['Creme','#f5f0e8'],['Weiß · AMOLED','#ffffff'],['Kühl · Mitternacht','#dfe7f3'],['Salbei · Wald','#dbe7d6']];
 const IC={shelf:'M4 4v16M9 4v16M14 6l4 14M3 20h18',plus:'M12 5v14M5 12h14',target:'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8z',cog:'M4 8h10M18 8h2M4 16h2M10 16h10M14 6v4M6 14v4',back:'M15 5l-7 7 7 7',user:'M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM4 21c1-4 4-6 8-6s7 2 8 6',chart:'M5 20V10M12 20V4M19 20v-7',arrow:'M9 5l7 7-7 7',users:'M9 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM3 20c.5-3 3-5 6-5s5.5 2 6 5M17 8a2.5 2.5 0 1 1 0 5M17 15c2 0 3.5 1.5 4 4',swap:'M7 7h12l-3-3M17 17H5l3 3'};
@@ -267,10 +267,10 @@ function render(){
   try{
     const r=document.documentElement;r.style.setProperty('--acc',T[S.theme][1]);
     const dk=S.mode==2||(S.mode==0&&matchMedia('(prefers-color-scheme:dark)').matches);r.setAttribute('data-theme',dk?'dark':'light');r.dataset.paper=S.paper||0;r.style.setProperty('--fz',[14,15,17][S.fs==null?1:S.fs]+'px');const mt=document.querySelector('meta[name=theme-color]');if(mt)mt.content=getComputedStyle(r).getPropertyValue('--bg').trim();
-    const V={home,shelf,add,goals,pedit,settings,stats,reader,friends,chat};
+    const V={home:nextHome,profile:home,shelf,add,goals,pedit,settings:nextSettings,settingsDetail:nextSettingsDetail,detail:nextBookDetails,readOptions:nextReadOptions,stats,reader:nextReader,friends,chat};
     let h=V[view]();
     if(modal)h+=`<div class="modal" role="dialog" aria-modal="true" onclick="modal=null;render()"><div onclick="event.stopPropagation()">${modal}</div></div>`;
-    $('app').innerHTML=h;if(!modal)camStop();post();
+    $('app').innerHTML=nextShell(h);if(!modal)camStop();nextAfterRender();post();
   }catch(err){
     document.documentElement.removeAttribute('data-theme');
     $('app').innerHTML=`<div style="padding:24px;font-family:system-ui,sans-serif;color:#22201c;background:#faf7fb;min-height:100vh"><h2 style="font-family:Newsreader,Georgia,serif">Etwas ist schiefgelaufen</h2><p>${(err&&err.message)||err}</p><button style="padding:10px 16px;border-radius:8px;border:1px solid #ccc;background:#fff" onclick="view='home';render()">Zur Startseite</button></div>`;
@@ -283,7 +283,7 @@ function home(){
   const a=agg(),r=read(),R=recs();
   const top=S.books.filter(b=>b.rating!=null).sort((x,y)=>y.rating-x.rating||(y.ratedAt||0)-(x.ratedAt||0)).slice(0,5);
   const tile=(v,i,t,s)=>`<button class="tile" onclick="go('${v}')">${ic(i)}<div><b>${t}</b><br><small>${s}</small></div></button>`;
-  return`${sp=='manga'?'<div class="lbl" style="margin:14px 18px 0">Manga-Bereich</div>':''}<div class="banner" style="${p.banner?`background-image:url(${p.banner})`:''}"></div>
+  return`${sp=='manga'?'<div class="lbl" style="margin:14px 18px 0">Manga-Bereich</div>':''}<div class="banner" style="${p.banner?`background-image:url(${nextBannerUrl(p.banner)})`:''}"></div>
   <div class="avframe frm-${p.frame||'none'}" style="${p.frame=='custom'?`--fc:${esc(p.frameColor||'#C98A3B')}`:''}"><div class="av" style="${p.avatar?`background-image:url(${p.avatar})`:''}">${p.avatar?'':ic('user')}</div></div>
   <div class="pad"><div style="display:flex;justify-content:space-between;align-items:baseline;margin-top:10px"><h2 style="margin:0;font-size:30px">${esc(p.name)}</h2><button class="chip" onclick="go('pedit')">Profil bearbeiten</button></div>
   <div style="color:var(--mut)">${esc(p.bio)}</div>
@@ -954,7 +954,7 @@ function shelfCancel(){clearTimeout(holdTimer);holdTimer=0;holdAt=null}
 document.addEventListener('pointermove',e=>{if(holdAt&&Math.hypot(e.clientX-holdAt.x,e.clientY-holdAt.y)>12)shelfCancel()},{passive:true});
 document.addEventListener('contextmenu',e=>{if(e.target.closest('.book'))e.preventDefault()});
 function shelfClick(e,id){if(ignoreClick){ignoreClick=false;return}if(e.target.closest('.detail-btn'))return;shelfOpen(id)}
-function shelfOpen(id){const b=S.books.find(x=>x.id===id);if(!b)return;if(b.pdf)go('reader',id);else bookM(id)}
+function shelfOpen(id){const b=S.books.find(x=>x.id===id);if(!b)return;go('detail',id)}
 let editDraft=null;
 function editBook(id){const b=S.books.find(x=>x.id===id);if(!b)return;editDraft={...b,editions:editionsOf(b).map(e=>({...e}))};drawEditBook()}
 function captureEdit(){if(!editDraft)return;for(const k of ['title','author','year','genre','tags','series','seriesNumber','publisher','pages','language','isbn','edition','price']){const el=$('ed_'+k);if(el)editDraft[k]=el.value}editDraft.type=$('ed_type')?.value||editDraft.type;for(let i=0;i<editDraft.editions.length;i++)for(const k of ['isbn','language','format','edition','price','qty','cover']){const el=$(`ee_${i}_${k}`);if(el)editDraft.editions[i][k]=el.value}}
@@ -1067,13 +1067,13 @@ function profileData(){return profileDraft||(profileDraft={...S.profile})}
 function previewUpdate(){const p=profileData(),n=$('pn'),b=$('pb');if(n)p.name=n.value;if(b)p.bio=b.value;const pn=$('prevname'),pb=$('prevbio');if(pn)pn.textContent=p.name||'Dein Name';if(pb)pb.textContent=p.bio||'Deine Bio erscheint hier.'}
 function profileSave(){previewUpdate();const p=profileData();if(!p.name?.trim())return toast('Bitte gib einen Namen ein.');S.profile={...p,name:p.name.trim()};if(ALL.syncProfiles){ALL[sp==='book'?'manga':'book'].profile={...S.profile}}profileDraft=null;save();toast('Profil gespeichert.')}
 function chooseFrame(id,color){previewUpdate();const p=profileData();p.frame=id;if(color)p.frameColor=color;render()}
-function setImg(field){previewUpdate();raw('image/png,image/jpeg,image/webp',f=>{const reader=new FileReader();reader.onload=()=>{const img=new Image();img.onload=()=>{cropState={field,img,scale:1,dx:0,dy:0,drag:null};showCrop()};img.onerror=()=>toast('Bild konnte nicht geöffnet werden.');img.src=reader.result};reader.onerror=()=>toast('Bild konnte nicht gelesen werden.');reader.readAsDataURL(f)})}
+function setImg(field){previewUpdate();if(field==='banner')return nextSetBanner();raw('image/png,image/jpeg,image/webp',f=>{const reader=new FileReader();reader.onload=()=>{const img=new Image();img.onload=()=>{cropState={field,img,scale:1,dx:0,dy:0,drag:null};showCrop()};img.onerror=()=>toast('Bild konnte nicht geöffnet werden.');img.src=reader.result};reader.onerror=()=>toast('Bild konnte nicht gelesen werden.');reader.readAsDataURL(f)})}
 function showCrop(){if(!cropState)return;const wide=cropState.field==='banner';modal=`<h3>${wide?'Banner':'Profilbild'} anpassen</h3><p class="crop-help">Ziehen zum Verschieben, Regler zum Zoomen. Der Ausschnitt ist sofort sichtbar.</p><canvas id="cropcanvas" class="cropbox" width="${wide?540:320}" height="${wide?220:320}" style="height:auto;aspect-ratio:${wide?'27/11':'1'}"></canvas><label>Zoom</label><input id="cropzoom" type="range" min="1" max="4" value="${cropState.scale}" step="0.02" oninput="cropState.scale=+this.value;drawCrop()"><div class="crop-actions"><button class="btn" onclick="applyCrop()">Ausschnitt übernehmen</button><button class="btn o" onclick="cropState=null;modal=null;render()">Abbrechen</button></div>`;render();requestAnimationFrame(drawCrop)}
 function drawCrop(){const c=$('cropcanvas'),st=cropState;if(!c||!st)return;const ctx=c.getContext('2d'),w=c.width,h=c.height,img=st.img;const base=Math.max(w/img.width,h/img.height)*st.scale,dw=img.width*base,dh=img.height*base;ctx.clearRect(0,0,w,h);ctx.drawImage(img,(w-dw)/2+st.dx,(h-dh)/2+st.dy,dw,dh);c.onpointerdown=e=>{c.setPointerCapture(e.pointerId);st.drag={x:e.clientX,y:e.clientY,dx:st.dx,dy:st.dy}};c.onpointermove=e=>{if(!st.drag)return;const r=c.getBoundingClientRect();st.dx=st.drag.dx+(e.clientX-st.drag.x)*(w/r.width);st.dy=st.drag.dy+(e.clientY-st.drag.y)*(h/r.height);drawCrop()};c.onpointerup=c.onpointercancel=()=>st.drag=null}
 function applyCrop(){const c=$('cropcanvas'),st=cropState;if(!c||!st)return;drawCrop();const out=document.createElement('canvas'),max=st.field==='avatar'?320:700;out.width=max;out.height=Math.round(max*c.height/c.width);out.getContext('2d').drawImage(c,0,0,out.width,out.height);profileData()[st.field]=out.toDataURL('image/jpeg',.76);cropState=null;modal=null;render()}
 function pedit(){const p=profileData();
   const style=p.frame==='custom'?`--fc:${esc(p.frameColor||'#C98A3B')}`:'';
-  return bar('Profil bearbeiten')+`<div class="profile-preview"><div class="banner" style="${p.banner?`background-image:url(${p.banner})`:''}"></div><div class="avframe frm-${p.frame||'none'}" style="${style}"><div class="av" style="${p.avatar?`background-image:url(${p.avatar})`:''}">${p.avatar?'':ic('user')}</div></div><div class="preview-body"><b id="prevname">${esc(p.name||'Dein Name')}</b><p id="prevbio" class="hint">${esc(p.bio||'Deine Bio erscheint hier.')}</p><small>Live-Vorschau · Noch nicht gespeichert</small></div></div>
+  return bar('Profil bearbeiten')+`<div class="profile-preview"><div class="banner" style="${p.banner?`background-image:url(${nextBannerUrl(p.banner)})`:''}"></div><div class="avframe frm-${p.frame||'none'}" style="${style}"><div class="av" style="${p.avatar?`background-image:url(${p.avatar})`:''}">${p.avatar?'':ic('user')}</div></div><div class="preview-body"><b id="prevname">${esc(p.name||'Dein Name')}</b><p id="prevbio" class="hint">${esc(p.bio||'Deine Bio erscheint hier.')}</p><small>Live-Vorschau · Noch nicht gespeichert</small></div></div>
   <div class="row"><button class="btn o" onclick="setImg('avatar')">Profilbild zuschneiden</button><button class="btn o" onclick="setImg('banner')">Banner bearbeiten</button></div><div class="pad"><label>Benutzername</label><input id="pn" value="${esc(p.name)}" oninput="previewUpdate()"><label>Biografie</label><textarea id="pb" rows="3" oninput="previewUpdate()">${esc(p.bio)}</textarea></div>
   ${frameSection()}<div class="pad"><button class="btn" onclick="profileSave()">Profil speichern</button></div>`}
 /* ---------- Profilrahmen ---------- */
@@ -1229,7 +1229,7 @@ matchMedia('(prefers-color-scheme:dark)').addEventListener('change',()=>{if(S.mo
 try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){}
 function progBar(b){if(!(b.pages&&b.page))return'';const pc=Math.min(100,Math.round(b.page/b.pages*100));return`<div class="prog" style="margin:0 0 4px"><i style="width:${pc}%"></i></div><small style="color:var(--mut);display:block">${S.pf?'S. '+b.page+' / '+b.pages:pc+' %'}</small>`}
 /* ====== BooksUp v3: Sicherheit, Backup, Erinnerungen, ISBN, Statistik, Systemtest, Einführung ====== */
-const APP_VERSION='3.3.0';
+const APP_VERSION='4.0.0';
 const TINY_PDF='JVBERi0xLjMKJZOMi54gUmVwb3J0TGFiIEdlbmVyYXRlZCBQREYgZG9jdW1lbnQgKG9wZW5zb3VyY2UpCjEgMCBvYmoKPDwKL0YxIDIgMCBSCj4+CmVuZG9iagoyIDAgb2JqCjw8Ci9CYXNlRm9udCAvSGVsdmV0aWNhIC9FbmNvZGluZyAvV2luQW5zaUVuY29kaW5nIC9OYW1lIC9GMSAvU3VidHlwZSAvVHlwZTEgL1R5cGUgL0ZvbnQKPj4KZW5kb2JqCjMgMCBvYmoKPDwKL0NvbnRlbnRzIDcgMCBSIC9NZWRpYUJveCBbIDAgMCAxMjAgODAgXSAvUGFyZW50IDYgMCBSIC9SZXNvdXJjZXMgPDwKL0ZvbnQgMSAwIFIgL1Byb2NTZXQgWyAvUERGIC9UZXh0IC9JbWFnZUIgL0ltYWdlQyAvSW1hZ2VJIF0KPj4gL1JvdGF0ZSAwIC9UcmFucyA8PAoKPj4gCiAgL1R5cGUgL1BhZ2UKPj4KZW5kb2JqCjQgMCBvYmoKPDwKL1BhZ2VNb2RlIC9Vc2VOb25lIC9QYWdlcyA2IDAgUiAvVHlwZSAvQ2F0YWxvZwo+PgplbmRvYmoKNSAwIG9iago8PAovQXV0aG9yIChhbm9ueW1vdXMpIC9DcmVhdGlvbkRhdGUgKEQ6MjAyNjEwMDgwODIzNDErMDAnMDAnKSAvQ3JlYXRvciAoYW5vbnltb3VzKSAvS2V5d29yZHMgKCkgL01vZERhdGUgKEQ6MjAyNjEwMDgwODIzNDErMDAnMDAnKSAvUHJvZHVjZXIgKFJlcG9ydExhYiBQREYgTGlicmFyeSAtIFwob3BlbnNvdXJjZVwpKSAKICAvU3ViamVjdCAodW5zcGVjaWZpZWQpIC9UaXRsZSAodW50aXRsZWQpIC9UcmFwcGVkIC9GYWxzZQo+PgplbmRvYmoKNiAwIG9iago8PAovQ291bnQgMSAvS2lkcyBbIDMgMCBSIF0gL1R5cGUgL1BhZ2VzCj4+CmVuZG9iago3IDAgb2JqCjw8Ci9GaWx0ZXIgWyAvQVNDSUk4NURlY29kZSAvRmxhdGVEZWNvZGUgXSAvTGVuZ3RoIDEwNgo+PgpzdHJlYW0KR2FwUWgwRT1GLDBVXEgzVFxwTllUXlFLaz90Yz5JUCw7VyNVMV4yM2loUEVNXz9DVDMhSzNIMz1Xa1dsVGdmJVQobjJ0LWo9NGgmamxeN21MREZQUUtPY05iQlJ1QnNEdWZyaTVvLTN+PmVuZHN0cmVhbQplbmRvYmoKeHJlZgowIDgKMDAwMDAwMDAwMCA2NTUzNSBmIAowMDAwMDAwMDYxIDAwMDAwIG4gCjAwMDAwMDAwOTIgMDAwMDAgbiAKMDAwMDAwMDE5OSAwMDAwMCBuIAowMDAwMDAwMzkxIDAwMDAwIG4gCjAwMDAwMDA0NTkgMDAwMDAgbiAKMDAwMDAwMDcyMCAwMDAwMCBuIAowMDAwMDAwNzc5IDAwMDAwIG4gCnRyYWlsZXIKPDwKL0lEIApbPGRiNmZiZWZmMTQ5OTAxZjc3ZmNjMjBmZWYyMTlkYWMwPjxkYjZmYmVmZjE0OTkwMWY3N2ZjYzIwZmVmMjE5ZGFjMD5dCiUgUmVwb3J0TGFiIGdlbmVyYXRlZCBQREYgZG9jdW1lbnQgLS0gZGlnZXN0IChvcGVuc291cmNlKQoKL0luZm8gNSAwIFIKL1Jvb3QgNCAwIFIKL1NpemUgOAo+PgpzdGFydHhyZWYKOTc1CiUlRU9GCg==';
 /* ---- Speicher mit zweitem Sicherungsort (IndexedDB) ---- */
 let mirT=null,lastSaveWarning=0;
@@ -1313,7 +1313,7 @@ async function backupFull(){
   if(busyBackup)return;busyBackup=true;
   try{
     toast('Backup wird erstellt …');
-    const ids=new Set([...ALL.book.books,...ALL.manga.books].filter(b=>b.pdf).map(b=>b.id));
+    const ids=new Set([...ALL.book.books,...ALL.manga.books].filter(b=>b.pdf).map(b=>b.id).concat([ALL.book.profile?.banner,ALL.manga.profile?.banner].filter(v=>typeof v==='string'&&v.startsWith('booksup-gif-'))));
     const d=await db(),name='booksup_backup_'+iso(Date.now())+'.zip';
     let done=false;
     if(nativeBackupPlugins()){
@@ -1334,13 +1334,15 @@ async function backupFull(){
 function restore(){raw('application/json,application/zip,.zip,.json',async f=>{try{
   let txt,files=[];
   if(/\.zip$/i.test(f.name)||/zip/.test(f.type)){const Z=await jszip(),z=await Z.loadAsync(f),j=z.file('booksup_backup.json');if(!j)throw 0;txt=await j.async('string');
-    for(const k of Object.keys(z.files)){const m=k.match(/^files\/(\d+)$/);if(m)files.push([+m[1],z.files[k]])}}
+    for(const k of Object.keys(z.files)){const m=k.match(/^files\/(\d+|booksup-gif-[\w-]+)$/);if(m)files.push([/^\d+$/.test(m[1])?+m[1]:m[1],z.files[k]])}}
   else txt=await f.text();
   const j=JSON.parse(txt);
+  if(!j||typeof j!=='object'||(!j.book&&!j.books))throw new Error('Ungültiges Backup');
+  if(!confirm('Achtung: Backup-Wiederherstellung ersetzt die lokale Bibliothek und Lesefortschritte. Vorher aktuelle Daten sichern! Fortfahren?'))return;
   if(j.book&&j.manga){Object.assign(ALL,j);fbAuth=null;socialReady=false;lastTry=0;US=DB=null;ALL.book=Object.assign(NEW(),ALL.book);ALL.manga=Object.assign(NEW('Manga-Fan'),ALL.manga);S=ALL[sp]}
   else if(j.books)Object.assign(S,j);else throw 0;
-  for(const[id,e]of files)await put(id,await e.async('blob'));
-  save();toast(files.length?'Backup mit '+files.length+' Büchern geladen.':'Daten geladen. Bücherdateien waren nicht enthalten.')}
+  for(const[id,e]of files){const ok=await put(id,await e.async('blob'));if(!ok)throw new Error('Datei konnte nicht gespeichert werden: '+id)}
+  save();if(typeof nextRestoreBanners==='function')nextRestoreBanners();toast(files.length?'Backup mit '+files.length+' Dateien geladen.':'Daten geladen. Bücherdateien waren nicht enthalten.')}
   catch(e){alert('Ungültige Datei')}})}
 function backupCard(){
   const n=Date.now(),tot=ALL.book.books.length+ALL.manga.books.length;if(!tot)return'';
