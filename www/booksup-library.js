@@ -51,7 +51,8 @@ function buNextEligible(){
   const num=parseFloat(String(b.seriesNumber||'').replace(',','.'));
   if(!Number.isFinite(num)||num<=1)return true;
   const series=S.books.filter(x=>buNorm(x.series)===buNorm(b.series)&&x.id!==b.id);
-  return !series.some(x=>{const n=parseFloat(String(x.seriesNumber||'').replace(',','.'));return Number.isFinite(n)&&n<num&&!buHasRead(x)});
+  const prior=series.filter(x=>{const n=parseFloat(String(x.seriesNumber||'').replace(',','.'));return Number.isFinite(n)&&n<num});
+  return prior.length>0&&prior.every(buHasRead);
  });
  return ordered.sort((a,b)=>(b.lastRead||0)-(a.lastRead||0)||(a.added||0)-(b.added||0));
 }
@@ -85,7 +86,7 @@ function buCatalogView(){
  const isbn=esc(b.isbn||''),year=esc(b.year||''),publisher=esc(b.publisher||''),genre=esc(b.genre||'');
  return bar('Buch entdecken','home')+'<section class="next-detail"><div class="next-detail-main"><div class="next-detail-cover">'+nextCover(b)+'</div><div class="next-detail-intro"><span class="next-overline">BOOKSUP DISCOVER</span><h1>'+esc(b.title)+'</h1><p>'+esc(b.author||'')+'</p><p class="hint">'+genre+'</p><button class="btn" onclick="buCatalogAdd('+buCatalogIndex+')">Zur Bibliothek hinzufügen</button></div></div><section class="next-book-information"><h2>Über das Buch</h2><div class="next-info-grid"><div><small>Autor</small><b>'+esc(b.author||'–')+'</b></div><div><small>Jahr</small><b>'+year+'</b></div><div><small>Verlag</small><b>'+publisher+'</b></div><div><small>ISBN</small><b>'+isbn+'</b></div><div><small>Genre</small><b>'+genre+'</b></div><div><small>Reihe</small><b>'+esc(b.series||'–')+'</b></div></div><p class="hint">Weitere Angaben werden über die Online-Buchdatenbanken ergänzt, wenn sie vorhanden sind.</p><div id="bu-catalog-meta" class="hint">Online-Informationen werden geprüft …</div></section></section>';
 }
-function buCatalogAdd(i){const b=buRecs().list[Number(i)];if(!b)return;draft={title:b.title,author:b.author,genre:b.genre,year:b.year,publisher:b.publisher,isbn:b.isbn,series:b.series,seriesNumber:b.seriesNumber,covers:b.covers||b.cover?[b.cover].filter(Boolean):[]};addType='physical';view='add';render()}
+function buCatalogAdd(i){const b=buRecs().list[Number(i)];if(!b)return;draft={title:b.title,author:b.author,genre:b.genre,year:b.year,publisher:b.publisher,isbn:b.isbn,series:b.series,seriesNumber:b.seriesNumber,covers:[...(b.covers||[]),...(b.cover?[b.cover]:[])].filter(Boolean)};addType='physical';view='add';render()}
 async function buCatalogEnrich(){
  if(view!=='catalog')return;const b=buRecs().list[buCatalogIndex],target=$('bu-catalog-meta');if(!b||!target)return;
  try{const q=b.isbn?'isbn:'+b.isbn:'intitle:'+b.title+' inauthor:'+b.author;const j=await fetchMetaUrl('https://www.googleapis.com/books/v1/volumes?q='+encodeURIComponent(q)+'&maxResults=3');const item=j.items?.[0];if(!item||view!=='catalog')return;
@@ -100,6 +101,7 @@ async function buLoadRecCovers(){
 }
 function buRatingConfig(){if(!ALL.goodreadsMapping)ALL.goodreadsMapping={1:2,2:4,3:6,4:8,5:10};return ALL.goodreadsMapping}
 function buRatingScale(){return ALL.ratingScale===5?5:10}
+function buRatingLabel(v){if(v==null)return '–';const scale=buRatingScale();return (scale===5?(Number(v)/2).toFixed(1):Number(v).toFixed(1))+'/'+scale}
 function buRatingInput(){return '<h3>Bewertungssystem</h3><p class="hint">Intern speichert BooksUp weiterhin 0 bis 10 Punkte, damit ältere Bewertungen erhalten bleiben.</p><div class="row"><button class="chip '+(buRatingScale()===5?'on':'')+'" onclick="ALL.ratingScale=5;save()">5 Sterne</button><button class="chip '+(buRatingScale()===10?'on':'')+'" onclick="ALL.ratingScale=10;save()">10 Punkte</button></div><h3>Goodreads 5 Sterne → BooksUp 10 Punkte</h3><div class="bu-rating-mapping">'+[1,2,3,4,5].map(i=>'<label>'+i+' Goodreads ★<input type="number" min="0" max="10" step="0.5" value="'+esc(buRatingConfig()[i]??i*2)+'" onchange="ALL.goodreadsMapping['+i+']=Math.min(10,Math.max(0,Number(this.value)||0));persist()"></label>').join('')+'</div>'}
 function buGoodreadsPick(){raw('.csv,text/csv',f=>{f.text().then(buGoodreadsPreview).catch(e=>toast('Goodreads-Datei konnte nicht gelesen werden: '+e.message))})}
 function buGoodreadsPreview(text){
