@@ -65,7 +65,7 @@ function buRecs(){
  const ownedSet=new Set(allOwned.flatMap(b=>[buRecIdentity(b),buNorm(b.title)]));
  const wantedGenres=new Set((r.includeGenres||[]).map(buNorm)),wantedTags=new Set((r.includeTags||[]).map(buNorm)),excluded=new Set((r.exclude||[]).map(buNorm));
  const seen=new Set(),list=[];
- const source=[...(r.own===false?[]:S.books.filter(b=>!buHasRead(b)).map(b=>({...b,own:1}))),...(r.cat===false?[]:CAT_().map(b=>({...b,own:0})))];
+ const source=[...(r.own===false?[]:buNextEligible().map(b=>({...b,own:1}))),...(r.cat===false?[]:CAT_().map(b=>({...b,own:0})))];
  for(const b of source){
   const title=buNorm(b.title),key=buRecIdentity(b),genre=buNorm(b.genre),tags=tg(b.tags).map(buNorm);
   if(!title||readSet.has(key)||readSet.has(title)||seen.has(key)||excluded.has(genre))continue;
