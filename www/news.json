@@ -1,4 +1,41 @@
 {
-  "updatedAt": null,
-  "articles": []
+  "updatedAt": "2026-10-14T00:20:00Z",
+  "articles": [
+    {
+      "title": "Peck & Peck by Bonnie Garmus – review",
+      "url": "https://www.theguardian.com/books/2026/oct/13/peck-peck-by-bonnie-garmus-review-the-zany-follow-up-to-lessons-in-chemistry",
+      "source": "The Guardian · Books",
+      "newsletter": "https://www.theguardian.com/books",
+      "date": "2026-10-13T06:00:00Z",
+      "summary": "Bonnie Garmus veröffentlicht nach Lessons in Chemistry einen neuen Roman über die eigenwillige Welt eines New Yorker Literaturmagazins.",
+      "image": null
+    },
+    {
+      "title": "Freida McFadden Has Sold 90 Million Copies, Sourcebooks Says",
+      "url": "https://www2.publishersweekly.com/pw/newsbrief/index.html",
+      "source": "Publishers Weekly",
+      "newsletter": "https://www.publishersweekly.com",
+      "date": "2026-10-13T16:00:00Z",
+      "summary": "Laut Verlag hat die Thrillerautorin weltweit die Marke von 90 Millionen verkauften Exemplaren erreicht.",
+      "image": null
+    },
+    {
+      "title": "Anne Carson wins Nobel prize in literature 2026",
+      "url": "https://www.theguardian.com/books/live/2026/oct/08/nobel-prize-in-literature-2026-winner-latest-news-updates",
+      "source": "The Guardian · Books",
+      "newsletter": "https://www.theguardian.com/books",
+      "date": "2026-10-08T10:00:00Z",
+      "summary": "Die kanadische Dichterin Anne Carson erhält den diesjährigen Literaturnobelpreis.",
+      "image": null
+    },
+    {
+      "title": "Audrey Niffenegger on the sequel to The Time Traveler's Wife",
+      "url": "https://www.theguardian.com/books/2026/oct/10/people-forgot-i-existed-audrey-niffenegger-on-taking-14-years-to-write-a-sequel-to-the-time-travelers-wife",
+      "source": "The Guardian · Books",
+      "newsletter": "https://www.theguardian.com/books",
+      "date": "2026-10-10T08:00:00Z",
+      "summary": "Die Autorin spricht über ihre langjährige Arbeit an der Fortsetzung von The Time Traveler's Wife.",
+      "image": null
+    }
+  ]
 }
