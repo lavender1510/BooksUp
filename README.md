@@ -1,3 +1,15 @@
+# BooksUp 4.2 – Stability and News
+
+Updates:
+- Faster UI navigation and an additional News tab using public RSS-aggregated articles from a scheduled GitHub workflow.
+- News sources are credited, links point to the original publisher. A feed may be empty until `Refresh BooksUp Book News` runs successfully.
+- Backup ZIP uses larger Android write chunks and includes a progress dialog with smoothed percentage display; duration depends on the number and size of files.
+- Stronger top-positioned status messages, responsive settings typography, and scrolling improvements.
+- Automatic metadata enrichment from book APIs, without overriding manually entered fields. Internet access and provider coverage required.
+- Extended German, English, French, Spanish, and Italian UI localization dictionary for common elements. Legacy copy not in the dictionary is still untranslated.
+
+CAUTION: **Do not uninstall the previous APK without a validated backup.** Android updates require matching signing certificates; existing debug signing may differ across builds. Cloud Drive OAuth remains beta. Test on a spare library before using on important data.
+
 # BooksUp 4.1 – Bibliothek & Goodreads
 
 ### Neu und verbessert

@@ -1,0 +1,23 @@
+name: Refresh BooksUp Book News
+on:
+  schedule:
+    - cron: '15 6,18 * * *'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Fetch publisher book news
+        run: python tools/refresh-news.py
+      - name: Publish verified news data
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add www/news.json
+          git diff --cached --quiet || (git commit -m "chore: refresh book news feed [skip ci]" && git push)

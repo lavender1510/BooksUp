@@ -1,8 +1,8 @@
 {
   "name": "booksup",
-  "version": "4.1.0",
+  "version": "4.2.0",
   "private": true,
-  "description": "BooksUp 4.1 – library tools, Goodreads mappings, wishlist, prices and recommendations",
+  "description": "BooksUp 4.2 – navigation performance, backup progress, news and localization",
   "productName": "BooksUp",
   "main": "electron/main.cjs",
   "type": "commonjs",
