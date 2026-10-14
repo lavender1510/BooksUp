@@ -1,40 +1,310 @@
 {
-  "updatedAt": "2026-10-14T00:20:00Z",
+  "updatedAt": "2026-10-14T11:56:32.881990+00:00",
   "articles": [
     {
-      "title": "Peck & Peck by Bonnie Garmus – review",
+      "title": "The Best Historical Fiction Set in the 1700s",
+      "url": "https://bookriot.com/best-historical-fiction-set-in-the-1700s/",
+      "source": "Book Riot",
+      "newsletter": "https://bookriot.com",
+      "date": "2026-10-14T10:04:00+00:00",
+      "summary": "Explore Korean court politics, journey to a Scotland that has just been joined with England, and more in these 1700s-set historical books.",
+      "image": null
+    },
+    {
+      "title": "The Best Comics and Graphic Novels For Non-Comic Readers",
+      "url": "https://bookriot.com/best-comics-for-non-comic-readers/",
+      "source": "Book Riot",
+      "newsletter": "https://bookriot.com",
+      "date": "2026-10-14T10:03:00+00:00",
+      "summary": "Think you don't like comics? Think again. Or at the very least give these six unique titles a try before you decide.",
+      "image": null
+    },
+    {
+      "title": "Love Noir? Try Iyamisu and Dark Japanese Crime Novels",
+      "url": "https://bookriot.com/iyamisu-and-dark-japanese-crime-novels/",
+      "source": "Book Riot",
+      "newsletter": "https://bookriot.com",
+      "date": "2026-10-14T10:02:00+00:00",
+      "summary": "If you’re looking for a crime novel on the darker side of the spectrum, translated from Japanese, here are four criminally good reads.",
+      "image": null
+    },
+    {
+      "title": "Teen Vogue Romance Stories, Witchy Dark Academia, and More New YA Books for October 14, 2026",
+      "url": "https://bookriot.com/new-books-for-october-14-2026/",
+      "source": "Book Riot",
+      "newsletter": "https://bookriot.com",
+      "date": "2026-10-14T10:01:00+00:00",
+      "summary": "Plus, rival gang members in 1940s Chinatown plan a heist (and fall for each), a murderer writes a letter to their victim, and more.",
+      "image": null
+    },
+    {
+      "title": "6 of the Spookiest Middle Grade Horror Books",
+      "url": "https://bookriot.com/spookiest-middle-grade-horror-books/",
+      "source": "Book Riot",
+      "newsletter": "https://bookriot.com",
+      "date": "2026-10-14T10:00:00+00:00",
+      "summary": "These middle grade horror novels are some of the spookiest published in recent years, from established authors to newcomers.",
+      "image": null
+    },
+    {
+      "title": "📚 A big impact on the genre",
+      "url": "https://bookriot.com/a-big-impact-on-the-genre/",
+      "source": "Book Riot",
+      "newsletter": "https://bookriot.com",
+      "date": "2026-10-14T09:30:00+00:00",
+      "summary": "The best horror books of the century so far",
+      "image": null
+    },
+    {
+      "title": "Best Horror Books of the Century So Far",
+      "url": "https://bookriot.com/best-horror-books-of-the-century-so-far/",
+      "source": "Book Riot",
+      "newsletter": "https://bookriot.com",
+      "date": "2026-10-14T09:00:00+00:00",
+      "summary": "This year, Book Riot has been looking back at the best books of the century so far, broken out by genre and format.",
+      "image": null
+    },
+    {
+      "title": "Ply by Hernan Diaz review – Pulitzer winner’s dry vision of far-future America",
+      "url": "https://www.theguardian.com/books/2026/oct/14/ply-by-hernan-diaz-review-pulitzer-winners-dry-vision-of-far-future-america",
+      "source": "The Guardian · Books",
+      "newsletter": "https://www.theguardian.com/books",
+      "date": "2026-10-14T08:00:48+00:00",
+      "summary": "There are shades of JG Ballard in this tale of survival in a decaying metropolis, but big ideas and lengthy exposition crowd out the human drama Hernan Diaz’s last novel, the formally inventive Trust , narrated the biography of a successful financier from four different viewpoints to investigate themes of memory, representation, fiction and the fictitiousnes",
+      "image": null
+    },
+    {
+      "title": "The Steps by Sylvester Stallone review – the inside story of Rocky",
+      "url": "https://www.theguardian.com/books/2026/oct/14/the-steps-by-sylvester-stallone-review-the-inside-story-of-rocky",
+      "source": "The Guardian · Books",
+      "newsletter": "https://www.theguardian.com/books",
+      "date": "2026-10-14T06:00:47+00:00",
+      "summary": "The star takes us back to 70s New York to recount his breakthrough, and it’s a great yarn – but it’s laced with anger The Philadelphia Museum of Art contains a 14th-century Buddhist temple, a one-acre sculpture garden and works by Picasso, Renoir and Van Gogh. Its most famous attraction, however, is a flight of stone steps that draws several million tourists",
+      "image": null
+    },
+    {
+      "title": "Watch the First Trailer for NARNIA: THE MAGICIAN’S NEPHEW",
+      "url": "https://bookriot.com/narnia-magicians-nephew-trailer/",
+      "source": "Book Riot",
+      "newsletter": "https://bookriot.com",
+      "date": "2026-10-13T19:49:02+00:00",
+      "summary": "Watch the first trailer for Greta Gerwig's latest adaptation, NARNIA: THE MAGICIAN'S NEPHEW, premiering in theaters February 12th.",
+      "image": null
+    },
+    {
+      "title": "📚 A deluxe collectible edition",
+      "url": "https://bookriot.com/a-deluxe-collectible-edition/",
+      "source": "Book Riot",
+      "newsletter": "https://bookriot.com",
+      "date": "2026-10-13T19:23:24+00:00",
+      "summary": "Bourdain gets the Folio Society treatment.",
+      "image": null
+    },
+    {
+      "title": "Book Riot’s Deals of the Day for October 13, 2026",
+      "url": "https://bookriot.com/book-riots-deals-of-the-day-for-october-13-2026/",
+      "source": "Book Riot",
+      "newsletter": "https://bookriot.com",
+      "date": "2026-10-13T13:00:00+00:00",
+      "summary": "Essays on horror, dragon racing, a sex worker turned political assassin, and more of today's best book deals.",
+      "image": null
+    },
+    {
+      "title": "Generation Maybe by Camilla Cavendish review – what’s really behind the fertility gap?",
+      "url": "https://www.theguardian.com/books/2026/oct/13/generation-maybe-by-camilla-cavendish-review-whats-really-behind-the-fertility-gap",
+      "source": "The Guardian · Books",
+      "newsletter": "https://www.theguardian.com/books",
+      "date": "2026-10-13T08:00:18+00:00",
+      "summary": "An evidenced-based account of the difficult choices facing couples across the world – from America to Iran ‘Don’t be weird about this,” representative Alexandria Ocasio-Cortez laughed into the camera as she prepared to jab a hormone-filled needle into her midsection, adding that she knew full well that, yes, people were definitely going to be weird about it.",
+      "image": null
+    },
+    {
+      "title": "Peck & Peck by Bonnie Garmus review – the zany follow-up to Lessons in Chemistry",
       "url": "https://www.theguardian.com/books/2026/oct/13/peck-peck-by-bonnie-garmus-review-the-zany-follow-up-to-lessons-in-chemistry",
       "source": "The Guardian · Books",
       "newsletter": "https://www.theguardian.com/books",
-      "date": "2026-10-13T06:00:00Z",
-      "summary": "Bonnie Garmus veröffentlicht nach Lessons in Chemistry einen neuen Roman über die eigenwillige Welt eines New Yorker Literaturmagazins.",
+      "date": "2026-10-13T06:00:17+00:00",
+      "summary": "This offbeat tale of machinations at an eccentric poetry magazine in 80s New York is laugh-out-loud funny – and a paean to the power of poetry If you have been into a bookshop since 2022, or perhaps even just breathed in and out, you could not have failed to clock the phenomenon that was Lessons in Chemistry. Bonnie Garmus’s debut remains a global sensation.",
       "image": null
     },
     {
-      "title": "Freida McFadden Has Sold 90 Million Copies, Sourcebooks Says",
-      "url": "https://www2.publishersweekly.com/pw/newsbrief/index.html",
-      "source": "Publishers Weekly",
-      "newsletter": "https://www.publishersweekly.com",
-      "date": "2026-10-13T16:00:00Z",
-      "summary": "Laut Verlag hat die Thrillerautorin weltweit die Marke von 90 Millionen verkauften Exemplaren erreicht.",
-      "image": null
-    },
-    {
-      "title": "Anne Carson wins Nobel prize in literature 2026",
-      "url": "https://www.theguardian.com/books/live/2026/oct/08/nobel-prize-in-literature-2026-winner-latest-news-updates",
+      "title": "Did Trump get one thing right about Greenland?",
+      "url": "https://www.theguardian.com/world/2026/oct/11/did-trump-get-one-thing-right-about-greenland",
       "source": "The Guardian · Books",
       "newsletter": "https://www.theguardian.com/books",
-      "date": "2026-10-08T10:00:00Z",
-      "summary": "Die kanadische Dichterin Anne Carson erhält den diesjährigen Literaturnobelpreis.",
+      "date": "2026-10-11T11:00:25+00:00",
+      "summary": "Threatening an ally is a terrible idea, but there’s no denying the Arctic’s increasing strategic importance One of Donald Trump’s more diabolical talents is his ability to land on the right things in the wrong way. Since his first term, Trump has been obsessed with the Arctic – Greenland in particular – something that has puzzled and enraged many, particular",
       "image": null
     },
     {
-      "title": "Audrey Niffenegger on the sequel to The Time Traveler's Wife",
+      "title": "‘The crime fiction I’m interested in is political’: Ian Rankin on his new novel about the super-rich",
+      "url": "https://www.theguardian.com/books/2026/oct/11/the-fiction-im-interested-in-is-political-ian-rankin-on-his-new-novel-about-the-super-rich",
+      "source": "The Guardian · Books",
+      "newsletter": "https://www.theguardian.com/books",
+      "date": "2026-10-11T11:00:24+00:00",
+      "summary": "The bestselling writer talks about leaving Edinburgh for London in his latest mystery, and what the future holds for Rebus Sir Ian Rankin rarely watches television. Certainly, there’s no gleaming flatscreen in the corner of the apartment in Edinburgh where he writes, listens to music and constructs elaborate Lego models (all four Beatles, their Yellow Submar",
+      "image": null
+    },
+    {
+      "title": "‘People forgot I existed’: Audrey Niffenegger on taking 14 years to write a sequel to The Time Traveler’s Wife",
       "url": "https://www.theguardian.com/books/2026/oct/10/people-forgot-i-existed-audrey-niffenegger-on-taking-14-years-to-write-a-sequel-to-the-time-travelers-wife",
       "source": "The Guardian · Books",
       "newsletter": "https://www.theguardian.com/books",
-      "date": "2026-10-10T08:00:00Z",
-      "summary": "Die Autorin spricht über ihre langjährige Arbeit an der Fortsetzung von The Time Traveler's Wife.",
+      "date": "2026-10-10T08:00:51+00:00",
+      "summary": "Her debut made her a global star. Now she has finally written a follow-up – and this time, it’s political. She talks about impostor syndrome, screen adaptations and becoming radicalised The artist and novelist Audrey Niffenegger began writing the long-awaited sequel to her bestselling debut, The Time Traveler’s Wife, in 2012, just after Obama’s re-election. ",
+      "image": null
+    },
+    {
+      "title": "The best recent science fiction, fantasy and horror – review roundup",
+      "url": "https://www.theguardian.com/books/2026/oct/09/the-best-recent-science-fiction-fantasy-and-horror-review-roundup",
+      "source": "The Guardian · Books",
+      "newsletter": "https://www.theguardian.com/books",
+      "date": "2026-10-09T11:00:27+00:00",
+      "summary": "The Ballad of Black Tom by Victor LaValle; As You Wake, Break the Shell by Becky Chambers; The Eye of Goliath by Diego Muzzio; Our Cut of Salt by Deena Helm The Ballad of Black Tom by Victor LaValle ( Penguin , £9.99 ) This short novel won almost every genre award following its 2016 US publication. As a Black writer, LaValle had a conflicted relationship wit",
+      "image": null
+    },
+    {
+      "title": "The Queerest of Folk by Russell T Davies review – the groundbreaking screenwriter tells it like it is",
+      "url": "https://www.theguardian.com/books/2026/oct/09/the-queerest-of-folk-by-russell-t-davies-review-the-groundbreaking-screenwriter-tells-it-like-it-is",
+      "source": "The Guardian · Books",
+      "newsletter": "https://www.theguardian.com/books",
+      "date": "2026-10-09T06:00:41+00:00",
+      "summary": "From Coronation Street to It’s a Sin, Davies’ memoir of a career in TV is also a rallying cry for creativity Television is an intimate art form, once beamed into living rooms, now on devices right in front of our faces. The screenwriter Russell T Davies understands that intimacy. Whether discussing his early days developing lost-to-history soap spin-offs, ma",
+      "image": null
+    },
+    {
+      "title": "Agate Head / Stone Soup by Patricia Lockwood review – a gem of a collection",
+      "url": "https://www.theguardian.com/books/2026/oct/08/agate-head-stone-soup-by-patricia-lockwood-review-a-gem-of-a-collection",
+      "source": "The Guardian · Books",
+      "newsletter": "https://www.theguardian.com/books",
+      "date": "2026-10-08T06:00:11+00:00",
+      "summary": "Inspired by stones and metals, the memoirist and novelist’s first poetry collection for more than a decade is charming, whimsical and intimate In the introduction to her first book of poetry in 12 years, Patricia Lockwood states that, “For almost a decade … I had not been able to hear it. The poems that I wrote would not end … too much was happening, there w",
+      "image": null
+    },
+    {
+      "title": "Other Worlds Than These by Stephen King and Peter Straub review – a self-indulgent finale to the Talisman trilogy",
+      "url": "https://www.theguardian.com/books/2026/oct/07/other-worlds-than-these-by-stephen-king-and-peter-straub-review-a-self-indulgent-finale-to-the-talisman-trilogy",
+      "source": "The Guardian · Books",
+      "newsletter": "https://www.theguardian.com/books",
+      "date": "2026-10-07T08:00:38+00:00",
+      "summary": "There are moments of shivering joy as the protagonist of two enduring classics, Jack Sawyer, returns – but this time his journey feels endlessly repetitive Bear with me, because there is some backstory to get through before we can talk about the book I am actually here to review. Back in 1984, Stephen King and Peter Straub collaborated on the fantasy novel T",
+      "image": null
+    },
+    {
+      "title": "Blockers by Michael Lewis review – the quiet heroes who tried to stop Doge",
+      "url": "https://www.theguardian.com/books/2026/oct/07/blockers-by-michael-lewis-review-the-quiet-heroes-who-tried-to-stop-doge",
+      "source": "The Guardian · Books",
+      "newsletter": "https://www.theguardian.com/books",
+      "date": "2026-10-07T06:00:35+00:00",
+      "summary": "The author of Moneyball brings his exceptional narrative skills to bear on Musk’s anti-government crusade Donald Trump’s catastrophic errors get so much attention that his systemic ones can easily be missed. While the world looks on in dismay at his farcical war in Iran, the thuggery of Ice agents or clownish attacks on erstwhile allies like Canada and Denma",
+      "image": null
+    },
+    {
+      "title": "Holding Lightning by Emily Lordi review – an intimate portrait of Whitney Houston",
+      "url": "https://www.theguardian.com/music/2026/oct/06/holding-lightning-by-emily-lordi-review-an-intimate-portrait-of-whitney-houston",
+      "source": "The Guardian · Books",
+      "newsletter": "https://www.theguardian.com/books",
+      "date": "2026-10-06T08:00:06+00:00",
+      "summary": "An empathetic biography of the the singer recasts her tumultuous later career as a triumph of self-expression Since Whitney Houston’s death in 2012, a flurry of books and documentaries have appeared, most of them presenting her life as a cautionary tale. In this new biography, Emily Lordi, a professor of English at Vanderbilt University, refuses to reduce Ho",
+      "image": null
+    },
+    {
+      "title": "Partita By Barbara Kingsolver review – a midlife follow-up to Demon Copperhead",
+      "url": "https://www.theguardian.com/books/2026/oct/06/partita-by-barbara-kingsolver-review-a-quieter-follow-up-to-demon-copperhead",
+      "source": "The Guardian · Books",
+      "newsletter": "https://www.theguardian.com/books",
+      "date": "2026-10-06T06:00:05+00:00",
+      "summary": "The sex writing threatens to throw the novel off-kilter, but there are rich rewards in this tale of music and middle-aged compromises What is the role of art in an artist’s life? Should you commit everything to honing your talent in the hope of becoming a great master? Or should you use your artistic gift to enrich your life and that of your community? In Pa",
+      "image": null
+    },
+    {
+      "title": "Sleeping Beauties by David Byrne review – a quirky journey through the afterlife of invention",
+      "url": "https://www.theguardian.com/music/2026/oct/05/sleeping-beauties-by-david-byrne-review-a-quirky-journey-through-the-afterlife-of-invention",
+      "source": "The Guardian · Books",
+      "newsletter": "https://www.theguardian.com/books",
+      "date": "2026-10-05T06:00:48+00:00",
+      "summary": "The Talking Heads frontman considers dormant ideas that made a comeback – from Indian irrigation to Kafka There’s barely been a moment in  the last half-century when David Byrne hasn’t been zinging about, dancing forward, opting odd. The art-school dropout frontman of Talking Heads, he moved sideways into ballet, dance and experimental theatre, collaborated ",
+      "image": null
+    },
+    {
+      "title": "‘We have been dispossessed’: Nick Hayes on land rights and a peaceful revolution at the real Toad Hall",
+      "url": "https://www.theguardian.com/books/2026/oct/04/we-have-been-dispossessed-nick-hayes-on-land-rights-and-a-peaceful-revolution-at-the-real-toad-hall",
+      "source": "The Guardian · Books",
+      "newsletter": "https://www.theguardian.com/books",
+      "date": "2026-10-04T11:00:27+00:00",
+      "summary": "The co-founder of the Right to Roam campaign and author of The Book of Trespass discusses the Oxfordshire riverside community he calls home and how Hardwick Hall has been taken back by the people On the banks of the Thames in South Oxfordshire, the Hardwick estate has been owned by the Rose family for generations. When Sir Charles Rose, a banker, sportsman, ",
+      "image": null
+    },
+    {
+      "title": "‘I thought, if I’m going to die, I’m going to write a book first’: Pachinko author Min Jin Lee",
+      "url": "https://www.theguardian.com/books/2026/oct/03/i-thought-if-im-going-to-die-im-going-to-write-a-book-first-pachinko-author-min-jin-lee",
+      "source": "The Guardian · Books",
+      "newsletter": "https://www.theguardian.com/books",
+      "date": "2026-10-03T08:00:53+00:00",
+      "summary": "Her last novel sold 5m copies and was adapted into a hit series. Nearly 10 years on, the Korean-American author has written another epic. She discusses ambition and the diagnosis that inspired her to leave work and write Back in 1995, when she was in her mid-20s, Min Jin Lee quit her job as a corporate lawyer. As a teenager she had been diagnosed as a hepati",
+      "image": null
+    },
+    {
+      "title": "What we’re reading: China Miéville, Sebastian Barry, Derek Owusu and Guardian readers on the books they enjoyed in September",
+      "url": "https://www.theguardian.com/books/2026/oct/01/what-were-reading-sebastian-barry-china-mieville-readers-and-derek-owusu-on-the-books-they-enjoyed-in-september",
+      "source": "The Guardian · Books",
+      "newsletter": "https://www.theguardian.com/books",
+      "date": "2026-10-01T11:48:27+00:00",
+      "summary": "Writers and Guardian readers discuss the titles they have read over the last month. Join the conversation in the comments I was sideswiped by Giada Scodellaro’s Ruins, Child . A brilliant, strange book that challenged me in the most exhilarating way, with its fractured language and dream-cinema visions, the sense it bestowed of walking through a corridor ful",
+      "image": null
+    },
+    {
+      "title": "The best books to read in September: new paperbacks from Margaret Atwood, Kiran Desai and Richard Holmes",
+      "url": "https://www.theguardian.com/books/ng-interactive/2026/sep/18/the-best-books-to-read-in-september-new-paperbacks-from-margaret-atwood-kiran-desai-and-richard-holmes",
+      "source": "The Guardian · Books",
+      "newsletter": "https://www.theguardian.com/books",
+      "date": "2026-09-18T17:19:59+00:00",
+      "summary": "Looking for a new reading recommendation? Here are some great new paperbacks, from an epic multigenerational saga by a Booker winner to a biography of an iconic Victorian poet *** Continue reading...",
+      "image": null
+    },
+    {
+      "title": "Children’s and teens roundup – the best new picture books and novels",
+      "url": "https://www.theguardian.com/books/2026/sep/18/childrens-and-teens-roundup-the-best-new-picture-books-and-novels",
+      "source": "The Guardian · Books",
+      "newsletter": "https://www.theguardian.com/books",
+      "date": "2026-09-18T11:00:18+00:00",
+      "summary": "A tiger’s tale; the young Henry VIII; a fantasy follow‑up from Katherine Rundell; small-town secrets; ghosts galore and more Once Upon a Tiger by Sarah Massini, S&S, £14.99 Tiger is irate to find three cheeky human cubs climbing on his back – but when they refuse to be scared off, he becomes increasingly attached to them. A sweet, classic-feeling picture boo",
+      "image": null
+    },
+    {
+      "title": "Children’s books roundup – the best new picture books and novels",
+      "url": "https://www.theguardian.com/books/2026/aug/28/childrens-books-roundup-the-best-new-picture-books-and-novels",
+      "source": "The Guardian · Books",
+      "newsletter": "https://www.theguardian.com/books",
+      "date": "2026-08-28T11:00:55+00:00",
+      "summary": "Poetry with wonder and wit; a heartwarming tale for horse lovers; a portal to the future; a brilliant YA wartime romance and more Small Monster, Big Monster by Allan Sanders, Phaidon, £7.95 Refrigerator is EMPTY. Monster is FULL (of pizza!). An eye-wateringly bright board book, featuring splendidly zany, toddler-pleasing pairs of opposites. The Flying Machin",
+      "image": null
+    },
+    {
+      "title": "Children and teens roundup – the best new picture books and novels",
+      "url": "https://www.theguardian.com/books/2026/jun/26/children-and-teens-roundup-the-best-new-picture-books-and-novels",
+      "source": "The Guardian · Books",
+      "newsletter": "https://www.theguardian.com/books",
+      "date": "2026-06-26T11:00:15+00:00",
+      "summary": "A mouse detective; a fresh take on the Odyssey; a dangerous wish; and the world’s most watched reality TV show My Dad Can by Stephen Lightbown, illustrated by Claire Sahara Lemp, Quarto, £7.99 Iris’s dad can turn into dinosaurs, unicorns, anything she imagines – though some people see Dad’s wheelchair and believe he can’t do anything. This soft-smudged, colo",
+      "image": null
+    },
+    {
+      "title": "Children and teens roundup – the best new picture books and novels",
+      "url": "https://www.theguardian.com/books/2026/may/22/children-and-teens-roundup-the-best-new-picture-books-and-novels",
+      "source": "The Guardian · Books",
+      "newsletter": "https://www.theguardian.com/books",
+      "date": "2026-05-22T11:00:58+00:00",
+      "summary": "A bunny who loves to bake, illustrated poems about amazing animals and a YA verse novel of dancefloor salvation Ban Ban’s Bakery by Elena Hiroko Magee, Do Re Mi, £12.99 Ban Ban the bunny loves baking with Grandma – but will she be able to turn Dusty Cottage into a bakery of her very own? A cute, enticing picture book full of mouthwatering, pastel-hued treats",
+      "image": null
+    },
+    {
+      "title": "The 100 best novels of all time",
+      "url": "https://www.theguardian.com/books/ng-interactive/2026/may/12/the-100-best-novels-of-all-time",
+      "source": "The Guardian · Books",
+      "newsletter": "https://www.theguardian.com/books",
+      "date": "2026-05-16T05:00:40+00:00",
+      "summary": "The top 100 novels of all time published in English, as voted for by authors, critics and academics worldwide. How many have you read? Continue reading...",
       "image": null
     }
   ]
