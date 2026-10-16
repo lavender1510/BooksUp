@@ -1,3 +1,23 @@
+# BooksUp 4.3.0 — Reading & Cover Reliability
+
+## Changes
+- Automatic online cover lookup: verified Open Library Covers (ISBN/cover IDs) then Google Books metadata images, lazy-loaded when visible. Existing manual covers keep priority. Offline and no-result states are labeled.
+- Cleaner, quieter PDF full-screen reader. Fit mobile PDF pages to the available viewport instead of rendering oversized pages with white space.
+- PDF vertical/horizontal continuous scrolling is configurable; chapter, focus, colors, typography and text-mode preferences are available under Reading Settings.
+- Appearance has consistent previews for templates, accent, paper, brightness and font size; changes are staged until Save, and leaving prompts to save, discard or stay.
+- Recommendations show sources and genres directly; large lists scroll independently.
+- Currency preferences include additional display currencies, locale formatting, visibility of purchase/list prices and a book-budget field (amounts are not automatically converted).
+- Goodreads compatibility has its own Settings category.
+- Profile reading lists support owned and wishlist items, optional rules based on finished/reading/unread/owned status, update timing, and optional synchronized library folders for all-owned lists.
+- Book news feed extractor uses publisher OpenGraph and Twitter preview images when RSS feeds do not provide media. The original articles are linked.
+
+## Limitations and safety
+- Remote cover and article imagery depends on upstream providers and internet access; no image is fabricated where no matching original source exists.
+- Five-language localization covers new settings and many older controls, but complete translation of every legacy screen has not yet been verified.
+- Windows and Android automated builds and full-scale device reader/backup restoration tests must pass before considering this production-ready.
+- Never uninstall an Android build until you have successfully tested restoring a local backup. In-place APK upgrades require identical signing certificates across releases.
+- Google Drive Cloud sync still requires publisher OAuth configuration and device testing.
+
 # BooksUp 4.2 – Stability and News
 
 Updates:

@@ -103,13 +103,13 @@ const BU_WORDS={
 function buLocale(){try{return nextLanguage()}catch{return 'de'}}
 function buTranslate(text,lang){
  if(lang==='de')return text;
- const a=BU_WORDS[text.trim()];const index={en:0,fr:1,es:2,it:3}[lang];return a&&index!==undefined?a[index]:text;
+ const a=BU_WORDS[text.trim()]||BU43_WORDS[text.trim()];const index={en:0,fr:1,es:2,it:3}[lang];return a&&index!==undefined?a[index]:text;
 }
 function buTranslateUI(){
  const lang=buLocale();const root=$('app');if(!root)return;
  root.lang=lang;document.documentElement.lang=lang;
  if(lang==='de')return;
- const skip=new Set(['SCRIPT','STYLE','TEXTAREA','INPUT','CODE','PRE','SVG','OPTION']);
+ const skip=new Set(['SCRIPT','STYLE','TEXTAREA','INPUT','CODE','PRE','SVG']);
  const walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);
  const nodes=[];while(walker.nextNode()){const n=walker.currentNode;if(n.parentElement&&!skip.has(n.parentElement.tagName)&&n.nodeValue.trim()&&n.nodeValue.length<150)nodes.push(n)}
  for(const n of nodes){const old=n.nodeValue,trim=old.trim(),tr=buTranslate(trim,lang);if(tr!==trim)n.nodeValue=old.replace(trim,tr)}

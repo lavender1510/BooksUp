@@ -2,7 +2,8 @@
 """Public RSS fetcher, safe no-auth headline cache. Keeps previous articles if feeds are offline."""
 import email.utils, html, json, pathlib, re, urllib.request, xml.etree.ElementTree as ET
 from datetime import datetime, timezone
-from urllib.parse import urlparse
+from urllib.parse import urlparse, urljoin
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 DEST = ROOT / "www" / "news.json"
@@ -11,7 +12,7 @@ FEEDS = [
  ("Publishers Weekly", "https://www.publishersweekly.com/pw/feeds/recent/index.xml", "https://www.publishersweekly.com"),
  ("Book Riot", "https://bookriot.com/feed/", "https://bookriot.com"),
 ]
-headers={"User-Agent":"BooksUp/4.2 (GitHub Actions news aggregation)", "Accept":"application/rss+xml, application/atom+xml, application/xml, text/xml"}
+headers={"User-Agent":"BooksUp/4.3 (GitHub Actions news aggregation)", "Accept":"application/rss+xml, application/atom+xml, application/xml, text/xml"}
 articles=[]
 for source,url,newsletter in FEEDS:
  try:
@@ -52,10 +53,40 @@ for source,url,newsletter in FEEDS:
    articles.append(dict(title=title[:220],url=link,source=source,newsletter=newsletter,date=stamp,summary=description,image=image))
  except Exception as exc:
   print("Feed skipped:",source,str(exc))
+# Some RSS feeds omit media thumbnails. Resolve OpenGraph/twitter:image
+# from each original publisher page; keep failed lookups as honest placeholders.
+def open_graph_image(item):
+ if item.get("image"):return item
+ try:
+  url=item["url"]
+  domain=urlparse(url).hostname or ""
+  if domain not in {"www.theguardian.com","theguardian.com","bookriot.com","www.publishersweekly.com","www2.publishersweekly.com","publishersweekly.com"}:
+   return item
+  req=urllib.request.Request(url,headers={"User-Agent":"Mozilla/5.0 (compatible; BooksUp-news/4.3)","Accept":"text/html"})
+  with urllib.request.urlopen(req,timeout=7) as res:
+   body=res.read(240000).decode("utf-8","replace")
+  candidates=re.findall(r'<meta\b[^>]{0,1500}>',body,re.I)
+  for tag in candidates:
+   if not re.search(r'(og:image|twitter:image)',tag,re.I):continue
+   m=re.search(r'\bcontent\s*=\s*["\']([^"\']+)["\']',tag,re.I)
+   if not m:continue
+   link=urljoin(url,html.unescape(m.group(1).strip()))
+   if urlparse(link).scheme=="https" and urlparse(link).hostname:
+    item["image"]=link;break
+ except Exception as exc:
+  print("Image unavailable:",item.get("source"),str(exc)[:100])
+ return item
+
 seen=set();unique=[]
 for a in sorted(articles,key=lambda a:a["date"] or "",reverse=True):
  key=a["url"].split("?")[0]
  if key not in seen:seen.add(key);unique.append(a)
+if unique:
+ with ThreadPoolExecutor(max_workers=6) as pool:
+  futures={pool.submit(open_graph_image,a):a for a in unique[:40] if not a.get('image')}
+  for future in as_completed(futures):
+   try:future.result()
+   except Exception as exc:print('Image lookup:',str(exc)[:120])
 if not unique and DEST.exists():
  print("No fresh entries; preserved last verified feed")
 else:

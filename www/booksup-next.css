@@ -96,3 +96,69 @@ html,body{overflow-x:hidden;overscroll-behavior-y:auto}
 .bu-backup-ring{width:150px;height:150px;border-radius:50%;display:grid;place-items:center;margin:auto;background:conic-gradient(var(--acc) var(--bu-prog,0%),var(--bd) 0);position:relative}
 .bu-backup-ring:before{content:"";position:absolute;inset:13px;border-radius:50%;background:var(--card)}
 .bu-backup-ring strong{position:relative;font-size:26px;color:var(--ink)}
+
+/* BooksUp 4.3 – cohesive card design, deliberate settings, mobile reader fixes */
+.bu43-cover-slot{width:100%;height:100%;min-height:76px;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:7px;overflow:hidden;text-align:center;background:linear-gradient(160deg,color-mix(in srgb,var(--acc) 22%,var(--card)),var(--card));color:var(--ink);padding:12px}
+.bu43-cover-placeholder{font:700 clamp(18px,3vw,29px)/1 var(--sf);letter-spacing:.03em}
+.bu43-cover-slot small{font:11px/1.25 var(--ss);opacity:.72;overflow-wrap:anywhere}
+.bu43-cover-slot img{width:100%;height:100%;object-fit:cover}
+.bu43-cover-missing{display:grid;place-items:center;font-size:11px;padding:10px;color:var(--mut)}
+.th>.bu43-cover-slot,.next-cover>.bu43-cover-slot,.next-detail-cover>.bu43-cover-slot,.next-hero-cover>.bu43-cover-slot{position:absolute;inset:0}
+.next-cover,.th,.next-detail-cover,.next-hero-cover{position:relative;overflow:hidden}
+.bu43-settings-panel{display:grid;gap:13px;padding:12px 8px 45px;min-width:0}
+.bu43-settings-panel h3{margin:15px 0 0}
+.bu43-settings-panel label{font-size:13px}
+.bu43-settings-panel input,.bu43-settings-panel select{max-width:100%;accent-color:var(--acc)}
+.bu43-check{display:flex!important;align-items:center;gap:12px;padding:10px;border-radius:12px;background:var(--card);min-height:42px}
+.bu43-check input{width:auto!important;flex:none}
+.bu43-scroll-choices{max-height:250px;overflow:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;border:1px solid var(--bd);border-radius:14px;padding:5px;background:var(--card)}
+.bu43-scroll-choices .bu43-check{background:transparent;cursor:pointer}
+.bu43-appearance{padding:0 6px 80px;display:grid;gap:5px}
+.bu43-appearance>h3{margin-top:22px}
+.bu43-appearance .next-theme-grid{padding:8px 0}
+.bu43-preview-row{display:flex;gap:10px;flex-wrap:wrap;min-width:0}
+.bu43-mode-preview{border:2px solid var(--bd);border-radius:16px;padding:8px;min-width:84px;max-width:180px;flex:1 1 90px;display:flex;flex-direction:column;align-items:center;gap:6px;color:var(--ink);background:var(--card);cursor:pointer}
+.bu43-mode-preview.on{border-color:var(--acc);box-shadow:0 0 0 2px color-mix(in srgb,var(--acc) 16%,transparent)}
+.bu43-mode-preview small{font-size:11px;text-align:center;line-height:1.2;overflow-wrap:anywhere}
+.bu43-mode-art{height:52px;width:100%;display:grid;place-items:center;border-radius:10px;background:color-mix(in srgb,var(--acc) 14%,var(--bg));font:600 22px var(--sf)}
+.bu43-mode-sample{display:grid;place-items:center;min-height:41px;width:80%;border-radius:8px;background:linear-gradient(90deg,#f0eff6 50%,#292a36 50%);color:#5d536f}
+.bu43-mode-sample.day{background:#fff8ec;color:#3b3430}
+.bu43-mode-sample.night{background:#24252b;color:#f9f3e9}
+.bu43-color-dot{height:52px;width:100%;border-radius:10px}
+.bu43-ap-actions{display:flex;gap:10px;flex-wrap:wrap;position:sticky;bottom:max(10px,env(safe-area-inset-bottom,0px));padding:12px;background:var(--card);border:1px solid var(--bd);border-radius:16px;z-index:15;margin-top:18px}
+.bu43-profile-lists{margin:20px 16px}
+.bu43-panel-head{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.bu43-profile-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:10px}
+.bu43-panel-card{background:var(--card);color:var(--ink);border:1px solid var(--bd);border-radius:15px;padding:14px;text-align:left}
+.bu43-panel-card b,.bu43-panel-card small{display:block}
+.bu43-panel-card small{color:var(--mut)}
+.bu43-rule{display:grid;gap:7px;padding:13px 0;margin-bottom:15px;border-bottom:1px solid var(--bd)}
+.bu43-rule select{width:100%;margin:0 0 6px}
+.bu43-rule label{font-size:13px}
+.bu43-rule .bu43-check{margin:3px 0}
+body{font-size:var(--fz,16px)}
+.next-content p,.next-content li,.next-content label:not(.bu43-check),.next-content .hint{font-size:inherit}
+.next-content .next-setting-row small,.next-content .next-book-card small,.next-content .bu-news-meta{font-size:.78em}
+.next-settings-title h1{font-size:clamp(24px,4vw,32px)!important}
+.rdwrap{contain:layout style}
+.rdwrap.full{background:var(--bg)}
+.rdwrap.full .next-reading-subtitle{display:none}
+.rdwrap.full .rdtop{gap:5px;padding:calc(5px + env(safe-area-inset-top,0px)) 8px 5px;min-height:48px}
+.rdwrap.full .rdtop .tt{font-size:12px;font-weight:500}
+.rdwrap.full .rdtop #rdmk,.rdwrap.full .rdtop #rdauto{display:none}
+.rdwrap.full .rdtop .chip{font-size:11px;min-height:32px;padding:4px 8px}
+.rdwrap.full .rdbody{min-height:0;flex:1 1 auto;overflow:hidden}
+.rdwrap.full .rdscroll{height:100%;width:100%;overflow:auto}
+.rdwrap.m0.full .rdscroll{display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden}
+.rdwrap.m0.full #pdfCv{display:block!important;object-fit:contain;max-width:100%!important;max-height:100%!important;width:auto;height:auto;margin:0 auto!important}
+.rdwrap.m0.full .spread{max-height:100%;display:flex;align-items:center;justify-content:center}
+.rdwrap.full .rdbar{padding:5px 13px max(8px,env(safe-area-inset-bottom,0px));font-size:11px}
+.rdwrap.full .rdbar .prog{height:3px}
+.rdwrap.full .next-reading-bottom{display:none}
+.rdwrap.m1 .rdscroll.pdf-horizontal{display:flex!important;flex-direction:row;overflow-x:auto!important;overflow-y:hidden!important;scroll-snap-type:x mandatory;scroll-behavior:smooth;touch-action:pan-x;gap:0}
+.rdwrap.m1 .rdscroll.pdf-horizontal>.pgw{flex:0 0 100%;width:100%;height:100%;max-height:100%;aspect-ratio:auto!important;margin:0;scroll-snap-align:center;display:flex;align-items:center;justify-content:center;background:#d9d4ca}
+.rdwrap.m1 .rdscroll.pdf-horizontal>.pgw canvas{display:block;max-height:100%;height:auto!important;width:auto!important;max-width:100%;object-fit:contain}
+.rdwrap.m1:not(.full) .rdbody{height:min(78dvh,840px)}
+.rdwrap.m0:not(.full) .rdscroll>canvas{max-width:100%;height:auto!important}
+.rdbody,.rdscroll{min-width:0}
+@media(max-width:640px){.rdwrap.full .rdtop .tt{max-width:43vw}.rdwrap.full .rdbar b{font-size:11px}.bu43-ap-actions{bottom:80px}.bu43-preview-row{gap:7px}.bu43-mode-preview{min-width:76px}}

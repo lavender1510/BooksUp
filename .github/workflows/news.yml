@@ -1,5 +1,10 @@
 name: Refresh BooksUp Book News
 on:
+  push:
+    branches: [main]
+    paths:
+      - 'tools/refresh-news.py'
+      - '.github/workflows/news.yml'
   schedule:
     - cron: '15 6,18 * * *'
   workflow_dispatch:
