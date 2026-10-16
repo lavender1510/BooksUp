@@ -21,8 +21,7 @@ function buBulkFolder(){
   S.books.filter(b=>buSelected.has(Number(b.id))).forEach(b=>{b.folder=folder;b.folders=[...buShelfSet(b).add(folder)]});
   buSelected.clear();buMulti=false;save();toast('Ordner zugewiesen')
 }
-function buShelfToolbar(){return '<div class="bu-shelf-toolbar"><label class="bu-search-label">Bücher im Regal suchen<input id="bu-shelf-search" type="search" autocomplete="off" placeholder="Titel, ISBN, Autor oder Reihe" value="'+esc(buShelfQuery)+'" oninput="buFilterShelfLive()" aria-label="Bücherregal durchsuchen"></label><button class="chip" onclick="buToggleMulti()">'+(buMulti?'Auswahl beenden':'Mehrere auswählen')+'</button><button class="chip" onclick="go(\'lists\')">Leselisten</button><small id="bu-results-count" aria-live="polite"></small></div>'+
- (buMulti?'<div class="bu-bulk"><strong id="bu-selected-count">'+buSelected.size+' ausgewählt</strong><button class="chip" onclick="buSelectVisible()">Sichtbare wählen</button><button class="btn o" onclick="buBulkFolder()">In Ordner</button><button class="btn o" onclick="buBulkDelete()">Löschen</button></div>':'')}
+function buShelfToolbar(){return bu44ShelfToolbar()}
 function buBookCheckbox(b){return buMulti?'<label class="bu-book-pick" onclick="event.stopPropagation()"><input type="checkbox" data-bu-selection="'+Number(b.id)+'" '+(buSelected.has(Number(b.id))?'checked':'')+' onchange="buSelect('+Number(b.id)+')" aria-label="'+esc(b.title)+' auswählen"></label>':''}
 function buListsData(){if(!Array.isArray(S.readingLists))S.readingLists=[];return S.readingLists}
 function buNewList(){const v=prompt('Name der neuen Leseliste:', 'Möchte ich lesen');if(v===null||!v.trim())return;const name=v.trim();if(buListsData().some(x=>x.name.toLowerCase()===name.toLowerCase()))return toast('Liste existiert bereits');buListsData().push({id:Date.now(),name,items:[],folderSync:true});save();go('lists')}
@@ -67,26 +66,27 @@ function buRecs(){
  const ownedSet=new Set(allOwned.flatMap(b=>[buRecIdentity(b),buNorm(b.title)]));
  const wantedGenres=new Set((r.includeGenres||[]).map(buNorm)),wantedTags=new Set((r.includeTags||[]).map(buNorm)),excluded=new Set((r.exclude||[]).map(buNorm));
  const seen=new Set(),list=[];
- const source=[...(r.own===false?[]:buNextEligible().map(b=>({...b,own:1}))),...(r.cat===false?[]:CAT_().map(b=>({...b,own:0})))];
+ const source=[...(r.own===false?[]:buNextEligible().map(b=>({...b,own:1}))),...(r.cat===false?[]:[...CAT_(),...bu44ExtraRecommendations()].map(b=>({...b,own:0})))];
  for(const b of source){
   const title=buNorm(b.title),key=buRecIdentity(b),genre=buNorm(b.genre),tags=tg(b.tags).map(buNorm);
   if(!title||readSet.has(key)||readSet.has(title)||seen.has(key)||excluded.has(genre))continue;
   if(!b.own&&(ownedSet.has(key)||ownedSet.has(title)))continue;
-  if(wantedGenres.size&&!wantedGenres.has(genre))continue;
+  if(wantedGenres.size&&![...wantedGenres].some(g=>genre===g||genre.includes(g)||g.includes(genre)&&genre.length>3))continue;
   if(wantedTags.size&&!tags.some(t=>wantedTags.has(t)))continue;
   seen.add(key);list.push(b);
  }
  const sources=(r.sources||[]).map(id=>S.books.find(b=>String(b.id)===String(id))).filter(Boolean);
  const last=sources.length?sources:[...S.books].filter(b=>buHasRead(b)).slice(-4);
  const score=b=>last.filter(x=>buNorm(x.genre)===buNorm(b.genre)).length*4+last.reduce((n,x)=>n+tg(x.tags).filter(t=>tg(b.tags).includes(t)).length,0);
- list.sort((a,b)=>score(b)-score(a)||String(a.title).localeCompare(String(b.title),'de'));
- return {list:list.slice(0,12),last};
+ const day=Math.floor(Date.now()/86400000);const tie=b=>{const v=buNorm(b.title)+'/'+day;let h=2166136261;for(let i=0;i<v.length;i++)h=Math.imul(h^v.charCodeAt(i),16777619);return(h>>>0)%500};
+ list.sort((a,b)=>score(b)-score(a)||tie(a)-tie(b));
+ return {list:list.slice(0,48),last};
 }
-function buCatalogDetails(i){buCatalogIndex=Number(i);go('catalog')}
+function buCatalogDetails(i){buCatalogIndex=Number(i);const b=buRecs().list[buCatalogIndex];go('catalog');const isbn=bu44EditionIsbn(b?.isbn);if(isbn&&b&&!bu44WatchState(b)){const k='bu44-watch-asked-'+isbn;try{if(sessionStorage.getItem(k))return;sessionStorage.setItem(k,'1')}catch{}setTimeout(()=>{if(view==='catalog'&&buRecs().list[buCatalogIndex]===b)bu44WatchPrompt(b)},650)}}
 function buCatalogView(){
  const b=buRecs().list[buCatalogIndex];if(!b)return bar('Empfehlung','home')+'<div class="card">Empfehlung nicht mehr verfügbar.</div>';
  const isbn=esc(b.isbn||''),year=esc(b.year||''),publisher=esc(b.publisher||''),genre=esc(b.genre||'');
- return bar('Buch entdecken','home')+'<section class="next-detail"><div class="next-detail-main"><div class="next-detail-cover">'+nextCover(b)+'</div><div class="next-detail-intro"><span class="next-overline">BOOKSUP DISCOVER</span><h1>'+esc(b.title)+'</h1><p>'+esc(b.author||'')+'</p><p class="hint">'+genre+'</p><button class="btn" onclick="buCatalogAdd('+buCatalogIndex+')">Zur Bibliothek hinzufügen</button></div></div><section class="next-book-information"><h2>Über das Buch</h2><div class="next-info-grid"><div><small>Autor</small><b>'+esc(b.author||'–')+'</b></div><div><small>Jahr</small><b>'+year+'</b></div><div><small>Verlag</small><b>'+publisher+'</b></div><div><small>ISBN</small><b>'+isbn+'</b></div><div><small>Genre</small><b>'+genre+'</b></div><div><small>Reihe</small><b>'+esc(b.series||'–')+'</b></div></div><p class="hint">Weitere Angaben werden über die Online-Buchdatenbanken ergänzt, wenn sie vorhanden sind.</p><div id="bu-catalog-meta" class="hint">Online-Informationen werden geprüft …</div></section></section>';
+ return bar('Buch entdecken','home')+'<section class="next-detail"><div class="next-detail-main"><div class="next-detail-cover">'+nextCover(b)+'</div><div class="next-detail-intro"><span class="next-overline">BOOKSUP DISCOVER</span><h1>'+esc(b.title)+'</h1><p>'+esc(b.author||'')+'</p><p class="hint">'+genre+'</p><button class="btn" onclick="buCatalogAdd('+buCatalogIndex+')">Zur Bibliothek hinzufügen</button><button class="btn o" onclick="bu44WatchCatalog('+buCatalogIndex+')">🔔 MediMops-Preisalarm</button></div></div><section class="next-book-information"><h2>Über das Buch</h2><div class="next-info-grid"><div><small>Autor</small><b>'+esc(b.author||'–')+'</b></div><div><small>Jahr</small><b>'+year+'</b></div><div><small>Verlag</small><b>'+publisher+'</b></div><div><small>ISBN</small><b>'+isbn+'</b></div><div><small>Genre</small><b>'+genre+'</b></div><div><small>Reihe</small><b>'+esc(b.series||'–')+'</b></div></div><p class="hint">Weitere Angaben werden über die Online-Buchdatenbanken ergänzt, wenn sie vorhanden sind.</p><div id="bu-catalog-meta" class="hint">Online-Informationen werden geprüft …</div></section></section>';
 }
 function buCatalogAdd(i){const b=buRecs().list[Number(i)];if(!b)return;draft={title:b.title,author:b.author,genre:b.genre,year:b.year,publisher:b.publisher,isbn:b.isbn,series:b.series,seriesNumber:b.seriesNumber,covers:[...(b.covers||[]),...(b.cover?[b.cover]:[])].filter(Boolean)};addType='physical';view='add';render()}
 async function buCatalogEnrich(){

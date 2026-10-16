@@ -103,7 +103,7 @@ const BU_WORDS={
 function buLocale(){try{return nextLanguage()}catch{return 'de'}}
 function buTranslate(text,lang){
  if(lang==='de')return text;
- const a=BU_WORDS[text.trim()]||BU43_WORDS[text.trim()];const index={en:0,fr:1,es:2,it:3}[lang];return a&&index!==undefined?a[index]:text;
+ const a=BU_WORDS[text.trim()]||BU43_WORDS[text.trim()]||BU44_WORDS[text.trim()];const index={en:0,fr:1,es:2,it:3}[lang];return a&&index!==undefined?a[index]:text;
 }
 function buTranslateUI(){
  const lang=buLocale();const root=$('app');if(!root)return;

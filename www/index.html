@@ -136,7 +136,7 @@ mark{background:#ffe27a;color:#000;border-radius:3px;padding:0 1px}
 .book .detail-btn{display:block;font-size:12px;margin:6px 0 0;padding:5px 7px;border:1px solid var(--bd);border-radius:8px;background:var(--card);color:var(--ink)}
 .choices-scroll{max-height:22vh;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}.book-form .btn{margin:3px 4px 8px 0}.cover-choice{background:transparent;border:0;padding:3px;cursor:pointer}.cover-choice img{width:64px;height:90px;object-fit:cover;border-radius:7px}.search-results .li{cursor:pointer}.edition-row{padding:12px;border:1px solid var(--bd);border-radius:14px;margin:10px 0}.edition-row .cset{overflow-x:auto}.book-actions{display:flex;gap:8px;flex-wrap:wrap}.info-details{border:1px solid var(--bd);border-radius:12px;padding:10px;margin-bottom:14px}.info-details summary{cursor:pointer;font-weight:600}.isbn-queue{max-height:26vh;overflow-y:auto}.crop-help{font-size:12px;color:var(--mut)}.search-results small{color:var(--mut)}
 </style><link rel="stylesheet" href="booksup-next.css"></head><body><div id="app"></div>
-<script src="booksup-43.js"></script><script src="booksup-polish.js"></script><script src="booksup-library.js"></script><script src="booksup-next.js"></script><script src="cloud-drive-config.js"></script><script src="cloud-drive.js"></script>
+<script src="booksup-44.js"></script><script src="booksup-43.js"></script><script src="booksup-polish.js"></script><script src="booksup-library.js"></script><script src="booksup-next.js"></script><script src="cloud-drive-config.js"></script><script src="cloud-drive.js"></script>
 <script>
 const T=[['Pastell Rosa','#f0a4bd','Pastell'],['Pastell Blau','#96bfea','Pastell'],['Pastell Mint','#93d9bb','Pastell'],['Neon Pink','#ff2e93','Neon'],['Neon Grün','#39ff14','Neon'],['Neon Blau','#00e5ff','Neon'],['Pastell Lavendel','#c3b1e8','Pastell'],['Pastell Pfirsich','#f7b98f','Pastell'],['Pastell Zitrone','#efe08a','Pastell'],['Neon Violett','#b026ff','Neon'],['Neon Orange','#ff7a00','Neon'],['Neon Gelb','#f4ff00','Neon'],['Bordeaux','#8c2f39','Klassisch'],['Tannengrün','#2f6b4f','Klassisch'],['Marine','#2d4a7a','Klassisch'],['Graphit','#4a4f57','Klassisch'],['Kupfer','#b4693c','Klassisch'],['Gold','#c9a227','Klassisch']],PAP=[['Creme','#f5f0e8'],['Weiß · AMOLED','#ffffff'],['Kühl · Mitternacht','#dfe7f3'],['Salbei · Wald','#dbe7d6']];
 const IC={shelf:'M4 4v16M9 4v16M14 6l4 14M3 20h18',plus:'M12 5v14M5 12h14',target:'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8z',cog:'M4 8h10M18 8h2M4 16h2M10 16h10M14 6v4M6 14v4',back:'M15 5l-7 7 7 7',user:'M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM4 21c1-4 4-6 8-6s7 2 8 6',chart:'M5 20V10M12 20V4M19 20v-7',arrow:'M9 5l7 7-7 7',users:'M9 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM3 20c.5-3 3-5 6-5s5.5 2 6 5M17 8a2.5 2.5 0 1 1 0 5M17 15c2 0 3.5 1.5 4 4',swap:'M7 7h12l-3-3M17 17H5l3 3'};
@@ -270,7 +270,7 @@ function render(){
     const V={home:nextHome,news:buNewsView,profile:()=>home()+bu43RestoreProfileLists(),shelf,lists:buListsView,catalog:buCatalogView,add,goals,pedit,settings:nextSettings,settingsDetail:nextSettingsDetail,detail:nextBookDetails,readOptions:nextReadOptions,stats,reader:nextReader,friends,chat};
     let h=V[view]();
     if(modal)h+=`<div class="modal" role="dialog" aria-modal="true" onclick="modal=null;render()"><div onclick="event.stopPropagation()">${modal}</div></div>`;
-    $('app').innerHTML=nextShell(h);if(!modal)camStop();nextAfterRender();buPolishAfterRender();bu43AfterRender();if(view==='friends'||view==='chat')post();
+    $('app').innerHTML=nextShell(h);if(!modal)camStop();nextAfterRender();buPolishAfterRender();bu43AfterRender();bu44AfterRender();if(view==='friends'||view==='chat')post();
   }catch(err){
     document.documentElement.removeAttribute('data-theme');
     $('app').innerHTML=`<div style="padding:24px;font-family:system-ui,sans-serif;color:#22201c;background:#faf7fb;min-height:100vh"><h2 style="font-family:Newsreader,Georgia,serif">Etwas ist schiefgelaufen</h2><p>${(err&&err.message)||err}</p><button style="padding:10px 16px;border-radius:8px;border:1px solid #ccc;background:#fff" onclick="view='home';render()">Zur Startseite</button></div>`;
@@ -337,22 +337,13 @@ function stats(){
 }
 
 function shelf(){
-  let l=S.books.filter(b=>shf==='all'||b.type===shf).filter(buShelfFilter);
+  let l=S.books.filter(b=>shf==='all'||b.type===shf);
   if(shFolder=='ohne')l=l.filter(b=>!b.folder);else if(shFolder!='alle')l=l.filter(b=>b.folder==shFolder);
   const sorters={added:(a,b)=>(b.added||b.id)-(a.added||a.id),title:(a,b)=>a.title.localeCompare(b.title),author:(a,b)=>(a.author||'').localeCompare(b.author||''),rating:(a,b)=>(b.rating==null?-1:b.rating)-(a.rating==null?-1:a.rating),progress:(a,b)=>(b.page||0)-(a.page||0)};
   l=[...l].sort(sorters[shSort]||sorters.added);
   const folderChip=(key,label)=>`<button class="chip ${shFolder==key?'on':''}" onclick="shFolder='${key}';render()">${esc(label)}${shFolder==key&&key!='alle'&&key!='ohne'?`<span class="xoff" onclick="event.stopPropagation();delFolder('${key}')">✕</span>`:''}</button>`;
-  return bar('Bücherregal')+buShelfToolbar()+`<div class="row"><button class="chip ${shf=='all'?'on':''}" onclick="shf='all';shFolder='alle';render()">Alle</button><button class="chip ${shf=='digital'?'on':''}" onclick="shf='digital';shFolder='alle';render()">Digital</button><button class="chip ${shf=='physical'?'on':''}" onclick="shf='physical';shFolder='alle';render()">Physisch</button></div>
-  <div class="row"><button class="btn o" onclick="pickNext()">Was lese ich als Nächstes?</button><button class="btn o" onclick="addType='physical';view='add';draft={};render()">+ Physisches Buch</button><button class="btn o" onclick="view='add';addType='digital';draft={};render()">+ Digitales Buch</button><button class="chip" onclick="batchChoose()">Mehrere Dateien</button></div>
-  <div class="row">${folderChip('alle','Alle')}${S.folders.map(f=>folderChip(f,f)).join('')}${folderChip('ohne','Ohne Ordner')}<button class="chip" onclick="newFolder()">+ Ordner</button></div>
-  <div class="sortbar"><label style="margin:0">Sortieren:</label><select onchange="shSort=this.value;render()">
-   <option value="added" ${shSort=='added'?'selected':''}>Zuletzt hinzugefügt</option>
-   <option value="title" ${shSort=='title'?'selected':''}>Titel (A–Z)</option>
-   <option value="author" ${shSort=='author'?'selected':''}>Autor (A–Z)</option>
-   <option value="rating" ${shSort=='rating'?'selected':''}>Bewertung</option>
-   <option value="progress" ${shSort=='progress'?'selected':''}>Fortschritt</option>
-  </select><button class="chip" onclick="S.pf=S.pf?0:1;save()">Anzeige: ${S.pf?'Seiten':'Prozent'}</button></div>
-  `+(l.length?`<div class="shelf">${l.map(b=>`<div class="book" data-bu-book-id="${b.id}" data-bu-book-search="${esc([b.title,b.author,b.isbn,b.series,b.tags].join(" "))}" role="button" tabindex="0" onpointerdown="shelfDown(event,${b.id})" onpointerup="shelfUp(event)" onpointercancel="shelfCancel()" onpointerleave="shelfCancel()" onclick="shelfClick(event,${b.id})" onkeydown="if(event.key==='Enter'){event.preventDefault();shelfOpen(${b.id})}">${buBookCheckbox(b)}${b.qty>1?`<span class="qtytag">×${b.qty}</span>`:''}${thumb(b)}${progBar(b)}<b>${esc(b.title)}</b><br><span style="color:var(--mut)">${b.rating==null?'nicht bewertet':'★ '+b.rating}${b.finished?' · gelesen':''}${b.folder?' · '+esc(b.folder):''}</span><button class="detail-btn" onclick="event.stopPropagation();shelfCancel();bookM(${b.id})">Details / Bearbeiten</button></div>`).join('')}</div>`:'<p class="pad" style="color:var(--mut)">Noch keine Bücher in dieser Ansicht.</p>');
+  return bar('Bücherregal')+bu44ShelfToolbar()+
+  (l.length?`<div class="shelf">${l.map(b=>`<div class="book" data-bu-book-id="${b.id}" data-bu-book-search="${esc([b.title,b.author,b.isbn,b.series,b.tags].join(" "))}" role="button" tabindex="0" onpointerdown="shelfDown(event,${b.id})" onpointerup="shelfUp(event)" onpointercancel="shelfCancel()" onpointerleave="shelfCancel()" onclick="shelfClick(event,${b.id})" onkeydown="if(event.key==='Enter'){event.preventDefault();shelfOpen(${b.id})}">${buBookCheckbox(b)}${b.qty>1?`<span class="qtytag">×${b.qty}</span>`:''}${thumb(b)}${progBar(b)}<b>${esc(b.title)}</b><br><span style="color:var(--mut)">${b.rating==null?'nicht bewertet':'★ '+b.rating}${b.finished?' · gelesen':''}${b.folder?' · '+esc(b.folder):''}</span><button class="detail-btn" onclick="event.stopPropagation();shelfCancel();bookM(${b.id})">Details / Bearbeiten</button></div>`).join('')}</div>`:'<p class="pad" style="color:var(--mut)">Noch keine Bücher in dieser Ansicht.</p>');
 }
 function newFolder(){modal=`<h3 style="margin:0 0 10px">Neuer Ordner</h3><input id="nf" placeholder="z.B. Lieblingsbücher"><button class="btn" onclick="const v=$('nf').value.trim();if(v&&!S.folders.includes(v))S.folders.push(v);modal=null;save()">Erstellen</button>`;render()}
 function delFolder(f){if(!confirm('Ordner "'+f+'" löschen? Die Bücher bleiben erhalten, verlieren aber die Zuordnung.'))return;S.folders=S.folders.filter(x=>x!=f);S.books.forEach(b=>{if(b.folder==f)delete b.folder});shFolder='alle';save()}
@@ -652,8 +643,11 @@ async function showPg(){
     const c=jobs[i][0],p=pages[i],v0=p.getViewport({scale:1});
     let W=want=='2'?Math.floor(cw/2):Math.min(cw,820),k=W/v0.width;
     if(want=='2'||rdFull||cw<620){k=Math.min(k,Math.max(200,maxH)/v0.height);W=Math.floor(v0.width*k)}
-    const vp=p.getViewport({scale:k*dpr});
-    c.width=vp.width;c.height=vp.height;c.style.width=W+'px';c.style.height=vp.height/dpr+'px';c.style.margin=want=='2'?'0':'0 auto';
+    const zoom=bu44ZoomValue();W=Math.max(100,Math.floor(W*zoom));k*=zoom;
+    sc.classList.toggle('bu44-zoomed',zoom>1.02);
+    const ratio=Math.min(dpr,Math.sqrt(5500000/Math.max(1,W*W*v0.height/v0.width)));
+    const vp=p.getViewport({scale:k*ratio});
+    c.width=vp.width;c.height=vp.height;c.style.width=W+'px';c.style.height=vp.height/ratio+'px';c.style.margin=want=='2'?'0':'0 auto';if(bu44ZoomValue()>1.02)c.style.maxWidth='none';
     try{await p.render({canvasContext:c.getContext('2d'),viewport:vp}).promise}catch(e){return}
     if(id!==rtask)return;
   }
@@ -677,9 +671,9 @@ async function mountScroll(sc,tk){
 }
 async function drawPg(d,dpr){
   d._off=false;if(d._busy||d._done)return;d._busy=true;
-  try{const p=await pdfDoc.getPage(+d.dataset.n),w=d.clientWidth||360,v0=p.getViewport({scale:1}),vp=p.getViewport({scale:w/v0.width*dpr}),c=d.firstChild;
+  try{const p=await pdfDoc.getPage(+d.dataset.n),w=(d.clientWidth||360)*bu44ZoomValue(),v0=p.getViewport({scale:1}),ratio=Math.min(dpr,Math.sqrt(5500000/Math.max(1,w*w*v0.height/v0.width))),vp=p.getViewport({scale:w/v0.width*ratio}),c=d.firstChild;
     if(!d.isConnected){d._busy=false;return}
-    c.width=vp.width;c.height=vp.height;d.style.aspectRatio=v0.width+'/'+v0.height;
+    c.width=vp.width;c.height=vp.height;c.style.width=w+'px';c.style.maxWidth='none';d.style.aspectRatio=v0.width+'/'+v0.height;
     await p.render({canvasContext:c.getContext('2d'),viewport:vp}).promise;d._done=true}catch(e){}
   d._busy=false;if(d._off)freePg(d);
 }
@@ -1229,7 +1223,7 @@ matchMedia('(prefers-color-scheme:dark)').addEventListener('change',()=>{if(S.mo
 try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){}
 function progBar(b){if(!(b.pages&&b.page))return'';const pc=Math.min(100,Math.round(b.page/b.pages*100));return`<div class="prog" style="margin:0 0 4px"><i style="width:${pc}%"></i></div><small style="color:var(--mut);display:block">${S.pf?'S. '+b.page+' / '+b.pages:pc+' %'}</small>`}
 /* ====== BooksUp v3: Sicherheit, Backup, Erinnerungen, ISBN, Statistik, Systemtest, Einführung ====== */
-const APP_VERSION='4.3.0';
+const APP_VERSION='4.4.0';
 const TINY_PDF='JVBERi0xLjMKJZOMi54gUmVwb3J0TGFiIEdlbmVyYXRlZCBQREYgZG9jdW1lbnQgKG9wZW5zb3VyY2UpCjEgMCBvYmoKPDwKL0YxIDIgMCBSCj4+CmVuZG9iagoyIDAgb2JqCjw8Ci9CYXNlRm9udCAvSGVsdmV0aWNhIC9FbmNvZGluZyAvV2luQW5zaUVuY29kaW5nIC9OYW1lIC9GMSAvU3VidHlwZSAvVHlwZTEgL1R5cGUgL0ZvbnQKPj4KZW5kb2JqCjMgMCBvYmoKPDwKL0NvbnRlbnRzIDcgMCBSIC9NZWRpYUJveCBbIDAgMCAxMjAgODAgXSAvUGFyZW50IDYgMCBSIC9SZXNvdXJjZXMgPDwKL0ZvbnQgMSAwIFIgL1Byb2NTZXQgWyAvUERGIC9UZXh0IC9JbWFnZUIgL0ltYWdlQyAvSW1hZ2VJIF0KPj4gL1JvdGF0ZSAwIC9UcmFucyA8PAoKPj4gCiAgL1R5cGUgL1BhZ2UKPj4KZW5kb2JqCjQgMCBvYmoKPDwKL1BhZ2VNb2RlIC9Vc2VOb25lIC9QYWdlcyA2IDAgUiAvVHlwZSAvQ2F0YWxvZwo+PgplbmRvYmoKNSAwIG9iago8PAovQXV0aG9yIChhbm9ueW1vdXMpIC9DcmVhdGlvbkRhdGUgKEQ6MjAyNjEwMDgwODIzNDErMDAnMDAnKSAvQ3JlYXRvciAoYW5vbnltb3VzKSAvS2V5d29yZHMgKCkgL01vZERhdGUgKEQ6MjAyNjEwMDgwODIzNDErMDAnMDAnKSAvUHJvZHVjZXIgKFJlcG9ydExhYiBQREYgTGlicmFyeSAtIFwob3BlbnNvdXJjZVwpKSAKICAvU3ViamVjdCAodW5zcGVjaWZpZWQpIC9UaXRsZSAodW50aXRsZWQpIC9UcmFwcGVkIC9GYWxzZQo+PgplbmRvYmoKNiAwIG9iago8PAovQ291bnQgMSAvS2lkcyBbIDMgMCBSIF0gL1R5cGUgL1BhZ2VzCj4+CmVuZG9iago3IDAgb2JqCjw8Ci9GaWx0ZXIgWyAvQVNDSUk4NURlY29kZSAvRmxhdGVEZWNvZGUgXSAvTGVuZ3RoIDEwNgo+PgpzdHJlYW0KR2FwUWgwRT1GLDBVXEgzVFxwTllUXlFLaz90Yz5JUCw7VyNVMV4yM2loUEVNXz9DVDMhSzNIMz1Xa1dsVGdmJVQobjJ0LWo9NGgmamxeN21MREZQUUtPY05iQlJ1QnNEdWZyaTVvLTN+PmVuZHN0cmVhbQplbmRvYmoKeHJlZgowIDgKMDAwMDAwMDAwMCA2NTUzNSBmIAowMDAwMDAwMDYxIDAwMDAwIG4gCjAwMDAwMDAwOTIgMDAwMDAgbiAKMDAwMDAwMDE5OSAwMDAwMCBuIAowMDAwMDAwMzkxIDAwMDAwIG4gCjAwMDAwMDA0NTkgMDAwMDAgbiAKMDAwMDAwMDcyMCAwMDAwMCBuIAowMDAwMDAwNzc5IDAwMDAwIG4gCnRyYWlsZXIKPDwKL0lEIApbPGRiNmZiZWZmMTQ5OTAxZjc3ZmNjMjBmZWYyMTlkYWMwPjxkYjZmYmVmZjE0OTkwMWY3N2ZjYzIwZmVmMjE5ZGFjMD5dCiUgUmVwb3J0TGFiIGdlbmVyYXRlZCBQREYgZG9jdW1lbnQgLS0gZGlnZXN0IChvcGVuc291cmNlKQoKL0luZm8gNSAwIFIKL1Jvb3QgNCAwIFIKL1NpemUgOAo+PgpzdGFydHhyZWYKOTc1CiUlRU9GCg==';
 /* ---- Speicher mit zweitem Sicherungsort (IndexedDB) ---- */
 let mirT=null,lastSaveWarning=0;

@@ -162,3 +162,49 @@ body{font-size:var(--fz,16px)}
 .rdwrap.m0:not(.full) .rdscroll>canvas{max-width:100%;height:auto!important}
 .rdbody,.rdscroll{min-width:0}
 @media(max-width:640px){.rdwrap.full .rdtop .tt{max-width:43vw}.rdwrap.full .rdbar b{font-size:11px}.bu43-ap-actions{bottom:80px}.bu43-preview-row{gap:7px}.bu43-mode-preview{min-width:76px}}
+
+/* BooksUp 4.4 – simplified bookshelf, PDFs, currencies */
+.bu44-shelf-top{padding:15px clamp(12px,3vw,30px);display:grid;gap:12px}
+.bu44-search{width:100%;max-width:850px;display:block}
+.bu44-search input{font-size:1em;width:100%;border-radius:16px;min-height:49px;padding:12px 15px;border:1px solid var(--bd);background:var(--card);color:var(--ink)}
+.bu44-add-primary{display:block;width:100%;border:0;border-radius:17px;background:var(--acc);color:#fff;font:700 16px var(--sf);padding:19px 20px;cursor:pointer;text-align:center}
+.bu44-shelf-tabs{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.bu44-shelf-tabs button{background:var(--card);color:var(--ink);border:2px solid var(--bd);border-radius:16px;padding:16px 9px;font:650 14px var(--sf);cursor:pointer;min-width:0}
+.bu44-shelf-tabs button.on{border-color:var(--acc);background:color-mix(in srgb,var(--acc) 12%,var(--card))}
+.bu44-aux{display:flex;justify-content:space-between;align-items:center;gap:12px;color:var(--mut);font-size:12px}
+.bu44-advanced{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:15px;border:1px solid var(--bd);border-radius:16px;background:var(--card)}
+.bu44-advanced label{display:flex;align-items:center;gap:8px;margin:0}
+.bu44-advanced select{margin:0;width:auto;max-width:200px}
+.bu44-folders{width:100%;display:flex;gap:8px;overflow-x:auto}
+.bu44-add-menu{display:grid;gap:9px;margin:16px 0}
+.bu44-add-menu button{width:100%}
+.bu44-zoom{display:flex;align-items:center;gap:4px;margin-left:auto;white-space:nowrap}
+.bu44-zoom>.chip{min-width:30px;padding:6px 9px;touch-action:manipulation}
+.bu44-zoom b{font-size:12px;font-variant-numeric:tabular-nums;min-width:34px;text-align:center}
+.bu44-zoom-preview{display:flex;gap:12px;align-items:center}
+.bu44-zoom-preview input{flex:1}
+.bu44-zoom-preview output{font-size:14px;min-width:52px;text-align:right}
+.rdwrap.m0.full .rdscroll.bu44-zoomed{overflow:auto!important;display:block;touch-action:pan-x pan-y}
+.rdwrap.m0.full .rdscroll.bu44-zoomed>canvas{max-width:none!important;max-height:none!important}
+.rdwrap.m0:not(.full) .rdscroll.bu44-zoomed{overflow:auto;max-height:80vh}
+.rdwrap.m0:not(.full) .rdscroll.bu44-zoomed>canvas{max-width:none!important;max-height:none!important}
+.rdwrap.m1 .pgw canvas{object-fit:contain}
+.rdwrap.m1 .rdscroll:not(.pdf-horizontal) .pgw{overflow-x:auto}
+.bu44-currency-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(165px,1fr));gap:10px}
+.bu44-currency{display:flex;flex-direction:column;gap:6px;text-align:left;padding:13px;border-radius:16px;border:2px solid var(--bd);background:var(--card);color:var(--ink);min-width:0;cursor:pointer}
+.bu44-currency.on{border-color:var(--acc)}
+.bu44-currency b{font-size:25px;color:var(--acc)}
+.bu44-currency strong{font-size:13px}
+.bu44-currency small{font-size:11px;color:var(--mut);line-height:1.35}
+.bu44-price-watch{padding:16px;background:var(--card);border:1px solid var(--bd);border-radius:16px;margin:15px}
+.bu44-price-watch .li{align-items:start;flex-direction:column}
+.bu44-price-watch small{display:block;color:var(--mut);font-size:11px}
+.bu44-theme-preview{background:linear-gradient(140deg,#20142a,#b83da1)}
+@media(max-width:640px){
+ .bu44-zoom{gap:1px}
+ .bu44-zoom .chip{font-size:11px;padding:5px 7px}
+ .rdwrap.full .rdtop .tt{max-width:21vw}
+ .bu44-add-primary{font-size:15px}
+ .bu44-shelf-tabs button{padding:13px 7px;font-size:12px}
+ .bu44-currency-grid{grid-template-columns:1fr 1fr}
+}

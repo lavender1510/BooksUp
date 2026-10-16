@@ -1,3 +1,26 @@
+# BooksUp 4.4.0 – Cover, Reader Zoom & Discovery
+
+**What's changed**
+- Bigger online book recommendation pool: Google Books subject searches with six-hour cache, daily variation and duplicate/owned/read filtering. Offline mode retains the cached suggestions and built-in catalog.
+- Cover retry handling: damaged automatic cover links switch to title/author/ISBN search instead of showing only a broken image; Open Library Covers and Google Books remain the public sources. Not every book has a licensed online cover.
+- Mobile PDF zoom: 80–300%, plus/minus controls and touch pinch; layouts with page and scroll modes.
+- 18+ Gooner palette is a dark purple/neon color-only theme. No explicit artwork.
+- Simplified bookshelf: prominent search, add button, physical/digital buttons. Advanced filters and bulk actions remain behind a menu.
+- Named currencies with example countries; selected five-language interface labels receive additional translations (legacy strings are not yet fully localized).
+- BooksUp-style monochrome notification icon added to Android resources.
+- Android versionCode now tracks package version (4.4.0 -> 40400). Signing certificates **must still match** for in-place updates.
+- MediMops opt-in per ISBN and a public GitHub-hosted daily price feed adapter. Price checks depend on publisher-provided external data; no prices or notifications are invented.
+
+**MediMops price alerts – integration prerequisites**
+The GitHub Actions workflow `.github/workflows/medimops-prices.yml` runs daily. It is **inactive until a price-data provider is configured**. Configure the secrets `BOOKSUP_MEDIMOPS_PROVIDER_URL` (HTTPS endpoint returning `{prices:[{isbn,provider:"medimops",price,currency:"EUR",url}]}`) and optionally `BOOKSUP_MEDIMOPS_PROVIDER_TOKEN`. Data is vetted and published to `www/medimops-prices.json`. The app only examines those quotes for user-opted-in ISBNs; individual watchlists remain on-device.
+
+This is not a fully functioning background push notification service. Android may notify if a change is seen while BooksUp is open. Unattended daily per-user push notifications require an authorized provider and notification backend. GitHub does not offer a MediMops price API.
+
+**Android upgrade signing**
+The existing `BOOKSUP_ANDROID_DEBUG_KEYSTORE_BASE64` Actions secret must contain the **same debug certificate that signed the APK already installed on the user's device**, not an arbitrary new certificate. GitHub-generated throwaway debug keystores cannot match earlier installations. Without the old key the upgrade cannot be installed in-place, even if the versionCode is correct. **Never uninstall an existing BooksUp installation without verified restoration.** To establish a stable channel going forward, use secure release signing (prefer Play App Signing) and retain the key securely outside the public repository. The APK is still for testing, not a production-signed release.
+
+**Test status**: JavaScript syntax checks and logic checks support development; device-level UI, actual screenshot-based rendering, notifications, and PDF testing remain necessary.
+
 # BooksUp 4.3.0 — Reading & Cover Reliability
 
 ## Changes

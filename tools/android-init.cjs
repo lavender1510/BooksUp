@@ -1,5 +1,5 @@
 'use strict';
-const { existsSync, readFileSync, writeFileSync } = require('node:fs');
+const { existsSync, readFileSync, writeFileSync, mkdirSync } = require('node:fs');
 const { join } = require('node:path');
 const { spawnSync } = require('node:child_process');
 const ROOT = join(__dirname, '..');
@@ -35,5 +35,26 @@ if (additions) {
   xml = xml.replace(/(\s*<application\b)/, '\n' + additions + '$1');
   writeFileSync(file, xml);
 }
+// Stable monotonically increasing Android versionCode is required for in-place upgrades.
+// Matching signatures are ALSO required; a version code cannot repair missing keys.
+const v=require(join(ROOT,'package.json')).version;
+const parts=v.split('.').map(Number);
+if(!parts.every(Number.isInteger))throw new Error('Invalid package version');
+const versionCode=parts[0]*10000+parts[1]*100+parts[2];
+const gradleFile=join(ROOT,'android','app','build.gradle');
+if(existsSync(gradleFile)){
+ let gradle=readFileSync(gradleFile,'utf8');
+ if(!/versionCode\s+\d+/.test(gradle))throw new Error('Could not set Android versionCode safely');
+ gradle=gradle.replace(/versionCode\s+\d+/,'versionCode '+versionCode).replace(/versionName\s+"[^"]*"/,'versionName "'+v+'"');
+ writeFileSync(gradleFile,gradle);
+}
+const vectorDir=join(ROOT,'android','app','src','main','res','drawable');
+mkdirSync(vectorDir,{recursive:true});
+// Monochrome book/logomark optimized for Android's notification status bar.
+const smallIcon='<?xml version="1.0" encoding="utf-8"?>\n'+
+ '<vector xmlns:android="http://schemas.android.com/apk/res/android" android:width="24dp" android:height="24dp" android:viewportWidth="24" android:viewportHeight="24">'+
+ '<path android:fillColor="#FFFFFFFF" android:pathData="M3,4 L10.5,4 C12,4 12,5 12,5 L12,21 C12,21 11,20 9.5,20 L3,20 Z M21,4 L13.5,4 C12.5,4 12,5 12,5 L12,21 C12,21 13,20 14.5,20 L21,20 Z"/>'+
+ '<path android:fillColor="#FF000000" android:pathData="M11.2,6 L12.8,6 L12.8,20 L11.2,20 Z"/></vector>\n';
+writeFileSync(join(vectorDir,'ic_stat_booksup.xml'),smallIcon);
 execBin(command, ['--no-install', 'cap', 'sync', 'android']);
 console.log('\nBooksUp Android eingerichtet – App-Name und Icons sind gesetzt.');

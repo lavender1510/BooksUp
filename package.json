@@ -1,8 +1,8 @@
 {
   "name": "booksup",
-  "version": "4.3.0",
+  "version": "4.4.0",
   "private": true,
-  "description": "BooksUp 4.3 — cover API fallback, focused mobile reader, staged settings and smart lists",
+  "description": "BooksUp 4.4 — cover retries, expanded recommendations, PDF zoom, clean shelf and opt-in price alerts",
   "productName": "BooksUp",
   "main": "electron/main.cjs",
   "type": "commonjs",

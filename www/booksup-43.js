@@ -4,10 +4,12 @@ const bu43IsHttp=u=>/^https:\/\/[^\s<>"']+$/i.test(String(u||''));
 const bu43Norm=s=>String(s||'').normalize('NFKD').toLowerCase().replace(/[^\p{L}\p{N}]/gu,' ').trim();
 function bu43CoverHtml(b){
  const src=(b.covers||[])[0]||b.cover||null;
- if(src && (/^https?:\/\//i.test(src)||/^data:image\//.test(src)||/^blob:/.test(src)))
-   return '<img src="'+esc(src)+'" loading="lazy" decoding="async" alt="'+esc(b.title||'Buchcover')+'" onerror="this.style.display=\'none\';this.insertAdjacentHTML(\'afterend\',\'<span class=&quot;bu43-cover-missing&quot;>Cover nicht verfügbar</span>\')">';
  const title=String(b.title||'').slice(0,250),isbn=String(b.isbn||b.editions?.[0]?.isbn||'').replace(/[^0-9X]/gi,'');
- return '<span class="bu43-cover-slot" data-cover-title="'+esc(title)+'" data-cover-author="'+esc(String(b.author||'').slice(0,150))+'" data-cover-isbn="'+esc(isbn)+'"><span class="bu43-cover-placeholder">'+esc(title.slice(0,2)||'BU')+'</span><small>'+ (navigator.onLine===false?'Offline · Cover nicht geladen':'Cover wird gesucht …')+'</small></span>';
+ const author=String(b.author||'').slice(0,150);
+ const attrs=' data-cover-title="'+esc(title)+'" data-cover-author="'+esc(author)+'" data-cover-isbn="'+esc(isbn)+'"';
+ if(src&&(/^https?:\/\//i.test(src)||/^data:image\//.test(src)||/^blob:/.test(src)))
+  return '<img'+attrs+' src="'+esc(src)+'" loading="lazy" decoding="async" alt="'+esc(title)+'" onerror="bu44BrokenCover(this)">';
+ return '<span class="bu43-cover-slot"'+attrs+'><span class="bu43-cover-placeholder">'+esc(title.slice(0,2)||'BU')+'</span><small>'+(navigator.onLine===false?'Offline · Cover nicht geladen':'Cover wird gesucht …')+'</small></span>';
 }
 function bu43ImageWorks(url){
  return new Promise(resolve=>{
@@ -20,7 +22,7 @@ function bu43ImageWorks(url){
 }
 async function bu43FindCover(title,author,isbn){
  const key=isbn||bu43Norm(title+' '+author);
- if(bu43CoverCache.has(key))return bu43CoverCache.get(key);
+ if(bu43CoverCache.get(key))return bu43CoverCache.get(key);
  if(bu43Pending.has(key))return bu43Pending.get(key);
  const task=(async()=>{
   if(navigator.onLine===false)return null;
@@ -42,7 +44,7 @@ async function bu43FindCover(title,author,isbn){
   let found=null;
   const pool=[...new Set(candidates)].slice(0,8);
   for(let i=0;i<pool.length;i+=4){const tests=await Promise.all(pool.slice(i,i+4).map(bu43ImageWorks));const first=tests.findIndex(Boolean);if(first>=0){found=pool[i+first];break}}
-  bu43CoverCache.set(key,found);return found;
+  if(found)bu43CoverCache.set(key,found);return found;
  })();
  bu43Pending.set(key,task);try{return await task}finally{bu43Pending.delete(key)}
 }
@@ -174,6 +176,7 @@ function bu43ReadingSettings(){
  sel('Schriftfamilie im Textmodus','tff',[['Serif',0],['Sans Serif',1],['Lesefreundlich',2]])+
  '<label>Schriftgröße im Textmodus: <b>'+Number(S.tfs||18)+' px</b></label><input type="range" min="13" max="30" step="1" value="'+Number(S.tfs||18)+'" oninput="bu43ReadSet(\'tfs\',Number(this.value))">'+
  '<label>Zeilenabstand</label><input type="range" min="1.2" max="2.2" step=".1" value="'+Number(S.tlh||1.7)+'" oninput="bu43ReadSet(\'tlh\',Number(this.value))">'+
+ '<h3>PDF-Zoom</h3><div class="bu44-zoom-preview"><input type="range" min="0.8" max="3" step="0.2" value="'+bu44ZoomValue()+'" oninput="bu44ZoomSet(this.value);this.nextElementSibling.textContent=Math.round(Number(this.value)*100)+\'%\'"><output>'+Math.round(bu44ZoomValue()*100)+'%</output></div>'+ 
  '<h3>Navigation und Komfort</h3><label class="bu43-check"><input type="checkbox" '+(S.rtl?'checked':'')+' onchange="bu43ReadSet(\'rtl\',this.checked)"> Rechts-nach-links-Leserichtung (Manga)</label>'+
  '<label class="bu43-check"><input type="checkbox" '+(S.dbl?'checked':'')+' onchange="bu43ReadSet(\'dbl\',this.checked)"> Doppelseiten im Querformat</label>'+
  '<label class="bu43-check"><input type="checkbox" '+(S.autoPause?'checked':'')+' onchange="bu43ReadSet(\'autoPause\',this.checked)"> Sitzung bei Inaktivität pausieren</label>'+
@@ -185,11 +188,24 @@ function bu43ReadSet(key,value){S[key]=['rdMode','readMode','tff'].includes(key)
  if(key==='tfs'||key==='tlh'){const el=$('txt');if(el){el.style.setProperty('--tfs',(S.tfs||18)+'px');el.style.setProperty('--tlh',S.tlh||1.7)}clearTimeout(bu43TextSaveTimer);bu43TextSaveTimer=setTimeout(persist,320);return}
  persist();if(view==='reader')mountMode();else render()}
 function bu43CurrencyView(){
- const c=S.currency||'€',p=ALL.priceSettings||{},curr=['€','$','£','CHF','SEK','NOK','DKK','¥','CAD','AUD'],locales=[['de-DE','Deutsch (1.234,56)'],['en-US','English (1,234.56)'],['fr-FR','Français (1 234,56)'],['it-IT','Italiano (1.234,56)']];
- return '<div class="bu43-settings-panel"><h3>Währung</h3><div class="bu43-preview-row">'+curr.map(x=>'<button class="bu43-mode-preview '+(c===x?'on':'')+'" onclick="bu43CurrencySet(\'currency\',\''+x+'\')"><span class="bu43-mode-art">'+x+'</span><small>'+x+'</small></button>').join('')+'</div><h3>Preisanzeige</h3><label>Zahlenformat</label><select onchange="bu43CurrencySet(\'locale\',this.value)">'+locales.map(([v,n])=>'<option value="'+v+'" '+((p.locale||'de-DE')===v?'selected':'')+'>'+n+'</option>').join('')+'</select>'+
+ const c=S.currency||'€',p=ALL.priceSettings||{};
+ const currencies=[
+ ['€','Euro','Deutschland, Österreich, Frankreich, Italien, Spanien und weitere Euro-Länder'],
+ ['$','US-Dollar','Vereinigte Staaten, Ecuador, El Salvador und weitere'],
+ ['£','Britisches Pfund','Vereinigtes Königreich'],
+ ['CHF','Schweizer Franken','Schweiz und Liechtenstein'],
+ ['SEK','Schwedische Krone','Schweden'],
+ ['NOK','Norwegische Krone','Norwegen'],
+ ['DKK','Dänische Krone','Dänemark, Grönland und Färöer'],
+ ['¥','Japanischer Yen','Japan'],
+ ['CAD','Kanadischer Dollar','Kanada'],
+ ['AUD','Australischer Dollar','Australien und einige pazifische Staaten']
+ ];
+ const locales=[['de-DE','Deutsch (1.234,56)'],['en-US','English (1,234.56)'],['fr-FR','Français (1 234,56)'],['it-IT','Italiano (1.234,56)']];
+ return '<div class="bu43-settings-panel"><h3>Währung</h3><div class="bu44-currency-grid">'+currencies.map(([symbol,name,countries])=>'<button class="bu44-currency '+(c===symbol?'on':'')+'" onclick="bu43CurrencySet(\'currency\',\''+symbol+'\')" aria-pressed="'+(c===symbol)+'"><b>'+symbol+'</b><strong>'+name+'</strong><small>'+countries+'</small></button>').join('')+'</div><h3>Preisanzeige</h3><label>Zahlenformat</label><select onchange="bu43CurrencySet(\'locale\',this.value)">'+locales.map(([v,n])=>'<option value="'+v+'" '+((p.locale||'de-DE')===v?'selected':'')+'>'+n+'</option>').join('')+'</select>'+
  '<label class="bu43-check"><input type="checkbox" '+(p.showPurchase!==false?'checked':'')+' onchange="bu43CurrencySet(\'showPurchase\',this.checked)"> Kaufpreis auf Buchdetails anzeigen</label>'+
  '<label class="bu43-check"><input type="checkbox" '+(p.showUVP!==false?'checked':'')+' onchange="bu43CurrencySet(\'showUVP\',this.checked)"> UVP unter „Mehr Details“ anzeigen</label>'+
- '<label>Monatliches Buchbudget (optional)</label><input type="number" min="0" step=".01" placeholder="Kein Budget" value="'+esc(p.monthlyBudget??'')+'" onchange="bu43CurrencySet(\'monthlyBudget\',this.value)"><p class="hint">Die Beträge werden nicht automatisch zwischen Währungen umgerechnet. Deine Buchpreise bleiben erhalten.</p></div>';
+ '<label>Monatliches Buchbudget (optional)</label><input type="number" min="0" step=".01" placeholder="Kein Budget" value="'+esc(p.monthlyBudget??'')+'" onchange="bu43CurrencySet(\'monthlyBudget\',this.value)"><p class="hint">Beträge werden beim Wechseln der Währung nicht automatisch umgerechnet. Länderangaben sind Beispiele, keine vollständige Liste.</p></div>';
 }
 function bu43CurrencySet(key,val){if(key==='currency')S.currency=val;else{ALL.priceSettings??={};ALL.priceSettings[key]=val}persist();render()}
 function bu43GoodreadsView(){return '<div class="bu43-settings-panel"><h3>Goodreads-Kompatibilität</h3><p class="hint">Passe die Bewertungsskala und die Übernahme von Goodreads-Shelves an.</p>'+buRatingInput()+'<button class="btn" onclick="buGoodreadsPick()">Goodreads-CSV importieren</button></div>'}

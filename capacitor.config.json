@@ -11,6 +11,10 @@
       "launchAutoHide": true,
       "backgroundColor": "#f5f0e8",
       "showSpinner": false
+    },
+    "LocalNotifications": {
+      "smallIcon": "ic_stat_booksup",
+      "iconColor": "#FFFFFF"
     }
   }
 }
