@@ -82,7 +82,7 @@ function buRecs(){
  list.sort((a,b)=>score(b)-score(a)||tie(a)-tie(b));
  return {list:list.slice(0,48),last};
 }
-function buCatalogDetails(i){buCatalogIndex=Number(i);const b=buRecs().list[buCatalogIndex];go('catalog');const isbn=bu44EditionIsbn(b?.isbn);if(isbn&&b&&!bu44WatchState(b)){const k='bu44-watch-asked-'+isbn;try{if(sessionStorage.getItem(k))return;sessionStorage.setItem(k,'1')}catch{}setTimeout(()=>{if(view==='catalog'&&buRecs().list[buCatalogIndex]===b)bu44WatchPrompt(b)},650)}}
+function buCatalogDetails(i){buCatalogIndex=Number(i);const b=buRecs().list[buCatalogIndex];go('catalog');const isbn=bu44EditionIsbn(b?.isbn);if(isbn&&b&&!bu44WatchState(b)){const k='bu44-watch-asked-'+isbn;try{if(sessionStorage.getItem(k))return;sessionStorage.setItem(k,'1')}catch{}setTimeout(()=>{if(view==='catalog'&&bu44EditionIsbn(buRecs().list[buCatalogIndex]?.isbn)===isbn)bu44WatchPrompt(b)},650)}}
 function buCatalogView(){
  const b=buRecs().list[buCatalogIndex];if(!b)return bar('Empfehlung','home')+'<div class="card">Empfehlung nicht mehr verfügbar.</div>';
  const isbn=esc(b.isbn||''),year=esc(b.year||''),publisher=esc(b.publisher||''),genre=esc(b.genre||'');
