@@ -1,6 +1,51 @@
 {
-  "updatedAt": "2026-10-15T21:25:13.601536+00:00",
+  "updatedAt": "2026-10-16T10:14:40.914375+00:00",
   "articles": [
+    {
+      "title": "📚 Wholly prepared to accept the consequences",
+      "url": "https://bookriot.com/wholly-prepared-to-accept-the-consequences/",
+      "source": "Book Riot",
+      "newsletter": "https://bookriot.com",
+      "date": "2026-10-16T09:30:00+00:00",
+      "summary": "Sally Rooney pulls her books from UK shelves",
+      "image": "https://bookriot.com/wp-content/uploads/2026/10/sally-rooney-book-covers-against-uk-flag-with-red-x-mark.jpg.optimal.jpg"
+    },
+    {
+      "title": "John Green: ‘I devoured the Sweet Valley High books in the 1980s’",
+      "url": "https://www.theguardian.com/books/2026/oct/16/john-green-i-devoured-the-sweet-valley-high-books-in-the-1980s",
+      "source": "The Guardian · Books",
+      "newsletter": "https://www.theguardian.com/books",
+      "date": "2026-10-16T09:00:57+00:00",
+      "summary": "The American author on being inspired by Kurt Vonnegut, coming late to Jane Austen, and the brilliance of Robert Penn Warren My earliest reading memory I remember learning to read with dull stories about Jane going up a hill, but my earliest thrilling reading memories are of series like The Baby-Sitters Club and Sweet Valley High. In the highly gendered read",
+      "image": "https://www.theguardian.com/books/2026/oct/16/1200"
+    },
+    {
+      "title": "The Literary Collab Custom-built for Millennials",
+      "url": "https://bookriot.com/the-literary-collab-custom-built-for-millennials/",
+      "source": "Book Riot",
+      "newsletter": "https://bookriot.com",
+      "date": "2026-10-16T09:00:00+00:00",
+      "summary": "October is National Pizza Month and National Book Month, spawning the perfect collaboration between Pizza Hut and Little Free Library.",
+      "image": "https://bookriot.com/wp-content/uploads/2026/10/Little-Hut-Library.jpg.optimal.jpg"
+    },
+    {
+      "title": "Make Me Well by Xand van Tulleken – an eye-opening takedown of wellness myths",
+      "url": "https://www.theguardian.com/books/2026/oct/16/make-me-well-by-xand-van-tulleken-an-eye-opening-takedown-of-wellness-myths",
+      "source": "The Guardian · Books",
+      "newsletter": "https://www.theguardian.com/books",
+      "date": "2026-10-16T06:00:53+00:00",
+      "summary": "The engaging TV doctor dismantles the spurious science behind modern day snake oils, from collagen to turmeric When Xand van Tulleken set off on a journey into the wild west of wellness, he didn’t expect to discover anything new about vitamin D. Of all the supplements that line our shelves and social media feeds, it ought to be the least controversial; even ",
+      "image": "https://www.theguardian.com/books/2026/oct/16/1200"
+    },
+    {
+      "title": "Lee Child backs launch of reading scheme to send prisons half a million books",
+      "url": "https://www.theguardian.com/books/2026/oct/16/lee-child-backs-launch-of-reading-scheme-to-send-prisons-half-a-million-books",
+      "source": "The Guardian · Books",
+      "newsletter": "https://www.theguardian.com/books",
+      "date": "2026-10-15T23:01:44+00:00",
+      "summary": "The Jack Reacher author, the UK’s first prison reading laureate, said drive to improve literacy skills was a practical way to address reoffending and support rehabilitation Nearly half a million books will be distributed across prisons in England, Wales, Scotland and Northern Ireland this autumn, in a campaign backed by bestselling thriller writer Lee Child.",
+      "image": "https://www.theguardian.com/books/2026/oct/16/1200"
+    },
     {
       "title": "Book Riot’s Deals of the Day for October 15, 2026",
       "url": "https://bookriot.com/book-riots-deals-of-the-day-for-october-15-2026/",
@@ -8,7 +53,7 @@
       "newsletter": "https://bookriot.com",
       "date": "2026-10-15T15:11:43+00:00",
       "summary": "A Trojan War retelling for Circe fans, a bookstore murder mystery, a sinister Southern Gothic, and more of today's best book deals.",
-      "image": null
+      "image": "https://bookriot.com/wp-content/uploads/2026/10/101526-daily-deals.jpg.optimal.jpg"
     },
     {
       "title": "Sally Rooney is Pulling Her Books From UK",
@@ -17,7 +62,7 @@
       "newsletter": "https://bookriot.com",
       "date": "2026-10-15T14:54:39+00:00",
       "summary": "Bestselling author Sally Rooney is pulling her books from the UK in reaction to that government outlawing Palestine Action.",
-      "image": null
+      "image": "https://bookriot.com/wp-content/uploads/2026/10/sally-rooney-book-covers-against-uk-flag-with-red-x-mark.jpg.optimal.jpg"
     },
     {
       "title": "Vermeer by Andrew Graham-Dixon audiobook review – a sharp and authoritative guide",
@@ -26,7 +71,7 @@
       "newsletter": "https://www.theguardian.com/books",
       "date": "2026-10-15T14:00:14+00:00",
       "summary": "The author offers intriguing insights into the way this Dutch artist worked, including fresh perspectives on The Girl With the Pearl Earring In the decades after the death of the Dutch artist Johannes Vermeer in 1675, few knew his name or work. He was so unknown that his paintings were sold with the forged signatures of more popular artists attached. All tha",
-      "image": null
+      "image": "https://www.theguardian.com/books/2026/oct/15/1200"
     },
     {
       "title": "Sally Rooney’s stand on Palestine is brave and humane",
@@ -35,7 +80,7 @@
       "newsletter": "https://www.theguardian.com/books",
       "date": "2026-10-15T10:56:22+00:00",
       "summary": "The Normal People author’s determination to support Palestine Action, even if it means that her books are withdrawn from sale in the UK, makes a mockery of Britain’s terrorism laws It’s hard to think of a published author in living memory who risked arrest in the UK for their political beliefs, hard to think of one whose books could be published anywhere but",
-      "image": null
+      "image": "https://www.theguardian.com/books/2026/oct/15/1200"
     },
     {
       "title": "8 Stunning Historical Novels by Latine Writers",
@@ -44,7 +89,7 @@
       "newsletter": "https://bookriot.com",
       "date": "2026-10-15T10:05:00+00:00",
       "summary": "Latine historical novels are one of my favorite things. If you're in the same boat, may I interest you in these eight stunning novels?",
-      "image": null
+      "image": "https://bookriot.com/wp-content/uploads/2025/09/hacienda-cropped-cover-1.jpg.optimal.jpg"
     },
     {
       "title": "5 Nerdy Romance Novels",
@@ -53,7 +98,7 @@
       "newsletter": "https://bookriot.com",
       "date": "2026-10-15T10:04:00+00:00",
       "summary": "Take these nerdy romance novels for a spin and embrace your excitable, hyper-fixated side.",
-      "image": null
+      "image": "https://bookriot.com/wp-content/uploads/2026/10/people-and-things-2026-10-11T013605.255.jpg.optimal.jpg"
     },
     {
       "title": "The Bestselling Books of the Week, According to All the Lists",
@@ -62,7 +107,7 @@
       "newsletter": "https://bookriot.com",
       "date": "2026-10-15T10:03:00+00:00",
       "summary": "USA Today, Publishers Weekly, NYT, Amazon, and Indie Booksellers all have their own bestseller lists. Here are the combined results.",
-      "image": null
+      "image": "https://bookriot.com/wp-content/uploads/2026/04/people-and-things-2026-04-03T210031.047.jpg.optimal.jpg"
     },
     {
       "title": "Monster Mash: 4 Monster Picture Books",
@@ -71,7 +116,7 @@
       "newsletter": "https://bookriot.com",
       "date": "2026-10-15T10:00:00+00:00",
       "summary": "These monster picture books show kids some of the classic Western monsters, like vampires, werewolves, zombies, and Frankenstein.",
-      "image": null
+      "image": "https://bookriot.com/wp-content/uploads/2026/10/people-and-things-2026-10-14T022758.346.jpg.optimal.jpg"
     },
     {
       "title": "The Best Fantasy Books for Teens and Tweens",
@@ -80,7 +125,7 @@
       "newsletter": "https://bookriot.com",
       "date": "2026-10-15T10:00:00+00:00",
       "summary": "If you're looking for a diverse, curated list of some of the best fantasy books for teens and tweens, you've come to the right place.",
-      "image": null
+      "image": "https://bookriot.com/wp-content/uploads/2026/10/fantasy-books-for-teens-and-tweens-book-covers.jpg.optimal.jpg"
     },
     {
       "title": "The Rise of Autobiofictionalgraphy Graphic Novels: A Guest Post by Huda Fahmy",
@@ -89,25 +134,7 @@
       "newsletter": "https://bookriot.com",
       "date": "2026-10-15T10:00:00+00:00",
       "summary": "What makes fictionalized graphic memoirs (\"autobiofictionalgraphy\") appealing to teens? Huda Fahmy talks about her latest and favorites.",
-      "image": null
-    },
-    {
-      "title": "📚 A 24/7/365 gig",
-      "url": "https://bookriot.com/a-24-7-365-gig/",
-      "source": "Book Riot",
-      "newsletter": "https://bookriot.com",
-      "date": "2026-10-15T09:30:00+00:00",
-      "summary": "60+ ways to fight for the freedom to read",
-      "image": null
-    },
-    {
-      "title": "Planting the Seeds of Terror: Botanical Horror Books",
-      "url": "https://bookriot.com/botanical-horror-books/",
-      "source": "Book Riot",
-      "newsletter": "https://bookriot.com",
-      "date": "2026-10-15T09:00:00+00:00",
-      "summary": "Delilah S. Dawson, author of Bloom and Monstera, recommends three of her favorite botanical horror books.",
-      "image": null
+      "image": "https://bookriot.com/wp-content/uploads/2026/09/author-guest-post-series-huda-fahmy.jpg.optimal.jpg"
     },
     {
       "title": "The Floating World by Ben Eastham review – a compelling debut of art’s relation to money and power",
@@ -116,7 +143,7 @@
       "newsletter": "https://www.theguardian.com/books",
       "date": "2026-10-15T06:00:24+00:00",
       "summary": "Following the death of his wife, a critic-teacher takes a job with an art-washing multinational, in a cinematic novel that is full of ideas At the end of a night in a London pub, after last orders have been called, three friends are joking about what role they’d serve on a remote desert island, with no one but their fellow plane crash survivors for company. ",
-      "image": null
+      "image": "https://www.theguardian.com/books/2026/oct/15/1200"
     },
     {
       "title": "Zimbabwean author Simbarashe Kundizeza denies using AI to write prize-winning story",
@@ -125,16 +152,7 @@
       "newsletter": "https://www.theguardian.com/books",
       "date": "2026-10-14T19:01:29+00:00",
       "summary": "Article in Atlantic claims The Blue Fighter was artificially generated, days after it won Caine prize for African writers The Zimbabwean writer Simbarashe Kundizeza has denied using AI to write a prize-winning short story after an article in the Atlantic said software had flagged it as almost completely AI-generated. Kundizeza’s story The Blue Fighter was an",
-      "image": null
-    },
-    {
-      "title": "Sally Rooney says she can no longer sell books in UK due to Palestine Action support",
-      "url": "https://www.theguardian.com/uk-news/2026/oct/14/sally-rooney-says-she-can-no-longer-sell-books-in-the-uk-because-of-palestine-action-support",
-      "source": "The Guardian · Books",
-      "newsletter": "https://www.theguardian.com/books",
-      "date": "2026-10-14T16:06:42+00:00",
-      "summary": "Irish writer of Normal People says she can no longer receive royalties from British sales and she cancelled UK trip due to fear of arrest Sally Rooney has said she is being forced to withdraw her books from sale in the UK because of her support for the banned organisation Palestine Action. The Irish novelist, whose books include Normal People and Conversatio",
-      "image": null
+      "image": "https://www.theguardian.com/technology/2026/oct/14/1200"
     },
     {
       "title": "The best books to read in October: new paperbacks from Zadie Smith, Thomas Pynchon and Francis Spufford",
@@ -143,7 +161,7 @@
       "newsletter": "https://www.theguardian.com/books",
       "date": "2026-10-14T14:32:23+00:00",
       "summary": "Looking for a new reading recommendation? Here are some brilliant new paperbacks, from a time-travelling fantasy novel to an eclectic essay collection. Discuss what you’re reading in paperback in the comments *** Continue reading...",
-      "image": null
+      "image": "https://www.theguardian.com/books/ng-interactive/2026/oct/14/1200"
     },
     {
       "title": "Ply by Hernan Diaz review – Pulitzer winner’s dry vision of far-future America",
@@ -152,7 +170,7 @@
       "newsletter": "https://www.theguardian.com/books",
       "date": "2026-10-14T08:00:48+00:00",
       "summary": "There are shades of JG Ballard in this tale of survival in a decaying metropolis, but big ideas and lengthy exposition crowd out the human drama Hernan Diaz’s last novel, the formally inventive Trust , narrated the biography of a successful financier from four different viewpoints to investigate themes of memory, representation, fiction and the fictitiousnes",
-      "image": null
+      "image": "https://www.theguardian.com/books/2026/oct/14/1200"
     },
     {
       "title": "The Steps by Sylvester Stallone review – the inside story of Rocky",
@@ -161,7 +179,7 @@
       "newsletter": "https://www.theguardian.com/books",
       "date": "2026-10-14T06:00:47+00:00",
       "summary": "The star takes us back to 70s New York to recount his breakthrough, and it’s a great yarn – but it’s laced with anger The Philadelphia Museum of Art contains a 14th-century Buddhist temple, a one-acre sculpture garden and works by Picasso, Renoir and Van Gogh. Its most famous attraction, however, is a flight of stone steps that draws several million tourists",
-      "image": null
+      "image": "https://www.theguardian.com/books/2026/oct/14/1200"
     },
     {
       "title": "Generation Maybe by Camilla Cavendish review – what’s really behind the fertility gap?",
@@ -170,7 +188,7 @@
       "newsletter": "https://www.theguardian.com/books",
       "date": "2026-10-13T08:00:18+00:00",
       "summary": "An evidenced-based account of the difficult choices facing couples across the world – from America to Iran ‘Don’t be weird about this,” representative Alexandria Ocasio-Cortez laughed into the camera as she prepared to jab a hormone-filled needle into her midsection, adding that she knew full well that, yes, people were definitely going to be weird about it.",
-      "image": null
+      "image": "https://www.theguardian.com/books/2026/oct/13/1200"
     },
     {
       "title": "Peck & Peck by Bonnie Garmus review – the zany follow-up to Lessons in Chemistry",
@@ -179,7 +197,7 @@
       "newsletter": "https://www.theguardian.com/books",
       "date": "2026-10-13T06:00:17+00:00",
       "summary": "This offbeat tale of machinations at an eccentric poetry magazine in 80s New York is laugh-out-loud funny – and a paean to the power of poetry If you have been into a bookshop since 2022, or perhaps even just breathed in and out, you could not have failed to clock the phenomenon that was Lessons in Chemistry. Bonnie Garmus’s debut remains a global sensation.",
-      "image": null
+      "image": "https://www.theguardian.com/books/2026/oct/13/1200"
     },
     {
       "title": "‘The crime fiction I’m interested in is political’: Ian Rankin on his new novel about the super-rich",
@@ -188,7 +206,7 @@
       "newsletter": "https://www.theguardian.com/books",
       "date": "2026-10-11T11:00:24+00:00",
       "summary": "The bestselling writer talks about leaving Edinburgh for London in his latest mystery, and what the future holds for Rebus Sir Ian Rankin rarely watches television. Certainly, there’s no gleaming flatscreen in the corner of the apartment in Edinburgh where he writes, listens to music and constructs elaborate Lego models (all four Beatles, their Yellow Submar",
-      "image": null
+      "image": "https://www.theguardian.com/books/2026/oct/11/1200"
     },
     {
       "title": "‘People forgot I existed’: Audrey Niffenegger on taking 14 years to write a sequel to The Time Traveler’s Wife",
@@ -197,7 +215,7 @@
       "newsletter": "https://www.theguardian.com/books",
       "date": "2026-10-10T08:00:51+00:00",
       "summary": "Her debut made her a global star. Now she has finally written a follow-up – and this time, it’s political. She talks about impostor syndrome, screen adaptations and becoming radicalised The artist and novelist Audrey Niffenegger began writing the long-awaited sequel to her bestselling debut, The Time Traveler’s Wife, in 2012, just after Obama’s re-election. ",
-      "image": null
+      "image": "https://www.theguardian.com/books/2026/oct/10/1200"
     },
     {
       "title": "The best recent science fiction, fantasy and horror – review roundup",
@@ -206,7 +224,7 @@
       "newsletter": "https://www.theguardian.com/books",
       "date": "2026-10-09T11:00:27+00:00",
       "summary": "The Ballad of Black Tom by Victor LaValle; As You Wake, Break the Shell by Becky Chambers; The Eye of Goliath by Diego Muzzio; Our Cut of Salt by Deena Helm The Ballad of Black Tom by Victor LaValle ( Penguin , £9.99 ) This short novel won almost every genre award following its 2016 US publication. As a Black writer, LaValle had a conflicted relationship wit",
-      "image": null
+      "image": "https://www.theguardian.com/books/2026/oct/09/1200"
     },
     {
       "title": "The Queerest of Folk by Russell T Davies review – the groundbreaking screenwriter tells it like it is",
@@ -215,7 +233,7 @@
       "newsletter": "https://www.theguardian.com/books",
       "date": "2026-10-09T06:00:41+00:00",
       "summary": "From Coronation Street to It’s a Sin, Davies’ memoir of a career in TV is also a rallying cry for creativity Television is an intimate art form, once beamed into living rooms, now on devices right in front of our faces. The screenwriter Russell T Davies understands that intimacy. Whether discussing his early days developing lost-to-history soap spin-offs, ma",
-      "image": null
+      "image": "https://www.theguardian.com/books/2026/oct/09/1200"
     },
     {
       "title": "Agate Head / Stone Soup by Patricia Lockwood review – a gem of a collection",
@@ -224,7 +242,7 @@
       "newsletter": "https://www.theguardian.com/books",
       "date": "2026-10-08T06:00:11+00:00",
       "summary": "Inspired by stones and metals, the memoirist and novelist’s first poetry collection for more than a decade is charming, whimsical and intimate In the introduction to her first book of poetry in 12 years, Patricia Lockwood states that, “For almost a decade … I had not been able to hear it. The poems that I wrote would not end … too much was happening, there w",
-      "image": null
+      "image": "https://www.theguardian.com/books/2026/oct/08/1200"
     },
     {
       "title": "Blockers by Michael Lewis review – the quiet heroes who tried to stop Doge",
@@ -233,25 +251,7 @@
       "newsletter": "https://www.theguardian.com/books",
       "date": "2026-10-07T06:00:35+00:00",
       "summary": "The author of Moneyball brings his exceptional narrative skills to bear on Musk’s anti-government crusade Donald Trump’s catastrophic errors get so much attention that his systemic ones can easily be missed. While the world looks on in dismay at his farcical war in Iran, the thuggery of Ice agents or clownish attacks on erstwhile allies like Canada and Denma",
-      "image": null
-    },
-    {
-      "title": "Holding Lightning by Emily Lordi review – an intimate portrait of Whitney Houston",
-      "url": "https://www.theguardian.com/music/2026/oct/06/holding-lightning-by-emily-lordi-review-an-intimate-portrait-of-whitney-houston",
-      "source": "The Guardian · Books",
-      "newsletter": "https://www.theguardian.com/books",
-      "date": "2026-10-06T08:00:06+00:00",
-      "summary": "An empathetic biography of the the singer recasts her tumultuous later career as a triumph of self-expression Since Whitney Houston’s death in 2012, a flurry of books and documentaries have appeared, most of them presenting her life as a cautionary tale. In this new biography, Emily Lordi, a professor of English at Vanderbilt University, refuses to reduce Ho",
-      "image": null
-    },
-    {
-      "title": "‘We have been dispossessed’: Nick Hayes on land rights and a peaceful revolution at the real Toad Hall",
-      "url": "https://www.theguardian.com/books/2026/oct/04/we-have-been-dispossessed-nick-hayes-on-land-rights-and-a-peaceful-revolution-at-the-real-toad-hall",
-      "source": "The Guardian · Books",
-      "newsletter": "https://www.theguardian.com/books",
-      "date": "2026-10-04T11:00:27+00:00",
-      "summary": "The co-founder of the Right to Roam campaign and author of The Book of Trespass discusses the Oxfordshire riverside community he calls home and how Hardwick Hall has been taken back by the people On the banks of the Thames in South Oxfordshire, the Hardwick estate has been owned by the Rose family for generations. When Sir Charles Rose, a banker, sportsman, ",
-      "image": null
+      "image": "https://www.theguardian.com/books/2026/oct/07/1200"
     },
     {
       "title": "What we’re reading: China Miéville, Sebastian Barry, Derek Owusu and Guardian readers on the books they enjoyed in September",
@@ -260,7 +260,7 @@
       "newsletter": "https://www.theguardian.com/books",
       "date": "2026-10-01T11:48:27+00:00",
       "summary": "Writers and Guardian readers discuss the titles they have read over the last month. Join the conversation in the comments I was sideswiped by Giada Scodellaro’s Ruins, Child . A brilliant, strange book that challenged me in the most exhilarating way, with its fractured language and dream-cinema visions, the sense it bestowed of walking through a corridor ful",
-      "image": null
+      "image": "https://www.theguardian.com/books/2026/oct/01/1200"
     },
     {
       "title": "Children’s and teens roundup – the best new picture books and novels",
@@ -269,7 +269,7 @@
       "newsletter": "https://www.theguardian.com/books",
       "date": "2026-09-18T11:00:18+00:00",
       "summary": "A tiger’s tale; the young Henry VIII; a fantasy follow‑up from Katherine Rundell; small-town secrets; ghosts galore and more Once Upon a Tiger by Sarah Massini, S&S, £14.99 Tiger is irate to find three cheeky human cubs climbing on his back – but when they refuse to be scared off, he becomes increasingly attached to them. A sweet, classic-feeling picture boo",
-      "image": null
+      "image": "https://www.theguardian.com/books/2026/sep/18/1200"
     },
     {
       "title": "Children’s books roundup – the best new picture books and novels",
@@ -278,7 +278,7 @@
       "newsletter": "https://www.theguardian.com/books",
       "date": "2026-08-28T11:00:55+00:00",
       "summary": "Poetry with wonder and wit; a heartwarming tale for horse lovers; a portal to the future; a brilliant YA wartime romance and more Small Monster, Big Monster by Allan Sanders, Phaidon, £7.95 Refrigerator is EMPTY. Monster is FULL (of pizza!). An eye-wateringly bright board book, featuring splendidly zany, toddler-pleasing pairs of opposites. The Flying Machin",
-      "image": null
+      "image": "https://www.theguardian.com/books/2026/aug/28/1200"
     },
     {
       "title": "Children and teens roundup – the best new picture books and novels",
@@ -287,7 +287,7 @@
       "newsletter": "https://www.theguardian.com/books",
       "date": "2026-06-26T11:00:15+00:00",
       "summary": "A mouse detective; a fresh take on the Odyssey; a dangerous wish; and the world’s most watched reality TV show My Dad Can by Stephen Lightbown, illustrated by Claire Sahara Lemp, Quarto, £7.99 Iris’s dad can turn into dinosaurs, unicorns, anything she imagines – though some people see Dad’s wheelchair and believe he can’t do anything. This soft-smudged, colo",
-      "image": null
+      "image": "https://www.theguardian.com/books/2026/jun/26/1200"
     },
     {
       "title": "Children and teens roundup – the best new picture books and novels",
@@ -296,7 +296,7 @@
       "newsletter": "https://www.theguardian.com/books",
       "date": "2026-05-22T11:00:58+00:00",
       "summary": "A bunny who loves to bake, illustrated poems about amazing animals and a YA verse novel of dancefloor salvation Ban Ban’s Bakery by Elena Hiroko Magee, Do Re Mi, £12.99 Ban Ban the bunny loves baking with Grandma – but will she be able to turn Dusty Cottage into a bakery of her very own? A cute, enticing picture book full of mouthwatering, pastel-hued treats",
-      "image": null
+      "image": "https://www.theguardian.com/books/2026/may/22/1200"
     },
     {
       "title": "The 100 best novels of all time",
@@ -305,7 +305,7 @@
       "newsletter": "https://www.theguardian.com/books",
       "date": "2026-05-16T05:00:40+00:00",
       "summary": "The top 100 novels of all time published in English, as voted for by authors, critics and academics worldwide. How many have you read? Continue reading...",
-      "image": null
+      "image": "https://www.theguardian.com/books/ng-interactive/2026/may/12/1200"
     }
   ]
 }
