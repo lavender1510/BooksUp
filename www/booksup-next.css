@@ -272,3 +272,37 @@ body.bu-desktop .bu45-desktop-only{display:flex!important}
 body.bu-desktop .next-home-top,body.bu-desktop .next-section,body.bu-desktop .bu45-library,body.bu-desktop .bu45-lists{max-width:1600px}
 @media(max-width:790px){.bu45-analysis-grid,.bu45-transfer-grid{grid-template-columns:1fr}.bu45-book-grid{grid-template-columns:repeat(auto-fill,minmax(130px,1fr))}.bu45-library-detail{flex-wrap:wrap}}
 @media(max-width:480px){.bu45-tiles{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.bu45-tile-main{padding:12px;min-height:170px}.bu45-book-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.bu45-list-tile{min-height:170px}.next-bottom-nav .next-nav-item{font-size:8px;padding-inline:0}.next-bottom-nav .next-nav-symbol{font-size:19px}.bu45-chart{gap:3px}}
+
+/* BooksUp 4.6 - Discover search, private settings, mature mode & reading trends */
+.bu46-discover-inline,.bu46-search-form{display:flex;gap:10px;align-items:center;max-width:890px;margin:20px clamp(12px,3vw,34px)}
+.bu46-discover-inline input,.bu46-search-form input{min-width:0;flex:1;border:1px solid var(--bd);background:var(--card);color:var(--ink);padding:13px 15px;border-radius:15px;font-size:15px}
+.bu46-discover-inline button,.bu46-search-form button{flex:none}
+.bu46-discover-search{padding:14px clamp(14px,3vw,35px) 120px}
+.bu46-discover-search .bu46-search-form{margin:14px 0}
+.bu46-result-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,190px),1fr));gap:14px;margin-top:20px}
+.bu46-result{border:1px solid var(--bd);border-radius:18px;background:var(--card);padding:12px;min-width:0;display:grid;gap:12px}
+.bu46-result-main{background:none;color:var(--ink);border:0;padding:0;text-align:left;cursor:pointer;display:grid;gap:7px;min-width:0}
+.bu46-result-main b{font:650 14px/1.4 var(--sf);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.bu46-result-main small{color:var(--mut);font-size:12px}
+.bu46-result .bu45-cover{width:100%;aspect-ratio:2/3}
+.bu46-similar{margin-top:30px;border-top:1px solid var(--bd);padding:24px clamp(12px,2vw,30px) 80px}
+.bu46-similar h2{font:650 23px var(--sf);margin:0}
+.bu46-similar-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(110px,40vw),1fr));gap:13px;margin-top:12px;min-width:0}
+.bu46-similar-card{background:var(--card);color:var(--ink);text-align:left;border:1px solid var(--bd);border-radius:15px;padding:10px;min-width:0;display:grid;gap:7px;cursor:pointer}
+.bu46-similar-card b{font:650 12px/1.35 var(--sf);overflow-wrap:anywhere}
+.bu46-similar-card small{font:11px/1.3 var(--ss);color:var(--mut)}
+.bu46-similar-card .bu45-cover{width:100%;aspect-ratio:2/3}
+.bu46-reading-history{margin:18px clamp(12px,3vw,35px) 65px;padding:20px;border-radius:19px}
+.bu46-reading-history h2{font:650 22px var(--sf);margin:0}
+.bu46-reading-history h3{font:650 16px var(--sf)}
+.bu46-history-columns{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px}
+.bu46-chart-row{display:grid;grid-template-columns:64px 1fr 34px;gap:8px;align-items:center;margin:9px 0;font-size:12px}
+.bu46-chart-row .bu45-progress{margin:0}
+.bu46-private{display:grid;gap:14px;max-width:650px;padding:12px 0 40px}
+.bu46-private label{font-weight:550}
+.bu46-private input[type=number]{width:140px;max-width:50%;min-height:42px;padding:8px 12px;border:1px solid var(--bd);border-radius:12px;background:var(--card);color:var(--ink)}
+.bu46-privacy-note{padding:16px;border:1px solid var(--bd);background:var(--card);border-radius:16px}
+.bu46-privacy-note p{font-size:13px;color:var(--mut)}
+.bu46-admin{padding:22px;margin:15px 0;border-radius:17px}
+.bu46-admin button{margin-right:8px;margin-bottom:8px}
+@media(max-width:630px){.bu46-history-columns{grid-template-columns:1fr;gap:10px}.bu46-discover-inline{margin:14px 10px}.bu46-search-form{flex-wrap:wrap}.bu46-search-form input{flex-basis:100%}.bu46-result-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.bu46-similar-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.bu46-reading-history{padding:14px}}

@@ -12,7 +12,7 @@ function bu44PoolSubjects(){
  const r=S.rec||{},from=[...(r.includeGenres||[]),...S.books.filter(b=>b.rating>=7||b.finished).map(b=>b.genre)].filter(Boolean);
  const m={fantasy:'fantasy',sciencefiction:'science fiction',scifi:'science fiction',romance:'romance',liebe:'romance',manga:'manga',thriller:'thriller',krimi:'mystery',history:'history',historisch:'history',sachbuch:'nonfiction',biografie:'biography',graphicnovel:'graphic novel'};
  const found=[...new Set(from.map(x=>{const k=buNorm(x).replace(/\s+/g,'');return m[k]||buNorm(x)}))].filter(x=>x.length>2);
- return [...found,'fantasy','fiction','romance','mystery','young adult','manga','history','science fiction','comics','literature'].slice(0,12);
+ return [...found,...(typeof bu46AdultEnabled==='function'&&bu46AdultEnabled()?['erotica','adult romance']:[]),'fantasy','fiction','romance','mystery','young adult','manga','history','science fiction','comics','literature'].slice(0,15);
 }
 function bu44ItemToBook(x){
  const v=x.volumeInfo||{},i=bu44EditionIsbn(v.industryIdentifiers?.find(z=>z.type==='ISBN_13')?.identifier||v.industryIdentifiers?.[0]?.identifier||'');
@@ -27,6 +27,7 @@ async function bu44FetchRecommendations(force=false){
  if(bu44Loading||navigator.onLine===false)return;
  if(!force&&Date.now()-bu44LastFetch<6*3600000&&bu44Remote.length)return;
  if(!force&&Date.now()-bu44LastAttempt<10*60000)return;
+ if(force){ALL.recCycle=(Number(ALL.recCycle)||0)+1;}
  bu44LastAttempt=Date.now();bu44Loading=true;
  try{
   const subjects=bu44PoolSubjects();
@@ -35,14 +36,14 @@ async function bu44FetchRecommendations(force=false){
   const tasks=order.slice(0,5).map(async(sub,i)=>{
    const lang=ALL.nextLanguage&&ALL.nextLanguage!=='system'?ALL.nextLanguage:('de');
    const q='subject:'+sub;
-   const url='https://www.googleapis.com/books/v1/volumes?q='+encodeURIComponent(q)+'&orderBy=newest&maxResults=30&startIndex='+((Math.floor(Date.now()/86400000)+i)%4*30)+'&langRestrict='+encodeURIComponent(lang==='de'||lang==='en'?lang:'en');
+   const url='https://www.googleapis.com/books/v1/volumes?q='+encodeURIComponent(q)+'&orderBy=newest&maxResults=30&startIndex='+(((Math.floor(Date.now()/86400000)+i+Number(ALL.recCycle||0)*3)%8)*30)+'&langRestrict='+encodeURIComponent(lang==='de'||lang==='en'?lang:'en');
    const response=await fetch(url);
    if(!response.ok)throw Error('HTTP '+response.status);
    const j=await response.json();return (j.items||[]).map(bu44ItemToBook).filter(Boolean);
   });
   const settled=await Promise.allSettled(tasks),items=settled.flatMap(x=>x.status==='fulfilled'?x.value:[]);
   const seen=new Set(),unique=items.filter(b=>{const k=buNorm(b.title+' '+b.author);if(seen.has(k))return false;seen.add(k);return true});
-  if(unique.length){bu44Remote=unique.slice(0,130);bu44LastFetch=Date.now();
+  if(unique.length){const old=new Set((bu44Remote||[]).map(b=>buNorm(b.title+'|'+b.author)));const extras=unique.filter(b=>!old.has(buNorm(b.title+'|'+b.author)));bu44Remote=[...extras,...bu44Remote].slice(0,200);bu44LastFetch=Date.now();
     try{localStorage.setItem(BU44_REC_KEY,JSON.stringify({time:bu44LastFetch,items:bu44Remote}))}catch{}
     if(view==='home'||view==='catalog')render();
   }

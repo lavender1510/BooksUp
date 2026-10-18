@@ -2,6 +2,27 @@
 
 Dokumentation zum Open-Source-Projekt [lavender1510/BooksUp](https://github.com/lavender1510/BooksUp). Android- und Windows-Testversionen werden als GitHub-Releases bereitgestellt. Automatisierte Builds ersetzen keine Tests auf echten Geräten.
 
+## [4.6.0] – 2026-10-18 (Testversion)
+
+### Verbesserungen
+- **Leselisten:** Ein Buch entfernen lässt die geöffnete Liste bestehen und aktualisiert die Zählung. In automatisch gepflegten Listen werden manuell entfernte Bücher ausgeschlossen.
+- **Bibliothek:** Zeigt die Anzahl gefundener Bibliotheksbücher.
+- **Discover:** Suche nach Titel, Autor und ISBN mit Google Books/Open Library, Hinzufügen zur gewünschten Leseliste ohne Besitzannahme, größere/wechselnde Empfehlungsauswahl mit Ladefeedback.
+- **Ähnliche Bücher:** Unter den Detailinformationen von Buchregal-, Bibliotheks- und Leselisteneinträgen.
+- **ISBN und Metadaten:** Ausgabe-/Sprach-Auswahl statt stiller Übernahme einer möglicherweise falschen ISBN; zusätzliche Datenbankabfragen ergänzen nur fehlende Felder.
+- **Privatprofil:** Lokal gespeichertes Alter, optionaler 18+-Empfehlungsmodus erst ab 18; konservativer Filter für unklassifizierte Online-Titel bei Minderjährigen.
+- **Lesestatistik:** Anzahl gelesener Bücher nach Jahren und Monaten im Profil.
+- **Theme:** Das unveränderte Neon-Theme heißt nun **Midnight Orchid**.
+- **Admin-Vorbereitung:** Sicherheitsorientiertes OAuth-Backend für den verifizierten GitHub-Herausgeber `lavender1510`, eigene redaktionelle Buchinformationen und News-Artikel. Betrieb erfordert separate OAuth-/Worker-Konfiguration, daher nicht standardmäßig freigeschaltet.
+- **Übersetzungen:** Weitere feste Begriffe lokalisiert; ältere Texte sind noch nicht vollständig geprüft.
+
+### Grenzen / Testhinweise
+- ISBNs/Altersratings und Buchdaten sind nicht für alle Ausgaben zuverlässig verfügbar. Minderjährigenschutz ist konservativ, aber keine unabhängige Altersverifikation.
+- Adminfunktionen können **erst nach sicherer Server-Einrichtung** aktiviert werden.
+- Google Books kann Treffer wiederholen oder API-Limits setzen.
+- Vollständige mehrsprachige Lokalisierung und alle Geräte-Abläufe sind noch nicht end-to-end verifiziert.
+- Android-In-Place-Updates erfordern weiterhin denselben APK-Signaturschlüssel, den die vorhandene Installation nutzt. Niemals ohne erfolgreich getestetes Backup deinstallieren.
+
 ## [4.5.0] – 2026-10-18 (Testversion veröffentlicht)
 
 ### Neu

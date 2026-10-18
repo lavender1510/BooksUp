@@ -103,7 +103,7 @@ const BU_WORDS={
 function buLocale(){try{return nextLanguage()}catch{return 'de'}}
 function buTranslate(text,lang){
  if(lang==='de')return text;
- const a=BU_WORDS[text.trim()]||BU43_WORDS[text.trim()]||BU44_WORDS[text.trim()]||BU45_WORDS[text.trim()];const index={en:0,fr:1,es:2,it:3}[lang];return a&&index!==undefined?a[index]:text;
+ const a=BU_WORDS[text.trim()]||BU43_WORDS[text.trim()]||BU44_WORDS[text.trim()]||BU45_WORDS[text.trim()]||BU46_WORDS[text.trim()];const index={en:0,fr:1,es:2,it:3}[lang];return a&&index!==undefined?a[index]:text;
 }
 function buTranslateUI(){
  const lang=buLocale();const root=$('app');if(!root)return;
@@ -148,7 +148,7 @@ async function buLoadNews(force=false){
   if(!response.ok)throw Error('HTTP '+response.status);
   const data=await response.json();
   if(!Array.isArray(data.articles))throw Error('Ungültiges News-Format');
-  buNewsArticles=data.articles.filter(a=>a.title&&/^https:\/\//i.test(a.url)).slice(0,28);
+  buNewsArticles=data.articles.filter(a=>a.title&&/^https:\/\//i.test(a.url)).slice(0,28);if(typeof bu46ApplyEditorial==='function')bu46ApplyEditorial();
   buNewsUpdated=data.updatedAt||Date.now();
   try{localStorage.setItem('booksup.news.cache',JSON.stringify({articles:buNewsArticles,updatedAt:buNewsUpdated}))}catch{}
   if(view==='news')render();

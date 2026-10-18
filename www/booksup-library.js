@@ -28,7 +28,19 @@ function buNewList(){const v=prompt('Name der neuen Leseliste:', 'Möchte ich le
 function buAddWishlist(id){const l=buListsData().find(x=>String(x.id)===String(id));if(!l)return;const title=prompt('Titel (auch wenn du das Buch nicht besitzt):');if(!title?.trim())return;const author=prompt('Autor (optional):')||'';l.items.push({id:crypto.randomUUID(),title:title.trim(),author,owned:false});save();go('lists')}
 function buAddOwnedToList(listId,bookId){const l=buListsData().find(x=>String(x.id)===String(listId)),b=S.books.find(x=>String(x.id)===String(bookId));if(!l||!b)return;if(!l.items.some(x=>String(x.bookId)===String(bookId)))l.items.push({id:crypto.randomUUID(),bookId:b.id,title:b.title,author:b.author,owned:true});save();go('lists')}
 function buAddToListDialog(id){const ls=buListsData();if(!ls.length){buNewList();return}modal='<h3>Zur Leseliste hinzufügen</h3>'+ls.map(l=>'<button class="next-setting-row" onclick="buAddOwnedToList('+Number(l.id)+','+Number(id)+');modal=null"><b>'+esc(l.name)+'</b></button>').join('')+'<button class="chip" onclick="modal=null;render()">Schließen</button>';render()}
-function buRemoveListItem(lid,idx){const l=buListsData().find(x=>String(x.id)===String(lid));if(!l)return;l.items.splice(idx,1);save();go('lists')}
+function buRemoveListItem(lid,idx){
+ const l=buListsData().find(x=>String(x.id)===String(lid));if(!l)return;
+ const item=l.items[idx];if(!item)return;
+ if(l.autoRule&&l.autoRule!=='manual'){l.excludedIds??=[];const key=String(item.bookId||item.id);if(!l.excludedIds.includes(key))l.excludedIds.push(key)}
+ l.items.splice(idx,1);persist();
+ if(view==='listDetail'&&String(cur||bu45ListId)===String(lid)){
+  const listPage=document.querySelector('.bu45-list-page');
+  const card=listPage?.querySelectorAll('.bu45-book-card')[idx];if(card)card.remove();
+  const counter=listPage?.querySelector('.bu45-pagehead .hint');if(counter)counter.textContent=l.items.length+' Bücher';
+  toast('Buch aus Leseliste entfernt.');return;
+ }
+ render();
+}
 function buRemoveList(lid){if(!confirm('Leseliste löschen? Die Bücher bleiben erhalten.'))return;S.readingLists=buListsData().filter(x=>String(x.id)!==String(lid));save();go('lists')}
 function buListsView(){return bar('Meine Leselisten','shelf')+'<section class="bu-lists"><header class="bu-head"><div><span class="next-overline">BOOKSUP COLLECTIONS</span><h1>Meine Leselisten</h1><p class="hint">Plane deine Bücher unabhängig davon, ob du sie schon besitzt.</p></div><button class="btn" onclick="buNewList()">+ Neue Leseliste</button></header>'+
  (buListsData().map(l=>'<div class="card bu-list-card"><div class="bu-head"><h2>'+esc(l.name)+'</h2><div><button class="chip" onclick="buAddWishlist('+Number(l.id)+')">+ Wunschbuch</button><button class="chip" onclick="buRemoveList('+Number(l.id)+')">Löschen</button></div></div>'+
@@ -61,7 +73,7 @@ function buNextToReadSection(){const list=buNextEligible().slice(0,8);return '<s
  (list.length?'<div class="next-book-rail">'+list.map(b=>'<button class="next-book-card" onclick="go(\'detail\','+Number(b.id)+')"><span class="next-cover">'+nextCover(b)+'</span><strong>'+esc(b.title)+'</strong><small>'+esc(b.series?b.series+' · Band '+(b.seriesNumber||'?'):b.author||'')+'</small></button>').join('')+'</div>':'<p class="hint">Noch keine passenden ungelesenen Bücher.</p>')+'</section>'}
 function buRecIdentity(b){return String(b.isbn||'').replace(/[^\dX]/gi,'')||buNorm(b.title)+'|'+buNorm(b.author)}
 function buRecs(){
- const r=S.rec||{},allOwned=[...ALL.book.books,...ALL.manga.books];
+ const r=S.rec||{},allOwned=[...ALL.book.books,...ALL.manga.books,...(ALL.book.libraryBooks||[]),...(ALL.manga.libraryBooks||[])];
  const readSet=new Set(allOwned.filter(b=>buHasRead(b)).flatMap(b=>[buRecIdentity(b),buNorm(b.title)]));
  const ownedSet=new Set(allOwned.flatMap(b=>[buRecIdentity(b),buNorm(b.title)]));
  const wantedGenres=new Set((r.includeGenres||[]).map(buNorm)),wantedTags=new Set((r.includeTags||[]).map(buNorm)),excluded=new Set((r.exclude||[]).map(buNorm));
@@ -69,7 +81,7 @@ function buRecs(){
  const source=[...(r.own===false?[]:buNextEligible().map(b=>({...b,own:1}))),...(r.cat===false?[]:[...CAT_(),...bu44ExtraRecommendations()].map(b=>({...b,own:0})))];
  for(const b of source){
   const title=buNorm(b.title),key=buRecIdentity(b),genre=buNorm(b.genre),tags=tg(b.tags).map(buNorm);
-  if(!title||readSet.has(key)||readSet.has(title)||seen.has(key)||excluded.has(genre))continue;
+  if(!title||(!b.own&&!bu46Allowed(b))||(b.own&&bu46AgeLabel(b)===18&&!bu46AdultEnabled())||readSet.has(key)||readSet.has(title)||seen.has(key)||excluded.has(genre))continue;
   if(!b.own&&(ownedSet.has(key)||ownedSet.has(title)))continue;
   if(wantedGenres.size&&![...wantedGenres].some(g=>genre===g||genre.includes(g)||g.includes(genre)&&genre.length>3))continue;
   if(wantedTags.size&&!tags.some(t=>wantedTags.has(t)))continue;
@@ -80,13 +92,13 @@ function buRecs(){
  const score=b=>last.filter(x=>buNorm(x.genre)===buNorm(b.genre)).length*4+last.reduce((n,x)=>n+tg(x.tags).filter(t=>tg(b.tags).includes(t)).length,0);
  const day=Math.floor(Date.now()/86400000);const tie=b=>{const v=buNorm(b.title)+'/'+day;let h=2166136261;for(let i=0;i<v.length;i++)h=Math.imul(h^v.charCodeAt(i),16777619);return(h>>>0)%500};
  list.sort((a,b)=>score(b)-score(a)||tie(a)-tie(b));
- return {list:list.slice(0,48),last};
+ return {list:list.slice(0,100),last};
 }
 function buCatalogDetails(i){buCatalogIndex=Number(i);const b=buRecs().list[buCatalogIndex];go('catalog');const isbn=bu44EditionIsbn(b?.isbn);if(isbn&&b&&!bu44WatchState(b)){const k='bu44-watch-asked-'+isbn;try{if(sessionStorage.getItem(k))return;sessionStorage.setItem(k,'1')}catch{}setTimeout(()=>{if(view==='catalog'&&bu44EditionIsbn(buRecs().list[buCatalogIndex]?.isbn)===isbn)bu44WatchPrompt(b)},650)}}
 function buCatalogView(){
  const b=buRecs().list[buCatalogIndex];if(!b)return bar('Empfehlung','home')+'<div class="card">Empfehlung nicht mehr verfügbar.</div>';
  const isbn=esc(b.isbn||''),year=esc(b.year||''),publisher=esc(b.publisher||''),genre=esc(b.genre||'');
- return bar('Buch entdecken','home')+'<section class="next-detail"><div class="next-detail-main"><div class="next-detail-cover">'+nextCover(b)+'</div><div class="next-detail-intro"><span class="next-overline">BOOKSUP DISCOVER</span><h1>'+esc(b.title)+'</h1><p>'+esc(b.author||'')+'</p><p class="hint">'+genre+'</p><button class="btn" onclick="buCatalogAdd('+buCatalogIndex+')">Zur Bibliothek hinzufügen</button><button class="btn o" onclick="bu44WatchCatalog('+buCatalogIndex+')">🔔 MediMops-Preisalarm</button></div></div><section class="next-book-information"><h2>Über das Buch</h2><div class="next-info-grid"><div><small>Autor</small><b>'+esc(b.author||'–')+'</b></div><div><small>Jahr</small><b>'+year+'</b></div><div><small>Verlag</small><b>'+publisher+'</b></div><div><small>ISBN</small><b>'+isbn+'</b></div><div><small>Genre</small><b>'+genre+'</b></div><div><small>Reihe</small><b>'+esc(b.series||'–')+'</b></div></div><p class="hint">Weitere Angaben werden über die Online-Buchdatenbanken ergänzt, wenn sie vorhanden sind.</p><div id="bu-catalog-meta" class="hint">Online-Informationen werden geprüft …</div></section></section>';
+ return bar('Buch entdecken','home')+'<section class="next-detail"><div class="next-detail-main"><div class="next-detail-cover">'+nextCover(b)+'</div><div class="next-detail-intro"><span class="next-overline">BOOKSUP DISCOVER</span><h1>'+esc(b.title)+'</h1><p>'+esc(b.author||'')+'</p><p class="hint">'+genre+'</p><button class="btn" onclick="buCatalogAdd('+buCatalogIndex+')">Zur Bibliothek hinzufügen</button><button class="btn o" onclick="bu44WatchCatalog('+buCatalogIndex+')">🔔 MediMops-Preisalarm</button></div></div><section class="next-book-information"><h2>Über das Buch</h2><div class="next-info-grid"><div><small>Autor</small><b>'+esc(b.author||'–')+'</b></div><div><small>Jahr</small><b>'+year+'</b></div><div><small>Verlag</small><b>'+publisher+'</b></div><div><small>ISBN</small><b>'+isbn+'</b></div><div><small>Genre</small><b>'+genre+'</b></div><div><small>Reihe</small><b>'+esc(b.series||'–')+'</b></div></div><p class="hint">Weitere Angaben werden über die Online-Buchdatenbanken ergänzt, wenn sie vorhanden sind.</p><div id="bu-catalog-meta" class="hint">Online-Informationen werden geprüft …</div></section>'+bu46SimilarHtml(b)+'</section>';
 }
 function buCatalogAdd(i){const b=buRecs().list[Number(i)];if(!b)return;draft={title:b.title,author:b.author,genre:b.genre,year:b.year,publisher:b.publisher,isbn:b.isbn,series:b.series,seriesNumber:b.seriesNumber,covers:[...(b.covers||[]),...(b.cover?[b.cover]:[])].filter(Boolean)};addType='physical';view='add';render()}
 async function buCatalogEnrich(){

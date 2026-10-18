@@ -1,8 +1,8 @@
 {
   "name": "booksup",
-  "version": "4.5.0",
+  "version": "4.6.0",
   "private": true,
-  "description": "BooksUp 4.5: reading lists, separate library, local automatic backups and desktop analytics",
+  "description": "BooksUp 4.6 – discovery search, age-aware recommendations, list navigation and verified admin backend scaffold",
   "productName": "BooksUp",
   "main": "electron/main.cjs",
   "type": "commonjs",

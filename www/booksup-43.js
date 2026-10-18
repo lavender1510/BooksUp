@@ -82,7 +82,8 @@ function bu43RefreshList(l){
  if(!l||!l.autoRule||l.autoRule==='manual')return;
  const books=S.books.filter(b=>l.autoRule==='unread'?!b.finished:l.autoRule==='finished'?!!b.finished:l.autoRule==='reading'?!!b.started&&!b.finished:true);
  const remembered=(l.items||[]).filter(x=>!x.bookId); // keep manually added wishlist records
- l.items=[...remembered,...books.map(b=>({id:'auto-'+b.id,bookId:b.id,title:b.title,author:b.author,owned:true}))];
+ const excluded=new Set((l.excludedIds||[]).map(String));
+ l.items=[...remembered,...books.filter(b=>!excluded.has(String(b.id))).map(b=>({id:'auto-'+b.id,bookId:b.id,title:b.title,author:b.author,owned:true}))];
  bu43SyncFolder(l);
 }
 function bu43SyncFolder(l){

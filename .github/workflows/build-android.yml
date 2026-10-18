@@ -91,9 +91,9 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         shell: bash
         run: |
-          TAG="v4.5.0-test.1"
+          TAG="v4.6.0-test.1"
           cat > release-notes.md <<'NOTES'
-          # BooksUp 4.5.0 – Android library and backup update
+          # BooksUp 4.6.0 – Android library and backup update
 
           **BooksUp-debug.apk** is an installable Android debug APK for testing.
           This is **not** a production-signed Play Store release.
@@ -112,7 +112,7 @@ jobs:
           NOTES
           if gh release view "$TAG" >/dev/null 2>&1; then
             gh release upload "$TAG" release/BooksUp-debug.apk --clobber
-            gh release edit "$TAG" --title 'BooksUp 4.5.0 – Android Backup-Fix' --notes-file release-notes.md --prerelease
+            gh release edit "$TAG" --title 'BooksUp 4.6.0 – Android Backup-Fix' --notes-file release-notes.md --prerelease
           else
-            gh release create "$TAG" release/BooksUp-debug.apk --title 'BooksUp 4.5.0 – Android Backup-Fix' --notes-file release-notes.md --prerelease --target "$GITHUB_SHA"
+            gh release create "$TAG" release/BooksUp-debug.apk --title 'BooksUp 4.6.0 – Android Backup-Fix' --notes-file release-notes.md --prerelease --target "$GITHUB_SHA"
           fi
