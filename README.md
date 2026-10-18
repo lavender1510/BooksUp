@@ -1,3 +1,27 @@
+# BooksUp 4.5.0 – Bibliothek, Leselisten & Desktop-Analyse
+
+**Neue Version für Android und Windows (Testbuild).**
+
+## Neue Funktionen
+
+- **Leselisten als Kacheln:** Kein endloses Scrollen durch alle Listen. Eigene Buchansicht, Drei-Punkte-Menü und separate Einstellungen.
+- **Bibliothek:** Aggregiert Bücher aller Leselisten inklusive Goodreads-Importe. Unter einem Titel stehen die zugehörigen Leselisten und der Fortschritt (100 % bei gelesen).
+- **Regal-Freigabe pro Leseliste:** Importierte Bibliotheksbücher erscheinen nur auf ausdrücklichen Wunsch im Regal. Eigene Bücher bleiben erhalten.
+- **Goodreads-Import:** Shelves werden ausschließlich Leselisten, nicht automatisch Ordner/Tags/gekaufte Bücher. Bereits importierte Altbestände werden aus Sicherheitsgründen nicht automatisch gelöscht.
+- **Lokale ZIP-Sicherung:** Das installierte Gerät nutzt `BooksUp/Backups` mit Datum/Uhrzeit sowie automatisch/manuell im Namen. Täglich/wöchentlich/monatlich solange die App geöffnet ist; Aufbewahrungsgrenze einstellbar.
+- **Windows:** Eigene Insights-Ansicht für beide Profile, große Desktop-Layouts, sichere native Backup-Speicherung unter `Dokumente/BooksUp/Backups` und ein Geräteübertragungsbereich.
+- **ISBN-Recherche:** Für importierte Bücher ohne ISBN kann nach Ausgabe gesucht oder eine ISBN manuell eingetragen werden. Externe Cover bleiben abhängig von Anbieterabdeckung.
+- **Portfolio + Changelog:** Separat erzeugte PDF-Portfolio- und Versionsdokumentation; maschinenlesbarer Änderungsverlauf in `CHANGELOG.md`.
+
+## Datensicherheit und Einschränkungen
+
+- Bestandsbibliotheken werden nicht automatisch von `S.books` in die neue Bibliothek migriert; hier wären Besitzdaten ohne eindeutige Herkunft gefährdet.
+- Die Android-Backups verwenden den Dokumentbereich des Geräts. Der genaue Speicherort und die Sichtbarkeit hängen von Android-Version und Hersteller ab. Automatische Sicherungen laufen **nur während BooksUp geöffnet ist**, nicht als Hintergrunddienst nach App-Schließung.
+- Google Drive auf Windows ist derzeit nicht vollautomatisch gekoppelt. Der über beide Plattformen vorhandene ZIP-Transfer ist die sichere manuelle Lösung.
+- Bestehende ältere UI-Dialoge sind noch nicht ausnahmslos in allen fünf Sprachen übersetzt.
+- Ein Android-In-Place-Update benötigt denselben Signaturschlüssel wie die bereits installierte Version; nicht deinstallieren, wenn ein getestetes Backup fehlt.
+- Echtes Wiederherstellen großer Backups, Cloud-Synchronisierung und Darstellung auf verschiedenen Endgeräten benötigen weitere Tests.
+
 # BooksUp 4.4.0 – Cover, Reader Zoom & Discovery
 
 **What's changed**

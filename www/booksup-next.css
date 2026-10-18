@@ -208,3 +208,67 @@ body{font-size:var(--fz,16px)}
  .bu44-shelf-tabs button{padding:13px 7px;font-size:12px}
  .bu44-currency-grid{grid-template-columns:1fr 1fr}
 }
+
+/* 4.5 separate reading lists / library / desktop workspace */
+.bu45-lists,.bu45-list-page,.bu45-list-settings,.bu45-library,.bu45-workspace{padding:22px clamp(14px,3vw,38px) 110px;min-width:0}
+.bu45-pagehead{display:flex;align-items:center;justify-content:space-between;gap:15px;flex-wrap:wrap;margin-bottom:23px}
+.bu45-pagehead h1,.bu45-workspace h1{font:700 clamp(25px,3.5vw,40px)/1.15 var(--sf);margin:6px 0;color:var(--ink)}
+.bu45-pagehead p{max-width:610px}
+.bu45-tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,220px),1fr));gap:15px}
+.bu45-list-tile{border:1px solid var(--bd);background:var(--card);border-radius:20px;position:relative;box-shadow:0 5px 15px #0000000d;min-height:168px;overflow:visible}
+.bu45-tile-main{padding:18px;border:0;background:transparent;text-align:left;color:var(--ink);width:100%;display:flex;flex-direction:column;gap:9px;cursor:pointer;min-height:168px}
+.bu45-tile-main .bu45-list-icon{display:grid;place-items:center;width:44px;height:44px;background:color-mix(in srgb,var(--acc) 18%,var(--card));color:var(--acc);border-radius:13px;font-size:23px}
+.bu45-tile-main b{font:700 16px/1.35 var(--sf);max-width:calc(100% - 24px);overflow-wrap:anywhere}
+.bu45-tile-main small{font-size:12px;color:var(--mut)}
+.bu45-kebab{position:absolute;top:9px;right:8px;z-index:4}
+.bu45-kebab summary{font-size:24px;line-height:27px;cursor:pointer;list-style:none;border-radius:9px;padding:2px 9px}
+.bu45-kebab button{position:absolute;right:0;top:34px;border:1px solid var(--bd);box-shadow:0 5px 16px #0003;background:var(--card);color:var(--ink);border-radius:12px;padding:11px 15px;cursor:pointer;white-space:nowrap}
+.bu45-book-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,168px),1fr));gap:14px;margin-top:17px}
+.bu45-book-card{background:var(--card);color:var(--ink);border:1px solid var(--bd);border-radius:17px;padding:11px;min-width:0;display:flex;flex-direction:column;gap:6px}
+.bu45-book-card[hidden]{display:none!important}
+.bu45-book-main{border:0;background:transparent;color:inherit;text-align:left;cursor:pointer;min-width:0;display:flex;flex-direction:column;gap:7px}
+.bu45-book-card.bu45-book-main{border:1px solid var(--bd);background:var(--card)}
+.bu45-book-main strong,.bu45-book-card b{font:650 13px/1.3 var(--sf);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;overflow-wrap:anywhere}
+.bu45-book-main small{font-size:11px;color:var(--mut);line-height:1.25;overflow-wrap:anywhere}
+.bu45-cover{position:relative;width:100%;aspect-ratio:2/3;border-radius:10px;display:block;overflow:hidden;background:var(--bg)}
+.bu45-cover>img,.bu45-cover .bu43-cover-slot{width:100%;height:100%;object-fit:cover}
+.bu45-cover-large{width:min(200px,45vw);flex-shrink:0}
+.bu45-progress{height:5px;width:100%;background:var(--bd);border-radius:99px;overflow:hidden;margin:4px 0}
+.bu45-progress>span{display:block;height:100%;background:var(--acc);border-radius:99px}
+.bu45-list-actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:24px}
+.bu45-list-settings{max-width:800px}
+.bu45-list-settings>h1{font:700 27px var(--sf)}
+.bu45-library-search{display:grid;gap:6px;max-width:560px;font-size:12px;color:var(--mut)}
+.bu45-library-search input{width:100%;padding:11px 13px;border-radius:12px}
+.bu45-library-detail{display:flex;align-items:start;gap:26px;padding:25px;max-width:900px}
+.bu45-library-detail>div:last-child{flex:1;min-width:0;display:grid;justify-items:start;gap:10px}
+.bu45-library-detail h1{margin:0;font-size:clamp(23px,3vw,32px)}
+.bu45-library-detail .btn{margin-top:6px}
+.bu45-shelf-import{padding:0 clamp(14px,3vw,30px) 60px;margin-top:15px;border-top:1px solid var(--bd)}
+.bu45-shelf-import h3{font:650 21px var(--sf)}
+.bu45-backup-settings{display:grid;gap:10px;padding:18px;background:var(--card);border:1px solid var(--bd);border-radius:18px;margin:10px 0 22px}
+.bu45-backup-settings h3{margin:2px 0}
+.bu45-backup-settings select{max-width:360px}
+.bu45-stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:13px;margin-bottom:21px}
+.bu45-stat{border-radius:18px;background:var(--card);border:1px solid var(--bd);padding:18px}
+.bu45-stat small{font-size:11px;color:var(--mut);display:block;margin-bottom:9px}
+.bu45-stat strong{font-size:30px;color:var(--ink)}
+.bu45-analysis-grid,.bu45-transfer-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:17px}
+.bu45-analysis-grid>.card,.bu45-transfer-grid>.card{padding:22px;min-width:0}
+.bu45-analysis-grid h2,.bu45-transfer-grid h2{font-size:19px;margin:3px 0 19px}
+.bu45-analysis-grid .card p,.bu45-transfer-grid .card p{font-size:13px;color:var(--mut);line-height:1.6}
+.bu45-chart{height:215px;display:grid;grid-template-columns:repeat(14,minmax(0,1fr));gap:8px;align-items:end}
+.bu45-chart>div{height:100%;display:flex;flex-direction:column;justify-content:end;align-items:center;gap:6px}
+.bu45-chart-column{background:var(--acc);border-radius:5px 5px 0 0;width:100%;min-height:2px}
+.bu45-chart small{font-size:9px;color:var(--mut)}
+.bu45-genre{display:grid;grid-template-columns:1fr auto;gap:5px 10px;margin:11px 0;font-size:12px}
+.bu45-genre>.bu45-progress{grid-column:span 2}
+.bu45-desktop-only{display:none!important}
+body.bu-desktop .next-layout{grid-template-columns:255px minmax(0,1fr)}
+body.bu-desktop .next-sidebar{display:flex}
+body.bu-desktop .next-bottom-nav{display:none}
+body.bu-desktop .next-content{padding-bottom:0;min-height:100vh}
+body.bu-desktop .bu45-desktop-only{display:flex!important}
+body.bu-desktop .next-home-top,body.bu-desktop .next-section,body.bu-desktop .bu45-library,body.bu-desktop .bu45-lists{max-width:1600px}
+@media(max-width:790px){.bu45-analysis-grid,.bu45-transfer-grid{grid-template-columns:1fr}.bu45-book-grid{grid-template-columns:repeat(auto-fill,minmax(130px,1fr))}.bu45-library-detail{flex-wrap:wrap}}
+@media(max-width:480px){.bu45-tiles{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.bu45-tile-main{padding:12px;min-height:170px}.bu45-book-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.bu45-list-tile{min-height:170px}.next-bottom-nav .next-nav-item{font-size:8px;padding-inline:0}.next-bottom-nav .next-nav-symbol{font-size:19px}.bu45-chart{gap:3px}}

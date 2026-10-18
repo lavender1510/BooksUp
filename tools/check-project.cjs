@@ -24,4 +24,8 @@ assert.match(file('electron/main.cjs'), /nodeIntegration: false/);
 assert.match(file('tools/android-init.cjs'), /POST_NOTIFICATIONS/);
 for(const name of ['booksup-44.js','booksup-43.js','booksup-library.js','booksup-polish.js','booksup-next.js']){const src=file('www/'+name);assert.ok(src.length>200,'missing script: '+name);new Function(src)}
 assert.equal(pkg.version,'4.4.0');
+for(const name of ['booksup-45.js','booksup-desktop.js','booksup-45-i18n.js']){const src=file('www/'+name);assert.ok(src.length>100,'missing script: '+name);new Function(src)}
+assert.equal(pkg.version,'4.5.0');
+assert.match(file('electron/preload.cjs'),/booksupBackupFile/);
+assert.match(file('electron/main.cjs'),/booksup-backup:start/);
 console.log('OK: BooksUp Design-Quellen, Icons, Offline-Bibliotheken, Electron und Android-Konfig.');

@@ -1,8 +1,8 @@
 {
   "name": "booksup",
-  "version": "4.4.0",
+  "version": "4.5.0",
   "private": true,
-  "description": "BooksUp 4.4 — cover retries, expanded recommendations, PDF zoom, clean shelf and opt-in price alerts",
+  "description": "BooksUp 4.5: reading lists, separate library, local automatic backups and desktop analytics",
   "productName": "BooksUp",
   "main": "electron/main.cjs",
   "type": "commonjs",

@@ -131,13 +131,13 @@ function buGoodreadsPreview(text){
  const i=head.indexOf('Bookshelves'),exclusive=head.indexOf('Exclusive Shelf'),set=new Set();
  rows.forEach(r=>{[...(i>=0?(r[i]||'').split(','):[]),exclusive>=0?r[exclusive]:''].map(v=>v.trim()).filter(Boolean).forEach(x=>set.add(x))});
  buGoodreadsShelves=[...set].sort();buGoodreadsChoice=new Set(buGoodreadsShelves);
- const markup='<h3>Goodreads-Import prüfen</h3><p class="hint">'+rows.length+' Datensätze gefunden. Wähle, welche Shelves als Leselisten/Ordner übernommen werden. Nicht ausgewählte Shelves werden ignoriert statt als Tags importiert.</p><div class="bu-shelf-import">'+buGoodreadsShelves.map((s,i)=>'<label><input type="checkbox" data-goodreads-shelf="'+i+'" checked onchange="buGoodreadsToggle('+i+',this.checked)"> '+esc(s)+'</label>').join('')+'</div>'+
+ const markup='<h3>Goodreads-Import prüfen</h3><p class="hint">'+rows.length+' Datensätze gefunden. Wähle, welche Goodreads-Leselisten übernommen werden. Nicht ausgewählte Goodreads-Leselisten werden nicht importiert. Die Bücher landen zunächst in der Bibliothek, nicht im Regal.</p><div class="bu-shelf-import">'+buGoodreadsShelves.map((s,i)=>'<label><input type="checkbox" data-goodreads-shelf="'+i+'" checked onchange="buGoodreadsToggle('+i+',this.checked)"> '+esc(s)+'</label>').join('')+'</div>'+
  '<label><input type="checkbox" id="bu-goodreads-tags" checked> Tags nur aus expliziter Tags-Spalte übernehmen</label>'+
  '<p class="hint">Bewertungszuordnung und 5-/10-Punkt-Anzeige kannst du unter Datensicherung einstellen.</p><button class="btn" onclick="buGoodreadsCommit()">Ausgewählte Shelves importieren</button> <button class="chip" onclick="modal=null;render()">Abbrechen</button>';
  modal=markup;render();
 }
 function buGoodreadsToggle(i,checked){const s=buGoodreadsShelves[i];if(checked)buGoodreadsChoice.add(s);else buGoodreadsChoice.delete(s)}
-function buGoodreadsCommit(){
+function buGoodreadsCommit(){return bu45GoodreadsCommit();
  const h=buGoodreadsHead,idx=n=>h.indexOf(n),v=(r,k)=>idx(k)<0?'':String(r[idx(k)]||'').trim();
  const addList=name=>{let l=buListsData().find(l=>l.name===name);if(!l){l={id:Date.now()+buListsData().length,name,items:[]};buListsData().push(l)}return l};
  let count=0,skipped=0;
