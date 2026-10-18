@@ -1,8 +1,8 @@
 # BooksUp – Update Log
 
-Dokumentation zum Open-Source-Projekt [lavender1510/BooksUp](https://github.com/lavender1510/BooksUp). Changelog-Versionen werden nach dem erfolgreichen GitHub-Release bereitgestellt.
+Dokumentation zum Open-Source-Projekt [lavender1510/BooksUp](https://github.com/lavender1510/BooksUp). Android- und Windows-Testversionen werden als GitHub-Releases bereitgestellt. Automatisierte Builds ersetzen keine Tests auf echten Geräten.
 
-## [4.5.0] – 2026-10-18 (Testversion, Build-Prüfung)
+## [4.5.0] – 2026-10-18 (Testversion veröffentlicht)
 
 ### Neu
 - **Leselisten-Navigation:** Übersicht als Kacheln mit Buchzahl und Drei-Punkte-Menü; separate Detail- und Einstellungsseiten.
