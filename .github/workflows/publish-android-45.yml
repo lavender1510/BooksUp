@@ -1,0 +1,28 @@
+name: Publish BooksUp 4.5 Android Artifact
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/publish-android-45.yml'
+  workflow_dispatch:
+permissions:
+  actions: read
+  contents: write
+jobs:
+  publish-apk:
+    runs-on: windows-latest
+    steps:
+      - name: Fetch Android APK built by GitHub Actions
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh run download 39116651631 --repo lavender1510/BooksUp --name BooksUp-debug-apk --dir output
+          if (!(Test-Path output/BooksUp-debug.apk)) { throw 'Android artifact not found' }
+      - name: Attach APK to BooksUp 4.5.0 Release
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release upload v4.5.0 output/BooksUp-debug.apk --clobber --repo lavender1510/BooksUp
+          if ($LASTEXITCODE -ne 0) { throw 'Cannot upload Android APK to release' }
