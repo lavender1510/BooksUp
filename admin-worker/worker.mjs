@@ -20,7 +20,7 @@ async function publish(env,file,next){
  if(!token)throw Error('Publishing token not configured');
  let old={},sha;
  const r=await fetch(uri,{headers:{Accept:'application/vnd.github+json',Authorization:'Bearer '+token,'X-GitHub-Api-Version':'2022-11-28'}});
- if(r.ok){const j=await r.json();sha=j.sha;old=JSON.parse(atob(j.content.replace(/\s/g,'')))}
+ if(r.ok){const j=await r.json();sha=j.sha;old=JSON.parse(new TextDecoder().decode(Uint8Array.from(atob(j.content.replace(/\s/g,'')),c=>c.charCodeAt(0))))}
  else if(r.status!==404)throw Error('Could not retrieve current file');
  const data=JSON.stringify(next(old),null,2)+'\n';if(data.length>100000)throw Error('Content too large');
  const bytes=new TextEncoder().encode(data);let binary='';for(const b of bytes)binary+=String.fromCharCode(b);
@@ -52,6 +52,18 @@ export default {async fetch(request,env){
    await env.SESSIONS.put('auth:'+id,JSON.stringify({login:user.login,githubId:user.id,csrf}),{expirationTtl:14400});
    return new Response(null,{status:302,headers:{Location:base+'/admin','Set-Cookie':'booksup_admin='+id+'; Path=/; Secure; HttpOnly; SameSite=Lax; Max-Age=14400','Cache-Control':'no-store'}});
   }
+  if(path.startsWith('/article/')&&request.method==='GET'){
+   const id=path.split('/').pop();
+   if(!/^[a-f0-9-]{36}$/.test(id))return reply({error:'Not found'},404);
+   const feed=await fetch('https://raw.githubusercontent.com/'+repo+'/main/www/admin-news.json',{cf:{cacheTtl:300}});
+   if(!feed.ok)return reply({error:'Article unavailable'},404);
+   const item=((await feed.json()).articles||[]).find(x=>x.id===id);
+   if(!item)return reply({error:'Not found'},404);
+   const esc=s=>String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+   const image=isHttps(item.image)?'<img src="'+esc(item.image)+'" alt="" style="max-width:100%;border-radius:15px">':'';
+   const page='<!doctype html><html lang="de"><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>'+esc(item.title)+' · BooksUp</title><style>body{max-width:720px;margin:45px auto;padding:15px;font:17px/1.65 system-ui;color:#f5eefb;background:#171226}h1{line-height:1.2}a{color:#dca9ff}</style><a href="https://github.com/lavender1510/BooksUp">BooksUp</a><h1>'+esc(item.title)+'</h1>'+image+'<p>'+esc(item.summary)+'</p><small>Quelle: BooksUp Original · '+esc(item.date)+'</small></html>';
+   return new Response(page,{headers:{'Content-Type':'text/html; charset=utf-8','Content-Security-Policy':"default-src 'none'; style-src 'unsafe-inline'; img-src https:; base-uri 'none'; frame-ancestors 'none'",'X-Content-Type-Options':'nosniff'}});
+  }
   if(path==='/admin'&&request.method==='GET')return new Response(ADMIN_PAGE,{headers:{'Content-Type':'text/html; charset=utf-8','Cache-Control':'no-store','Content-Security-Policy':"default-src 'self'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; base-uri 'none'; frame-ancestors 'none'"}});
   const current=await session(request,env);
   if(!current||String(current.login).toLowerCase()!==(env.ADMIN_LOGIN||'lavender1510').toLowerCase())return reply({error:'GitHub admin login required'},401);
@@ -62,7 +74,7 @@ export default {async fetch(request,env){
   const x=await request.json();if(!x||typeof x!=='object'||String(x.title||'').length<3)return reply({error:'Invalid title'},422);
   let commit;
   if(path==='/api/articles'){
-   const item={title:String(x.title).slice(0,160),summary:String(x.summary||'').slice(0,1000),image:isHttps(x.image)?x.image:null,date:new Date().toISOString(),source:'BooksUp Original',url:'https://github.com/'+repo+'/blob/main/www/admin-news.json',id:crypto.randomUUID()};
+   const articleId=crypto.randomUUID();const item={title:String(x.title).slice(0,160),summary:String(x.summary||'').slice(0,1000),image:isHttps(x.image)?x.image:null,date:new Date().toISOString(),source:'BooksUp Original',url:base+'/article/'+articleId,id:articleId};
    commit=await publish(env,'admin-news.json',old=>({updatedAt:new Date().toISOString(),articles:[item,...(old.articles||[])].slice(0,120)}));
   }else{
    const book={};for(const k of ['title','author','isbn','genre','description','language','series','publisher','tags','minAge'])if(x[k]!==undefined)book[k]=String(x[k]).slice(0,k==='description'?3000:200);
