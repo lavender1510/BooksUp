@@ -282,7 +282,7 @@ window.bu51LanHost=async function(){
  }catch(error){lanStatus('Start fehlgeschlagen: '+String(error.message||error));}
  finally{lanBusy=false;}
 };
-const privateIP=(value)=>/^(?:10\.\d{1,3}\.\d{1,3}\.\d{1,3}|192\.168\.\d{1,3}\.\d{1,3}\.\d{1,3}|172\.(?:1[6-9]|2\d|3[01])\.\d{1,3}\.\d{1,3})$/.test(value)&&value.split('.').every(x=>Number(x)<=255);
+const privateIP=(value)=>/^(?:10\.\d{1,3}\.\d{1,3}\.\d{1,3}|192\.168\.\d{1,3}\.\d{1,3}|172\.(?:1[6-9]|2\d|3[01])\.\d{1,3}\.\d{1,3})$/.test(value)&&value.split('.').every(x=>Number(x)<=255);
 async function lanSignal(args){
  if(window.booksupLan?.signal)return window.booksupLan.signal(args);
  if(!mobile())throw Error('LAN-Signaling wird auf diesem Gerät nicht unterstützt.');
