@@ -1,8 +1,8 @@
 {
   "name": "booksup",
-  "version": "4.6.0",
+  "version": "4.7.0",
   "private": true,
-  "description": "BooksUp 4.6 – discovery search, age-aware recommendations, list navigation and verified admin backend scaffold",
+  "description": "BooksUp 4.7 – Windows desktop analytics, reader and discovery update",
   "productName": "BooksUp",
   "main": "electron/main.cjs",
   "type": "commonjs",
