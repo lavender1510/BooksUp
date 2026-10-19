@@ -6,8 +6,10 @@
  const withTimeout=async(url,asText=false)=>{
   if(!catalogHost.test(url))throw Error('Unzulässige Buchdatenquelle');
   const http=window.Capacitor?.Plugins?.CapacitorHttp;
-  if(http?.get){
-   const response=await http.get({url,connectTimeout:11000,readTimeout:11000,responseType:asText?'text':'json'});
+  const nativeCall=window.Capacitor?.nativePromise;
+  if(http?.get || typeof nativeCall==='function'){
+   const options={url,connectTimeout:11000,readTimeout:11000,responseType:asText?'text':'json'};
+   const response=http?.get?await http.get(options):await nativeCall.call(window.Capacitor,'CapacitorHttp','get',options);
    if(Number(response.status)<200||Number(response.status)>=300)throw Error('HTTP '+response.status);
    return asText?(typeof response.data==='string'?response.data:JSON.stringify(response.data)):(typeof response.data==='string'?JSON.parse(response.data):response.data);
   }
@@ -62,6 +64,79 @@
  };
  const originalChoose=window.nextChooseSettings;
  window.nextChooseSettings=function(id){if(id==='admin')return;return originalChoose(id);};
+})();
+
+
+// Portable translations for new 4.7/4.8 controls.
+(function(){
+ if(window.Capacitor?.getPlatform?.()!=='android')return;
+  const localize = {
+    'Bücher hinzufügen':['Add books','Ajouter des livres','Añadir libros','Aggiungi libri'],
+    'Buch hinzufügen':['Add book','Ajouter un livre','Añadir libro','Aggiungi libro'],
+    'Meine Leselisten':['My reading lists','Mes listes de lecture','Mis listas de lectura','Le mie liste'],
+    'Erweiterte Details':['More details','Plus de détails','Más detalles','Altri dettagli'],
+    'Mehr Details':['More details','Plus de détails','Más detalles','Altri dettagli'],
+    'Informationen bearbeiten':['Edit information','Modifier les informations','Editar información','Modifica informazioni'],
+    'Lesestatistik':['Reading statistics','Statistiques de lecture','Estadísticas de lectura','Statistiche di lettura'],
+    'Leseanalyse':['Reading analytics','Analyse de lecture','Análisis de lectura','Analisi di lettura'],
+    'Deine Leseanalyse':['Your reading analytics','Votre analyse de lecture','Tu análisis de lectura','La tua analisi di lettura'],
+    'Meine Bücher':['My books','Mes livres','Mis libros','I miei libri'],
+    'Sitzungen':['Sessions','Sessions','Sesiones','Sessioni'],
+    'Fertig gelesen':['Finished','Terminé','Terminado','Terminato'],
+    'Keine Daten vorhanden':['No data yet','Aucune donnée','Sin datos','Nessun dato'],
+    'Buchdaten online ergänzen':['Find book details online','Compléter les données en ligne','Buscar datos en línea','Cerca dati online'],
+    'Buchdaten automatisch suchen':['Find book details automatically','Rechercher les données automatiquement','Buscar datos automáticamente','Cerca dati automaticamente'],
+    'Automatische Geräte-Backups':['Automatic device backups','Sauvegardes automatiques','Copias automáticas','Backup automatici'],
+    'Mehrere Dateien hinzufügen':['Add multiple files','Ajouter plusieurs fichiers','Añadir varios archivos','Aggiungi più file'],
+    'Dateien importieren':['Import files','Importer des fichiers','Importar archivos','Importa file'],
+    'Sprache':['Language','Langue','Idioma','Lingua'],
+    'Aktualisierungen':['Updates','Mises à jour','Actualizaciones','Aggiornamenti'],
+    'Nach Updates suchen':['Check for updates','Rechercher des mises à jour','Buscar actualizaciones','Controlla aggiornamenti'],
+    'Update suchen':['Check for update','Chercher une mise à jour','Buscar actualización','Cerca aggiornamenti'],
+    'Neuigkeiten':['What is new','Nouveautés','Novedades','Novità'],
+    'Änderungsverlauf':['Changelog','Journal des modifications','Registro de cambios','Registro modifiche'],
+    'Jetzt lesen':['Read now','Lire maintenant','Leer ahora','Leggi ora'],
+    'Seite markieren':['Highlight a page area','Marquer une zone','Marcar un área','Evidenzia un area'],
+    'Markierung speichern':['Save highlight','Enregistrer la marque','Guardar marca','Salva evidenziazione'],
+    'Notiz hinzufügen':['Add note','Ajouter une note','Añadir nota','Aggiungi nota'],
+    'Notiz gespeichert':['Note saved','Note enregistrée','Nota guardada','Nota salvata'],
+    'Buchinformationen':['Book information','Informations du livre','Información del libro','Informazioni sul libro'],
+    'Informationen aus dem Internet':['Information from the internet','Informations en ligne','Información en línea','Informazioni online'],
+    'Bücher entdecken':['Discover books','Découvrir des livres','Descubrir libros','Scopri libri'],
+    'Mehr Bücher entdecken':['Discover more books','Découvrir plus de livres','Descubrir más libros','Scopri altri libri'],
+    'Nächste Bücher':['Next books','Livres suivants','Siguientes libros','Libri successivi'],
+    'Vorherige Bücher':['Previous books','Livres précédents','Libros anteriores','Libri precedenti'],
+    'Zur Bibliothek':['Back to library','Retour à la bibliothèque','Volver a la biblioteca','Torna alla libreria'],
+    'Bibliothek':['Library','Bibliothèque','Biblioteca','Biblioteca'],
+    'Bücherregal':['Bookshelf','Étagère','Estantería','Scaffale'],
+    'Entdecken':['Discover','Découvrir','Descubrir','Scopri'],
+    'Einstellungen':['Settings','Paramètres','Ajustes','Impostazioni'],
+    'Leselisten':['Reading lists','Listes de lecture','Listas de lectura','Liste di lettura'],
+    'Lesemodus':['Reader','Mode lecture','Modo lectura','Modalità lettura'],
+    'Leseeinstellungen':['Reading settings','Paramètres de lecture','Ajustes de lectura','Impostazioni di lettura'],
+    'Vollbild':['Fullscreen','Plein écran','Pantalla completa','Schermo intero'],
+    'Schließen':['Close','Fermer','Cerrar','Chiudi'],
+    'Zurück':['Back','Retour','Volver','Indietro'],
+    'Mehr Informationen':['More information','En savoir plus','Más información','Più informazioni'],
+    'Keine Treffer':['No results','Aucun résultat','Sin resultados','Nessun risultato'],
+    'Gesamt':['Total','Total','Total','Totale'],
+    'Lesestunden':['Hours read','Heures de lecture','Horas leídas','Ore di lettura'],
+    'Gelesene Seiten':['Pages read','Pages lues','Páginas leídas','Pagine lette'],
+    'Gelesene Bücher':['Books finished','Livres terminés','Libros terminados','Libri finiti'],
+    'Lesetage':['Reading days','Jours de lecture','Días de lectura','Giorni di lettura'],
+    'Durchschnitt':['Average','Moyenne','Promedio','Media'],
+    'Bester Lesetag':['Best reading day','Meilleur jour','Mejor día','Giorno migliore']
+  };
+
+ const original=window.buTranslate;
+ window.buTranslate=function(text,lang){
+  if(lang==='de')return text;
+  const old=original(text,lang);
+  if(old!==text)return old;
+  const values=localize[String(text||'').trim()];
+  const index={en:0,fr:1,es:2,it:3}[lang];
+  return values && index!==undefined?values[index]:text;
+ };
 })();
 
 /* The PDF canvas cannot expose selected DOM text; save page-area annotations instead. */
