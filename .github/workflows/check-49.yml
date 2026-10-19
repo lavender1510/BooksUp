@@ -1,4 +1,4 @@
-name: BooksUp 4.9 Cross-Platform Verification
+name: BooksUp 5.0 Cross-Platform Verification
 on:
   pull_request:
     paths:
@@ -25,6 +25,7 @@ jobs:
       - name: Cross-platform regression tests
         run: |
           node tools/test-49.cjs
+          node tools/test-50.cjs
           node tools/test-windows-47.cjs
           node tools/test-windows-48.cjs
           node tools/test-android-48.cjs
@@ -35,3 +36,6 @@ jobs:
           node --check electron/preload.cjs
           node --check www/booksup-49.js
           node --check www/cloud-drive.js
+          node --check www/booksup-50.js
+          node --check www/booksup-50-pair.js
+          node --check www/booksup-50-services.js
