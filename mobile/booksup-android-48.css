@@ -138,3 +138,12 @@ body.bu-android .bu47-note .chip{flex-shrink:0}
  body.bu-android .bu48-list-tile{min-height:128px}
  body.bu-android .bu48-preview-cover{width:44px;flex-basis:44px;height:65px}
 }
+
+
+/* Capacitor tablets must not inherit the two-column Electron sidebar grid. */
+@media(min-width:960px){
+ body.bu-android .next-layout{display:block!important;width:100%!important}
+ body.bu-android .next-sidebar{display:none!important}
+ body.bu-android .next-content{width:100%!important;max-width:1500px!important;margin:0 auto!important}
+ body.bu-android .next-bottom-nav{display:flex!important}
+}
