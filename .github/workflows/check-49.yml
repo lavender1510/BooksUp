@@ -1,0 +1,37 @@
+name: BooksUp 4.9 Cross-Platform Verification
+on:
+  pull_request:
+    paths:
+      - 'www/**'
+      - 'electron/**'
+      - 'mobile/**'
+      - 'tools/**'
+      - 'package.json'
+      - '.github/workflows/check-49.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Static source validation
+        run: npm run test:static
+      - name: Cross-platform regression tests
+        run: |
+          node tools/test-49.cjs
+          node tools/test-windows-47.cjs
+          node tools/test-windows-48.cjs
+          node tools/test-android-48.cjs
+      - name: Check native and shared JavaScript
+        run: |
+          node --check electron/main.cjs
+          node --check electron/booksup-drive.cjs
+          node --check electron/preload.cjs
+          node --check www/booksup-49.js
+          node --check www/cloud-drive.js

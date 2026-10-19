@@ -53,6 +53,7 @@
   if(!NEXT_SETTINGS.some(x=>x[0]==='changelog'))NEXT_SETTINGS.push(['changelog','Änderungsverlauf','↺','Die Neuerungen der Android-Version']);
  }
  window.bu47ChangelogView=function(){
+  if(typeof window.bu49ChangelogView==='function')return window.bu49ChangelogView();
   return bar('Änderungsverlauf','settings')+
   '<section class="bu48-mobile-changelog"><span class="next-overline">BOOKSUP / ANDROID</span><h1>Änderungsverlauf</h1><article class="card"><b>4.8.0 · Android</b><p>Sichere Leselisten, bessere Buchdaten- und ISBN-Suche, eigene Theme-Kombinationen, neue Profil-Reihenfolge, Schriftgrößen und Notizen/Markierungen.</p></article><article class="card"><b>4.6.0</b><p>Leselisten, Backups, Buchimport und Reader-Verbesserungen.</p></article></section>';
  };

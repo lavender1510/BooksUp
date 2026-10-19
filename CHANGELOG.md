@@ -1,3 +1,17 @@
+## [4.9.0] – 2026-10-19 (Android & Windows)
+
+- Responsive Android screens and modal fixes, including smaller-phone layouts.
+- Direct per-book delete in the bookshelf and clear bulk-selection delete/folder actions.
+- News in-app preview, separate original-source browser link, saved articles and a Favorites tab.
+- In-app history for all recorded BooksUp releases from 4.0 through 4.9, including Windows.
+- Goodreads imports automatically route clearly identified Manga, Manhwa, Comics and Graphic Novels into the Manga profile, while regular books go to the Books profile. Existing Goodreads-only records are migrated conservatively once.
+- Desktop Google Drive appDataFolder sync client added, with OAuth PKCE, OS-encrypted refresh tokens and revision-based conflict protection. The Android sync implementation remains opt-in.
+- **Configuration required:** Google Desktop and Android OAuth client IDs are currently not provisioned. Device sync cannot connect before the publisher configures these IDs and builds compatible apps. Read docs/DEVICE_SYNC.md.
+- The compact Android reading statistics remain unchanged; the Windows analytics dashboard is Windows-only.
+- News providers supply excerpts, not the full article. BooksUp shows only the available feed summary and links to the publisher for the full article.
+
+**Android signing:** In-place updates require a persistent matching debug signing certificate. Never uninstall without verifying a full backup.
+
 ## [4.8.0-android.1] – 2026-10-19 (Android-Testversion)
 
 - Android now includes the Windows 4.8 reading-list safety fix (stable IDs instead of positional deletion), large collection cards with recent covers, the new profile order, theme/accent customization, and visibly different font sizes.

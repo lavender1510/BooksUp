@@ -68,7 +68,7 @@ case 'reading':content=bu43ReadingSettings();break;
 case 'currency':content=bu43CurrencyView();break;
 case 'friends':content=chunk('Profile angleichen','Empfehlungen steuern')+chunk('Freunde-Server','Erinnerung');break;
 case 'notifications':content=chunk('Erinnerung','Import')+bu44PriceNotificationsView();break;
-case 'backup':content=bu45BackupSettingsUi()+'<div class="pad"><button class="btn o" onclick="go(\'transfer\')">Geräte verbinden / Daten übertragen</button></div>'+chunk('Import','Hilfe');break;
+case 'backup':content=(window.BooksUpCloud?.ui?.()||'')+bu45BackupSettingsUi()+'<div class="pad"><button class="btn o" onclick="go(\'transfer\')">Geräte verbinden / Daten übertragen</button></div>'+chunk('Import','Hilfe');break;
 case 'goodreads':content=bu43GoodreadsView();break;
 case 'language':content=nextLanguageChooser();break;
 case 'privacy':content=bu46AccountSettings();break;

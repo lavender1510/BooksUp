@@ -1,8 +1,8 @@
 {
   "name": "booksup",
-  "version": "4.8.0",
+  "version": "4.9.0",
   "private": true,
-  "description": "BooksUp 4.8 – Windows library safety, metadata and interface refinements",
+  "description": "BooksUp 4.9 – mobile responsiveness, news, Goodreads and cross-platform Drive sync",
   "productName": "BooksUp",
   "main": "electron/main.cjs",
   "type": "commonjs",

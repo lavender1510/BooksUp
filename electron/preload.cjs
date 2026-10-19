@@ -9,3 +9,5 @@ contextBridge.exposeInMainWorld('booksupDnb',Object.freeze({isbn:(value)=>ipcRen
 contextBridge.exposeInMainWorld('booksupCatalog',Object.freeze({search:(criteria)=>ipcRenderer.invoke('booksup-metadata:search',criteria)}));
 
 contextBridge.exposeInMainWorld('booksupDnbTitle',Object.freeze({search:(title)=>ipcRenderer.invoke('booksup-metadata:dnb-title',title)}));
+
+contextBridge.exposeInMainWorld('booksupDesktopDrive',Object.freeze({login:()=>ipcRenderer.invoke('booksup-drive:login'),resume:()=>ipcRenderer.invoke('booksup-drive:resume'),disconnect:()=>ipcRenderer.invoke('booksup-drive:disconnect'),request:(args)=>ipcRenderer.invoke('booksup-drive:request',args)}));

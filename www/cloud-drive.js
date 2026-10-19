@@ -13,9 +13,23 @@ const config=c=>localStorage.setItem(CONFIG,JSON.stringify(c));
 let state={authorized:false,token:'',email:'',busy:false,connecting:false,initialized:false,lastError:''};
 let hooks=null,timer=null,interval=null,lastChecked=0;
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
-const sdk=()=>window.Capacitor?.Plugins?.SocialLogin;
-const supported=()=>window.Capacitor?.getPlatform?.()==='android';
-const client=()=>String(window.BOOKSUP_GOOGLE_WEB_CLIENT_ID||'').trim();
+const desktop=()=>window.booksupDesktopDrive||null;
+const sdk=()=>{
+ if(window.Capacitor?.getPlatform?.()==='android')return window.Capacitor?.Plugins?.SocialLogin;
+ const drive=desktop();
+ if(!drive)return null;
+ // Desktop follows the same Google Drive appDataFolder sync protocol as Android.
+ return {
+  initialize:async()=>true,
+  login:async()=>{const info=await drive.login();return {result:{accessToken:{token:'desktop-proxy'},profile:{email:info.email||''}}}},
+  isLoggedIn:async()=>{const info=await drive.resume();return {isLoggedIn:!!info.active}},
+  refresh:async()=>drive.resume(),
+  getAuthorizationCode:async()=>({accessToken:'desktop-proxy'}),
+  logout:async()=>drive.disconnect()
+ };
+};
+const supported=()=>window.Capacitor?.getPlatform?.()==='android'||!!desktop();
+const client=()=>String(desktop()?window.BOOKSUP_GOOGLE_DESKTOP_CLIENT_ID:window.BOOKSUP_GOOGLE_WEB_CLIENT_ID||'').trim();
 const notify=message=>hooks?.toast?.(message);
 const books=()=>[...(hooks?.snapshot?.().book?.books||[]),...(hooks?.snapshot?.().manga?.books||[])];
 const empty=()=>books().length===0&&!((hooks?.snapshot?.().book?.log||[]).length+(hooks?.snapshot?.().manga?.log||[]).length);
@@ -23,10 +37,10 @@ const escape=s=>String(s).replace(/[&<>"']/g,x=>({'&':'&amp;','<':'&lt;','>':'&g
 function enabled(){return !!$cfg().enabled}
 function ready(){return !!(supported()&&sdk()&&client().endsWith('.apps.googleusercontent.com'))}
 function ui(){
-  const cfg=$cfg(),status=!supported()?'Drive-Synchronisierung derzeit für Android':!sdk()?'Google-Anmeldemodul nicht verfügbar':!client()?'Google-Anmeldung muss vom App-Herausgeber eingerichtet werden':state.authorized?'Verbunden mit '+escape(state.email||'Google'):cfg.enabled?'Warte auf Google-Anmeldung':'Nicht verbunden';
+  const cfg=$cfg(),status=!supported()?'Cloud-Synchronisierung nicht verfügbar':!sdk()?'Google-Anmeldemodul nicht verfügbar':!client()?'Google-Anmeldung muss vom App-Herausgeber eingerichtet werden':state.authorized?'Verbunden mit '+escape(state.email||'Google'):cfg.enabled?'Warte auf Google-Anmeldung':'Nicht verbunden';
   const online=state.authorized;
   return '<h3>Google Drive · Cloud-Sicherung</h3><div class="pad"><p class="hint">'+status+'</p>'+
-    '<p class="hint">Sichert beide Profile, Lesefortschritte und importierte Buchdateien im privaten BooksUp-Appordner von Google Drive. Nur bei geöffneter App. Cloud-Daten eines anderen Gerätes werden nicht ungefragt über bestehende Bücher geschrieben.</p>'+
+    '<p class="hint">Verbindet Android und Windows über denselben privaten BooksUp-Ordner in deinem Google Drive. Beide Profile, Lesefortschritte und vorhandene digitale Buchdateien werden nur bei geöffneter App abgeglichen. Bei gleichzeitig geänderten Geräten wird ein Konflikt gemeldet statt Daten ungefragt zu überschreiben.</p>'+
     '<div class="row"><button class="btn" onclick="BooksUpCloud.connect()" '+(!ready()||state.busy?'disabled':'')+'>'+(online?'Google-Konto wechseln':'Mit Google verbinden')+'</button>'+
     (online?'<button class="btn o" onclick="BooksUpCloud.disconnect()">Trennen</button>':'')+'</div>'+
     '<label class="pad" style="display:block"><input type="checkbox" style="width:auto" onchange="BooksUpCloud.enable(this.checked)" '+(cfg.enabled?'checked':'')+' '+(!online?'disabled':'')+'> Automatisch sichern und auf anderen Geräten abgleichen</label>'+
@@ -63,7 +77,22 @@ async function resumeSession(){
 }
 async function request(url,opts={}){
   if(!state.token)throw Error('Google-Konto erneut verbinden.');
-  const res=await fetch(url,{...opts,headers:{Authorization:'Bearer '+state.token,...opts.headers}});
+  let res;
+  if(desktop()){
+    const body=opts.body;
+    const args={url,method:opts.method||'GET',headers:opts.headers||{}};
+    if(body instanceof Blob){
+      const bytes=new Uint8Array(await body.arrayBuffer());
+      let chars='';for(let i=0;i<bytes.length;i+=16384)chars+=String.fromCharCode(...bytes.subarray(i,i+16384));
+      args.bodyBase64=btoa(chars);
+    }else if(body!==undefined&&body!==null)args.bodyText=String(body);
+    const data=await desktop().request(args),binary=atob(data.bodyBase64||'');
+    const bytes=new Uint8Array(binary.length);
+    for(let i=0;i<binary.length;i++)bytes[i]=binary.charCodeAt(i);
+    res=new Response([204,205,304].includes(data.status)?null:bytes,{status:data.status,statusText:data.statusText||'',headers:data.headers||{}});
+  }else{
+    res=await fetch(url,{...opts,headers:{Authorization:'Bearer '+state.token,...opts.headers}});
+  }
   if(res.status===401||res.status===403)throw Error('Google Drive-Zugriff abgelaufen oder nicht erlaubt. Konto erneut verbinden.');
   if(!res.ok&&res.status!==308)throw Error('Google Drive: HTTP '+res.status+' '+(await res.text()).slice(0,180));
   return res;

@@ -58,8 +58,10 @@ jobs:
       - name: Check BooksUp source
         run: npm run test:static
 
-      - name: Verify Android 4.8 feature parity
-        run: node tools/test-android-48.cjs
+      - name: Verify Android mobile compatibility
+        run: |
+          node tools/test-android-48.cjs
+          node tools/test-49.cjs
 
       - name: Set persistent debug signing key (optional)
         env:
@@ -85,10 +87,12 @@ jobs:
           unzip -l release/BooksUp-debug.apk | grep 'assets/public/booksup-android-48.js'
           unzip -l release/BooksUp-debug.apk | grep 'assets/public/booksup-android-48.css'
           unzip -p release/BooksUp-debug.apk assets/public/index.html > "$RUNNER_TEMP/booksup-android-index.html"
-          grep -q 'const APP_VERSION="4.8.0";' "$RUNNER_TEMP/booksup-android-index.html"
+          grep -q 'const APP_VERSION="4.9.0";' "$RUNNER_TEMP/booksup-android-index.html"
           grep -q 'booksup-android-48.js' "$RUNNER_TEMP/booksup-android-index.html"
           grep -q 'booksup-android-48.css' "$RUNNER_TEMP/booksup-android-index.html"
-          "$ANDROID_HOME/build-tools/36.0.0/aapt" dump badging release/BooksUp-debug.apk | grep "versionName='4.8.0'"
+          grep -q 'booksup-49.js' "$RUNNER_TEMP/booksup-android-index.html"
+          grep -q 'booksup-49.css' "$RUNNER_TEMP/booksup-android-index.html"
+          "$ANDROID_HOME/build-tools/36.0.0/aapt" dump badging release/BooksUp-debug.apk | grep "versionName='4.9.0'"
 
       - name: Upload downloadable APK artifact
         uses: actions/upload-artifact@v4
@@ -104,22 +108,22 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         shell: bash
         run: |
-          TAG="v4.8.0-android.1"
+          TAG="v4.9.0-android.1"
           cat > release-notes.md <<'NOTES'
-          # BooksUp 4.8.0 – Android Feature-Parity Update
+          # BooksUp 4.9.0 – Reading Lists, News and Cross-Device Sync
 
-          **BooksUp-debug.apk** is the Android 4.8.0 test build (versionCode 40800).
+          **BooksUp-debug.apk** is the Android 4.8.0 test build (versionCode 40900).
           It is a debug APK, NOT a production-signed Play Store release.
 
-          - Reading-list deletions now use stable entry IDs; original books are not deleted.
-          - Large reading-list tiles with latest-book cover previews.
-          - Profile sections follow the requested order; statistics remain compact on Android.
-          - Theme colors, custom combinations and noticeably scaled font-size settings.
-          - Discovery books can be saved in the preferred reading list.
-          - Expanded Google Books, Open Library and German National Library metadata/ISBN search using native HTTP.
-          - Reader notes, page-area annotations, full-screen and touch-friendly PDF controls.
-          - News capitalization and version changelog.
-          - Admin/editorial settings are hidden until the GitHub OAuth backend is configured.
+          - Fixed overflowing Android screens and tall edit dialogs.
+          - Bookshelf now offers direct deletion and visible multi-selection bulk actions.
+          - News previews open inside BooksUp; source buttons open the original in the browser.
+          - News favorites persist locally and in optional cloud snapshots.
+          - Goodreads manga/comics go to the Manga profile; regular books to Books.
+          - In-app changelog lists all recorded Android and Windows updates.
+          - Google Drive device sync is prepared for Android and Windows, but both Google
+            OAuth client IDs MUST first be configured by the publisher (docs/DEVICE_SYNC.md).
+          - Android reading statistics remain compact; the Windows analytics dashboard is omitted.
 
           **Important: Back up your library before installing.**
           Updating an installed app requires the SAME Android signing certificate as the previous APK.
@@ -132,7 +136,7 @@ jobs:
           NOTES
           if gh release view "$TAG" >/dev/null 2>&1; then
             gh release upload "$TAG" release/BooksUp-debug.apk --clobber
-            gh release edit "$TAG" --title 'BooksUp 4.8.0 – Android Update' --notes-file release-notes.md --prerelease
+            gh release edit "$TAG" --title 'BooksUp 4.9.0 – Android Update' --notes-file release-notes.md --prerelease
           else
             gh release create "$TAG" release/BooksUp-debug.apk --title 'BooksUp 4.8.0 – Android Update' --notes-file release-notes.md --prerelease --target "$GITHUB_SHA"
           fi
