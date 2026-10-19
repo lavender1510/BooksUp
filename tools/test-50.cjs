@@ -7,7 +7,7 @@ const root=path.resolve(__dirname,'..');
 const read=p=>fs.readFileSync(path.join(root,p),'utf8');
 const source=read('www/booksup-50.js'),pair=read('www/booksup-50-pair.js'),services=read('www/booksup-50-services.js');
 for(const code of [source,pair,services])new Function(code);
-assert.equal(JSON.parse(read('package.json')).version,'5.0.0');
+assert.equal(JSON.parse(read('package.json')).version,'5.1.0');
 assert.match(read('tools/android-init.cjs'),/BooksUpUpdaterPlugin/);
 assert.match(read('mobile/android-native/BooksUpUpdaterPlugin.java'),/installGithubApk/);
 assert.match(read('www/booksup-50.css'),/bu50-has-background/);
