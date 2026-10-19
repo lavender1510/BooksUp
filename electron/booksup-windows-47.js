@@ -372,7 +372,7 @@
   const originalMount=window.mountMode;
   window.mountMode=async function(){const ret=await originalMount.apply(this,arguments);setTimeout(drawHighlights,150);return ret;};
   const originalShow=window.showPg;
-  window.showPg=async function(){const ret=await originalShow.apply(this,arguments);setTimeout(drawHighlights,20);return ret;};
+  window.showPg=async function(){const ret=await originalShow.apply(this,arguments);if(bu44ZoomValue()>1.01){document.querySelectorAll('#rdscroll canvas').forEach(c=>{if(c.style.width)c.style.setProperty('width',c.style.width,'important');if(c.style.height)c.style.setProperty('height',c.style.height,'important');});}setTimeout(drawHighlights,20);return ret;};
   const originalDrawPg=window.drawPg;
   window.drawPg=async function(){const ret=await originalDrawPg.apply(this,arguments);setTimeout(drawHighlights,25);return ret;};
 
