@@ -6,6 +6,8 @@ const path = require('node:path');
 const { pathToFileURL } = require('node:url');
 const { stat, readFile } = require('node:fs/promises');
 const fsSync = require('node:fs');
+const booksupLan=require('./booksup-lan.cjs');
+booksupLan.registerLan(event=>{if(!mainWindow||event.sender!==mainWindow.webContents||!event.senderFrame?.url.startsWith('booksup://booksup/'))throw Error('Unauthorized local pairing');});
 
 // A fixed secure origin keeps IndexedDB and localStorage stable between launches.
 protocol.registerSchemesAsPrivileged([{
@@ -84,8 +86,8 @@ function createWindow() {
       return wc.insertCSS(fsSync.readFileSync(path.join(__dirname, 'booksup-windows-48.css'), 'utf8'));
     }).then(() => wc.executeJavaScript(fsSync.readFileSync(path.join(__dirname, 'booksup-windows-48.js'), 'utf8')))
       .then(async () => {
-        for (const name of ['booksup-50.css']) await wc.insertCSS(fsSync.readFileSync(path.join(__dirname, '..', 'www', name), 'utf8'));
-        for (const name of ['booksup-50.js', 'booksup-50-pair.js', 'booksup-50-services.js'])
+        for (const name of ['booksup-50.css','booksup-51.css']) await wc.insertCSS(fsSync.readFileSync(path.join(__dirname, '..', 'www', name), 'utf8'));
+        for (const name of ['booksup-50.js', 'booksup-50-pair.js', 'booksup-50-services.js','booksup-51.js'])
           await wc.executeJavaScript(fsSync.readFileSync(path.join(__dirname, '..', 'www', name), 'utf8'));
       }).catch(console.error);
   });

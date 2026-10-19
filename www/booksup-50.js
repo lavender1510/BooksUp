@@ -72,6 +72,8 @@ async function loadBackground(){
   if(bgUrl)URL.revokeObjectURL(bgUrl);bgUrl=v instanceof Blob?URL.createObjectURL(v):'';applyBackgroundFilter();
  }catch(e){console.warn('Local background',e)}
 }
+// Public refresh reuses the original local Blob URL lifecycle (including animated GIFs).
+window.bu50RefreshBackground=loadBackground;
 const appearanceBefore=window.bu43AppearanceView;
 window.bu43AppearanceView=function(){
  const original=appearanceBefore.apply(this,arguments);

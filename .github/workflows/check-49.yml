@@ -3,6 +3,7 @@ on:
   pull_request:
     paths:
       - 'www/**'
+      - 'mobile/**'
       - 'electron/**'
       - 'mobile/**'
       - 'tools/**'
@@ -25,6 +26,8 @@ jobs:
       - name: Cross-platform regression tests
         run: |
           node tools/test-49.cjs
+          node tools/test-50.cjs
+          node tools/test-51.cjs
           node tools/test-50.cjs
           node tools/test-windows-47.cjs
           node tools/test-windows-48.cjs

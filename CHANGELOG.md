@@ -1,3 +1,18 @@
+## [5.1.0] – 2026-10-19 (Android & Windows)
+
+- Corrected mobile profile and settings layout on narrow Android screens, including grid cards, cover previews, modal widths and inputs.
+- Fixed font filter visibility: nonmatching fonts are actually hidden instead of forced visible by the button display rule.
+- Reworked appearance preset save/apply to persist all selected theme/accent/paper/font/scale/tint fields and reliably restore them.
+- Added animated GIF wallpaper selection as an original local image file (not exported or synchronized); the reader remains wallpaper-free.
+- Rebuilt Discover search to handle the native catalog gateway and Google Books/Open Library fallback requests, with user-visible error messages.
+- Additional metadata fallback for editions, covers and descriptions; only confidently matching fields are filled automatically.
+- Fixed the broken “Mehr Bücher entdecken” action; recommendations rotate on every request and can expand through online catalog data when providers answer.
+- Expanded translations for common settings and controls; other legacy strings may still require additional localization.
+- Windows-hosted private LAN pairing using a six-digit PIN and host IP:port, with Android or Windows joining and direct encrypted WebRTC transfer. Manual SDP exchange remains under advanced options. Android-to-Android hosting is not included.
+- Adds targeted regression tests for font filtering, saved presets, search results, metadata, recommendations and LAN signaling.
+
+**Signing and service limitations:** Existing Android debug APKs were signed with ephemeral certificates. Users must create and verify a complete backup before changing installations; in-app updating cannot bypass Android signature checks. Online book coverage and font availability depend on external providers. The LAN pairing needs two devices on a reachable local network and allows Windows hosting only at this stage.
+
 ## [5.0.0] – 2026-10-19 (Android & Windows)
 
 - Save and apply appearance combinations with theme, accent, font and wallpaper tint; 100 optional online fonts with offline system fallback.
