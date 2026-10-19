@@ -4,7 +4,8 @@ const { app, BrowserWindow, protocol, net, shell, session, dialog, ipcMain } = r
 const { autoUpdater } = require('electron-updater');
 const path = require('node:path');
 const { pathToFileURL } = require('node:url');
-const { stat } = require('node:fs/promises');
+const { stat, readFile } = require('node:fs/promises');
+const fsSync = require('node:fs');
 
 // A fixed secure origin keeps IndexedDB and localStorage stable between launches.
 protocol.registerSchemesAsPrivileged([{
@@ -28,6 +29,10 @@ async function serveApp(request) {
     if (subpath.startsWith('..') || path.isAbsolute(subpath)) return new Response('Forbidden', { status: 403 });
     const info = await stat(file);
     if (!info.isFile()) return new Response('Not Found', { status: 404 });
+    if (relative === 'index.html' && process.platform === 'win32') {
+      const html = await readFile(file, 'utf8');
+      return new Response(html.replace("const APP_VERSION='4.6.0';", 'const APP_VERSION=' + JSON.stringify(app.getVersion()) + ';'), {headers:{'Content-Type':'text/html; charset=utf-8'}});
+    }
     return net.fetch(pathToFileURL(file).href);
   } catch (error) {
     return new Response('Not Found', { status: 404 });
@@ -70,6 +75,13 @@ function createWindow() {
     if (/^https:\/\//i.test(url)) void shell.openExternal(url);
   });
 
+  mainWindow.webContents.on('did-finish-load', () => {
+    if (!mainWindow || mainWindow.isDestroyed() || process.platform !== 'win32') return;
+    // Desktop-only UI extension; the Android web bundle stays unchanged.
+    const wc = mainWindow.webContents;
+    void wc.insertCSS(fsSync.readFileSync(path.join(__dirname, 'booksup-windows-47.css'), 'utf8')).catch(console.error);
+    void wc.executeJavaScript(fsSync.readFileSync(path.join(__dirname, 'booksup-windows-47.js'), 'utf8')).catch(console.error);
+  });
   mainWindow.loadURL(APP_ORIGIN + '/index.html');
   if (process.env.BOOKSUP_DEVTOOLS === '1') mainWindow.webContents.openDevTools();
 }
@@ -91,6 +103,7 @@ autoUpdater.on('update-available', async info=>{
   });
   if(response===0){try{await autoUpdater.downloadUpdate()}catch(e){dialog.showErrorBox('Update konnte nicht geladen werden',String(e.message||e))}}
 });
+autoUpdater.on('error',e=>{console.error('BooksUp updater:',e);});
 autoUpdater.on('update-downloaded',async info=>{
   if(!mainWindow||mainWindow.isDestroyed())return;
   const {response}=await dialog.showMessageBox(mainWindow,{
@@ -101,25 +114,42 @@ autoUpdater.on('update-downloaded',async info=>{
   if(response===0)autoUpdater.quitAndInstall(false,true);
 });
 async function checkBooksUpUpdates(manual=false){
-  if(!app.isPackaged||process.platform!=='win32'||process.env.PORTABLE_EXECUTABLE_DIR){
-    return {message:'Automatische Installation ist nur in der installierten Windows-Version verfügbar.'};
+  if(!app.isPackaged||process.platform!=='win32'){
+    return {message:'Installierbare Updates stehen in der gepackten Windows-Version zur Verfügung.'};
+  }
+  if(process.env.PORTABLE_EXECUTABLE_DIR){
+    if(manual)await shell.openExternal('https://github.com/lavender1510/BooksUp/releases');
+    return {message:'Portable Version: Release-Seite im Browser geöffnet. Neue portable EXE manuell herunterladen.'};
   }
   if(updateBusy)return {message:'Eine Update-Prüfung läuft bereits.'};
   updateBusy=true;
   try{
     const result=await autoUpdater.checkForUpdates();
-    if(!result?.updateInfo||!result.isUpdateAvailable){
+    if(!result?.updateInfo || result.isUpdateAvailable===false){
       if(manual)await dialog.showMessageBox(mainWindow,{type:'info',message:'BooksUp ist aktuell.'});
       return {message:'Update-Prüfung abgeschlossen.'};
     }
     return {message:'Update gefunden: '+result.updateInfo.version};
   }catch(e){
     const msg=String(e.message||e);
-    if(manual)await dialog.showMessageBox(mainWindow,{type:'warning',message:'Update-Prüfung fehlgeschlagen',detail:msg});
-    return {message:'Update-Prüfung fehlgeschlagen.'};
+    if(manual){const {response}=await dialog.showMessageBox(mainWindow,{type:'warning',buttons:['Releases öffnen','Schließen'],defaultId:0,cancelId:1,message:'Update-Prüfung fehlgeschlagen',detail:msg});if(response===0)await shell.openExternal('https://github.com/lavender1510/BooksUp/releases');}
+    return {message:'Update-Prüfung fehlgeschlagen: '+msg};
   }finally{updateBusy=false}
 }
 ipcMain.handle('booksup-update:check',()=>checkBooksUpUpdates(true));
+
+// Restrict DNB metadata lookups to a known SRU endpoint and the active BooksUp window.
+ipcMain.handle('booksup-metadata:dnb', async (event, rawIsbn) => {
+  if (!mainWindow || event.sender !== mainWindow.webContents || !event.senderFrame?.url.startsWith(APP_ORIGIN + '/')) throw Error('Unauthorized metadata lookup');
+  const isbn = String(rawIsbn || '').replace(/[^0-9X]/gi, '').toUpperCase();
+  if (!/^(?:[0-9]{9}[0-9X]|[0-9]{13})$/.test(isbn)) throw Error('Invalid ISBN');
+  const endpoint = 'https://services.dnb.de/sru/dnb?version=1.1&operation=searchRetrieve&recordSchema=MARC21-xml&maximumRecords=4&query=' + encodeURIComponent('num=' + isbn);
+  const response = await fetch(endpoint, {signal: AbortSignal.timeout(9000), headers:{Accept:'application/xml'}});
+  if (!response.ok) throw Error('DNB response ' + response.status);
+  const body = await response.text();
+  if (body.length > 300000) throw Error('DNB response too large');
+  return body;
+});
 
 
 /* Persistent local BooksUp backup writer. Renderer never chooses an arbitrary path. */

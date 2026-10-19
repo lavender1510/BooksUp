@@ -1,0 +1,26 @@
+name: BooksUp Windows 4.7 verification
+on:
+  pull_request:
+    paths:
+      - 'electron/**'
+      - 'tools/**'
+      - 'package.json'
+      - '.github/workflows/build-desktop.yml'
+      - '.github/workflows/build-android.yml'
+      - '.github/workflows/check-windows-47.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  windows-checks:
+    runs-on: windows-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm run test:static
+      - run: node tools/test-windows-47.cjs
+      - run: node --check electron/main.cjs
+      - run: node --check electron/preload.cjs
