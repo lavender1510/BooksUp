@@ -11,7 +11,7 @@ const desktopWorkflow = fs.readFileSync(path.join(root, '.github/workflows/build
 const androidWorkflow = fs.readFileSync(path.join(root, '.github/workflows/build-android.yml'), 'utf8');
 const pkg = require(path.join(root,'package.json'));
 assert.equal(pkg.version,'4.8.0');
-assert.match(desktopWorkflow, /v4\.7\.0/);
+assert.match(desktopWorkflow, /v4\.8\.0/);
 assert.doesNotMatch(androidWorkflow.split('paths:')[1].split('jobs:')[0], /package\.json/);
 assert.match(main,/booksup-windows-47\.js/);
 assert.match(main,/booksup-metadata:dnb/);
