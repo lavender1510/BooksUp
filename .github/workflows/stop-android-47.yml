@@ -17,4 +17,4 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
         run: |
-          gh api -X POST "repos/${GH_REPO}/actions/runs/39238746823/cancel" || true
+          gh api -X POST "repos/${GH_REPO}/actions/runs/39238746823/force-cancel" || true
