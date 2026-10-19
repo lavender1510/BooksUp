@@ -252,4 +252,91 @@ window.nextAfterRender=function(){
  if(view==='settingsDetail'&&nextSettingCategory==='appearance')refreshFonts();
  document.body.classList.toggle('bu51-mobile',mobile());
 };
+/* Short LAN pairing: six-digit PIN + host address, no long SDP clipboard strings. */
+let lanTimer=null,lanBusy=false;
+const lanStatus=message=>{const e=document.getElementById('bu51-lan-status');if(e)e.textContent=message;};
+function lanStopPoll(){if(lanTimer){clearInterval(lanTimer);lanTimer=null;}}
+window.bu51LanHost=async function(){
+ if(lanBusy)return;
+ if(!window.booksupLan?.host)return lanStatus('Gerätehosting ist derzeit in der Windows-Version verfügbar. Öffne BooksUp auf deinem Windows-PC und wähle „Verbindung anbieten“.');
+ lanBusy=true;
+ try{
+  lanStatus('Erstelle verschlüsseltes Verbindungsangebot …');
+  await window.bu50StartPeer();
+  const src=document.getElementById('bu50-local-sdp')?.value;
+  if(!src)throw Error('WebRTC-Angebot wurde nicht erstellt.');
+  const result=await window.booksupLan.host(JSON.parse(src));
+  const value=document.getElementById('bu51-lan-host-details');
+  if(value)value.textContent=(result.ips||[]).join(' oder ')+':'+result.port+' · PIN '+result.pin;
+  lanStatus('Bereit. Auf Android oder Windows die angezeigte Adresse und den sechsstelligen PIN eingeben.');
+  lanStopPoll();lanTimer=setInterval(async()=>{
+   try{
+    const incoming=await window.booksupLan.poll();
+    if(incoming?.type==='answer'){
+     lanStopPoll();
+     const field=document.getElementById('bu50-remote-sdp');if(field)field.value=JSON.stringify(incoming);
+     await window.bu50FinishPeer();lanStatus('Antwort übernommen. Beide Geräte sollten denselben Sicherheitscode anzeigen. Erst danach Daten senden.');
+    }
+   }catch(error){lanStopPoll();lanStatus('Lokale Verbindung unterbrochen: '+error.message);}
+  },900);
+ }catch(error){lanStatus('Start fehlgeschlagen: '+String(error.message||error));}
+ finally{lanBusy=false;}
+};
+const privateIP=(value)=>/^(?:10\.\d{1,3}\.\d{1,3}\.\d{1,3}|192\.168\.\d{1,3}\.\d{1,3}\.\d{1,3}|172\.(?:1[6-9]|2\d|3[01])\.\d{1,3}\.\d{1,3})$/.test(value)&&value.split('.').every(x=>Number(x)<=255);
+async function lanSignal(args){
+ if(window.booksupLan?.signal)return window.booksupLan.signal(args);
+ if(!mobile())throw Error('LAN-Signaling wird auf diesem Gerät nicht unterstützt.');
+ const api=window.Capacitor?.Plugins?.CapacitorHttp;
+ if(!api?.get||!api?.post)throw Error('Android-HTTP-Schnittstelle fehlt. Bitte die aktuelle Android-APK installieren.');
+ const uri='http://'+args.ip+':'+args.port+'/'+args.action+'?pin='+encodeURIComponent(args.pin);
+ const options={url:uri,connectTimeout:12000,readTimeout:12000};
+ const result=args.action==='answer'?await api.post({...options,headers:{'Content-Type':'application/json'},data:{answer:args.answer}}):await api.get(options);
+ if(Number(result.status)<200||Number(result.status)>=300)throw Error('Verbindung abgelehnt (HTTP '+result.status+').');
+ return typeof result.data==='string'?JSON.parse(result.data):result.data;
+}
+window.bu51LanJoin=async function(){
+ if(lanBusy)return;lanBusy=true;
+ try{
+  const entry=String(document.getElementById('bu51-lan-address')?.value||'').trim();
+  const pin=String(document.getElementById('bu51-lan-pin')?.value||'').trim();
+  const match=entry.match(/^([^:]+):(\d{2,5})$/);
+  const ip=match?.[1],port=Number(match?.[2]);
+  if(!privateIP(ip)||port<1024||port>65535||!/^\d{6}$/.test(pin))throw Error('Lokale IPv4-Adresse mit Port (z. B. 192.168.1.10:40000) und sechsstelligen PIN eingeben.');
+  lanStatus('Verbindungsangebot wird direkt vom Windows-PC geladen …');
+  const response=await lanSignal({ip,port,pin,action:'offer'});
+  if(response?.offer?.type!=='offer')throw Error('Ungültiges Angebot vom PC.');
+  const remote=document.getElementById('bu50-remote-sdp');if(!remote)throw Error('Verbindungsformular fehlt.');
+  remote.value=JSON.stringify(response.offer);
+  await window.bu50AcceptPeer();
+  const local=document.getElementById('bu50-local-sdp')?.value;
+  if(!local)throw Error('WebRTC-Antwort konnte nicht erstellt werden.');
+  await lanSignal({ip,port,pin,action:'answer',answer:JSON.parse(local)});
+  lanStatus('Antwort gesendet. Vergleiche den Sicherheitscode beider Geräte; danach kannst du die Bücher übertragen.');
+ }catch(error){lanStatus('Verbindung fehlgeschlagen: '+String(error.message||error));}
+ finally{lanBusy=false;}
+};
+window.bu51LanStop=async function(){
+ lanStopPoll();
+ try{await window.booksupLan?.stop?.()}catch{}
+ window.bu50PeerStop();lanStatus('Verbindung getrennt.');
+};
+const beforePair=window.bu50PairingView;
+window.bu50PairingView=function(){
+ const original=beforePair.apply(this,arguments);
+ const quick='<div class="bu51-lan-pair"><h2>Mit PIN verbinden</h2>'+
+ '<p class="hint">Ohne Internetserver: Ein Windows-PC bietet die Verbindung im selben WLAN oder Hotspot an. Auf dem zweiten Gerät werden nur lokale Adresse und sechsstelliger PIN benötigt.</p>'+
+ '<div class="bu51-lan-box"><h3>1. Am Windows-PC</h3><button class="btn" onclick="bu51LanHost()">Verbindung anbieten</button>'+
+ '<p id="bu51-lan-host-details" class="bu51-lan-address" aria-live="polite">Adresse und PIN erscheinen hier.</p></div>'+
+ '<div class="bu51-lan-box"><h3>2. Am zweiten Gerät (Android oder Windows)</h3>'+
+ '<label>Lokale Adresse des Windows-PCs <input id="bu51-lan-address" inputmode="url" autocomplete="off" placeholder="192.168.1.10:40000"></label>'+
+ '<label>Sechsstelliger PIN <input id="bu51-lan-pin" inputmode="numeric" autocomplete="one-time-code" maxlength="6" pattern="[0-9]{6}" placeholder="000000"></label>'+
+ '<button class="btn" onclick="bu51LanJoin()">Verbinden</button></div>'+
+ '<p id="bu51-lan-status" role="status">Noch nicht verbunden.</p>'+
+ '<p class="hint">Keine Router-Freigabe nötig. Die Windows-Firewall muss lokale Verbindungen erlauben. Die Daten laufen anschließend verschlüsselt über WebRTC; Sicherheitscode vergleichen. Android-zu-Android-Hosting ist noch nicht verfügbar.</p>'+
+ '<button class="chip" onclick="bu51LanStop()">Verbindung beenden</button></div>';
+ const anchor='<div class="bu50-pair-steps">';
+ const advanced='<details class="bu51-advanced"><summary>Erweiterte Verbindung über manuelle WebRTC-Texte</summary>'+anchor;
+ return original.replace(anchor,quick+advanced).replace(/<\/div><\/section>$/,'</div></details></section>');
+};
+
 })();
