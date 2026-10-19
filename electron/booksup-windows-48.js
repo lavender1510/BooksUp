@@ -315,6 +315,10 @@ window.bu44WatchPrompt=function(book){
 function metadataControls(){
   if(view!=='detail')return;
   const area=document.querySelector('.next-book-information');if(!area)return;
+  const active=currentBook(cur);
+  if(active && active.title && navigator.onLine!==false && (!to13(active.isbn)||!active.publisher) && (!active.metadataCheckedAt || Date.now()-Number(active.metadataCheckedAt)>7*86400000)){
+    void window.bu48Lookup(active.id,{silent:true});
+  }
   if(!area.querySelector('.bu48-isbn-cta')){
     const box=document.createElement('div');box.className='bu48-metadata-actions';
     box.innerHTML='<button class="btn o" id="bu48-refresh-meta">Google Books / DNB / Open Library durchsuchen</button><button class="btn o bu48-isbn-cta" id="bu48-choose-isbn">ISBN-Ausgabe auswählen</button><p class="hint" id="bu48-meta-status"></p>';
