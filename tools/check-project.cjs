@@ -24,7 +24,12 @@ assert.match(file('electron/main.cjs'), /nodeIntegration: false/);
 assert.match(file('tools/android-init.cjs'), /POST_NOTIFICATIONS/);
 for(const name of ['booksup-44.js','booksup-43.js','booksup-library.js','booksup-polish.js','booksup-next.js']){const src=file('www/'+name);assert.ok(src.length>200,'missing script: '+name);new Function(src)}
 for(const name of ['booksup-46.js','booksup-46-extra.js','booksup-46-i18n.js','booksup-45.js','booksup-desktop.js','booksup-45-i18n.js']){const src=file('www/'+name);assert.ok(src.length>100,'missing script: '+name);new Function(src)}
-assert.equal(pkg.version,'4.8.0');
+assert.equal(pkg.version,'4.9.0');
+new Function(file('www/booksup-49.js'));
+assert.match(html,/booksup-49\.js/);
+assert.match(html,/booksup-49\.css/);
+assert.match(file('electron/preload.cjs'),/booksupDesktopDrive/);
+assert.match(file('electron/main.cjs'),/booksup-drive:login/);
 new Function(file('electron/booksup-windows-48.js'));
 assert.ok(file('electron/booksup-windows-48.css').includes('.bu48-list-tile'));
 assert.match(file('electron/preload.cjs'),/booksup-metadata:search/);
