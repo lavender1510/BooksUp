@@ -1,3 +1,19 @@
+## [4.8.0] – 2026-10-19 (Windows)
+
+- Fixed index-based list deletion: each reading-list entry now has a stable unique ID; removing a list entry never removes the underlying book.
+- Corrected News capitalization in Windows navigation.
+- Reordered the profile sections: profile, continue reading, quick tiles, library, reading lists, statistics, history, top five, recommendations.
+- Made accent colors independent of base themes; added persistent saved theme combinations.
+- Increased observable font-size differences throughout desktop views.
+- Replaced reading-list grid with large horizontal collection cards, latest books and cover previews.
+- Catalog lookups from Electron main process using Google Books and Open Library with optional DNB title/ISBN SRU; confidence-ranked ISBN suggestions and a choice UI for ambiguous editions.
+- Added a default Discover reading-list setting and one-click add action.
+- Owner login shortcut Ctrl+Shift+A opens configured GitHub OAuth publisher worker; login requires secure backend, not local bypass.
+
+**Price alarm note:** A valid edition-specific ISBN is required. The existing MediMops price monitor also requires an actual, authorized price feed; this release does not fabricate prices or guarantee a third-party source.
+
+**Windows-only:** Android resources and APK workflows are unchanged. Windows UI functions require installed/portable 4.8.
+
 # BooksUp – Update Log
 
 Dokumentation zum Open-Source-Projekt [lavender1510/BooksUp](https://github.com/lavender1510/BooksUp). Android- und Windows-Testversionen werden als GitHub-Releases bereitgestellt. Automatisierte Builds ersetzen keine Tests auf echten Geräten.

@@ -1,8 +1,8 @@
 {
   "name": "booksup",
-  "version": "4.7.0",
+  "version": "4.8.0",
   "private": true,
-  "description": "BooksUp 4.7 – Windows desktop analytics, reader and discovery update",
+  "description": "BooksUp 4.8 – Windows library safety, metadata and interface refinements",
   "productName": "BooksUp",
   "main": "electron/main.cjs",
   "type": "commonjs",
