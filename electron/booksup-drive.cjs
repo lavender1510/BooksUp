@@ -108,9 +108,9 @@ async function request({url,method='GET',headers={},bodyBase64,bodyText}={}){
   let body;
   if(bodyBase64){if(bodyBase64.length>1200000)throw Error('Upload-Segment zu groß.');body=Buffer.from(bodyBase64,'base64');}
   else if(bodyText!==undefined){if(String(bodyText).length>2e6)throw Error('Metadaten zu groß.');body=String(bodyText)}
-  const response=await fetch(target,{method,headers:outgoing,body,redirect:'error',signal:AbortSignal.timeout(25000)});
+  const response=await fetch(target,{method,headers:outgoing,body,redirect:'manual',signal:AbortSignal.timeout(25000)});
   const buffer=Buffer.from(await response.arrayBuffer());
-  if(buffer.byteLength>12*1024*1024)throw Error('Google-Drive-Antwort zu groß.');
+  if(buffer.byteLength>48*1024*1024)throw Error('Google-Drive-Antwort zu groß.');
   return {status:response.status,statusText:response.statusText,headers:Object.fromEntries(response.headers.entries()),bodyBase64:buffer.toString('base64')};
 }
 module.exports={login,resume,disconnect,request};
