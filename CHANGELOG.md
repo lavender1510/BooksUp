@@ -2,6 +2,19 @@
 
 Dokumentation zum Open-Source-Projekt [lavender1510/BooksUp](https://github.com/lavender1510/BooksUp). Android- und Windows-Testversionen werden als GitHub-Releases bereitgestellt. Automatisierte Builds ersetzen keine Tests auf echten Geräten.
 
+## [4.7.0] – 2026-10-19 (Windows-Testversion)
+
+- Fixed navigation rail, fullscreen PDF display and Ctrl+wheel/touchpad zoom on Windows.
+- New desktop analytics dashboard with monthly completion, activity, genres and profile comparison.
+- Discovery arrow controls; localized Windows controls and visible changelog.
+- Multi-file and folder import entry points, plus automatic background enrichment of newly imported book records.
+- Online metadata lookup from Google Books, Open Library and optional DNB ISBN SRU; only blank fields are completed.
+- In-reader page-area annotations and freeform notes saved locally.
+- Admin/editorial menu hidden in Windows client; authentication still requires separately deployed GitHub OAuth Worker.
+- Installer update checks, portable release fallback and Windows-only distribution pipeline.
+
+**Known limitations:** On PDF canvas pages, highlights are page-area overlays (not selectable PDF text). Hardcover is not connected without an API token. DNB SRU access may be restricted, so Google Books and Open Library remain active fallbacks. Legacy translations outside the UI dictionaries and real-device end-to-end workflows require additional verification. No Android APK is published as part of 4.7.0.
+
 ## [4.6.0] – 2026-10-18 (Testversion)
 
 ### Verbesserungen
