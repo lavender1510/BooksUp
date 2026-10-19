@@ -1,4 +1,4 @@
-name: BooksUp Windows 4.7 verification
+name: BooksUp Windows 4.8 verification
 on:
   pull_request:
     paths:
@@ -22,5 +22,7 @@ jobs:
           node-version: '22'
       - run: npm run test:static
       - run: node tools/test-windows-47.cjs
+      - run: node tools/test-windows-48.cjs
+      - run: node --check electron/booksup-windows-48.js
       - run: node --check electron/main.cjs
       - run: node --check electron/preload.cjs
