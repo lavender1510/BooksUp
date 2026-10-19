@@ -9,6 +9,10 @@ on:
       - 'package.json'
       - 'tools/**'
       - '.github/workflows/build-desktop.yml'
+      # Android-only changes must never overwrite the existing Windows 4.8 release.
+      - '!tools/android-init.cjs'
+      - '!tools/test-android-48.cjs'
+      - '!.github/workflows/build-desktop.yml'
 permissions:
   contents: write
 jobs:

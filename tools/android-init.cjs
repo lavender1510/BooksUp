@@ -1,5 +1,5 @@
 'use strict';
-const { existsSync, readFileSync, writeFileSync, mkdirSync } = require('node:fs');
+const { existsSync, readFileSync, writeFileSync, mkdirSync, copyFileSync } = require('node:fs');
 const { join } = require('node:path');
 const { spawnSync } = require('node:child_process');
 const ROOT = join(__dirname, '..');
@@ -57,4 +57,29 @@ const smallIcon='<?xml version="1.0" encoding="utf-8"?>\n'+
  '<path android:fillColor="#FF000000" android:pathData="M11.2,6 L12.8,6 L12.8,20 L11.2,20 Z"/></vector>\n';
 writeFileSync(join(vectorDir,'ic_stat_booksup.xml'),smallIcon);
 execBin(command, ['--no-install', 'cap', 'sync', 'android']);
+
+// Inject mobile-only BooksUp 4.8 assets AFTER Capacitor sync. Do not alter www/
+// or the Electron browser version. This keeps the same Capacitor app origin and
+// its existing IndexedDB / localStorage data when the signing key is stable.
+const publicDir=join(ROOT,'android','app','src','main','assets','public');
+const mobileDir=join(ROOT,'mobile');
+const indexPath=join(publicDir,'index.html');
+if(!existsSync(indexPath))throw Error('Android web assets missing after Capacitor sync');
+for(const name of ['booksup-android-48.js','booksup-android-48.css']){
+ const source=join(mobileDir,name);
+ if(!existsSync(source))throw Error('Mobile source not found: '+source);
+ copyFileSync(source,join(publicDir,name));
+}
+let androidHtml=readFileSync(indexPath,'utf8');
+const versionPattern=/const APP_VERSION='[^']+';/g;
+if((androidHtml.match(versionPattern)||[]).length!==1)throw Error('Android version marker missing or ambiguous');
+androidHtml=androidHtml.replace(versionPattern,'const APP_VERSION='+JSON.stringify(v)+';');
+const cssTag='<link rel="stylesheet" href="booksup-android-48.css">';
+const jsTag='<script src="booksup-android-48.js"></script>';
+if(!androidHtml.includes('</head>')||!androidHtml.includes('</body>'))throw Error('Android HTML structure missing');
+if(!androidHtml.includes(cssTag))androidHtml=androidHtml.replace('</head>',cssTag+'</head>');
+if(!androidHtml.includes(jsTag))androidHtml=androidHtml.replace('</body>',jsTag+'</body>');
+writeFileSync(indexPath,androidHtml);
+console.log('Android-only BooksUp '+v+' features added to generated APK assets.');
+
 console.log('\nBooksUp Android eingerichtet – App-Name und Icons sind gesetzt.');

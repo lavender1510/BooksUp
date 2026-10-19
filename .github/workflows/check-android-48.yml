@@ -1,0 +1,26 @@
+name: BooksUp Android 4.8 checks
+on:
+  pull_request:
+    paths:
+      - 'mobile/**'
+      - 'tools/android-init.cjs'
+      - 'tools/test-android-48.cjs'
+      - '.github/workflows/build-android.yml'
+      - '.github/workflows/check-android-48.yml'
+      - 'CHANGELOG.md'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify-android-parity:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm run test:static
+      - run: node tools/test-android-48.cjs
+      - run: node --check mobile/booksup-android-48.js
+      - run: node --check tools/android-init.cjs

@@ -1,3 +1,17 @@
+## [4.8.0-android.1] – 2026-10-19 (Android-Testversion)
+
+- Android now includes the Windows 4.8 reading-list safety fix (stable IDs instead of positional deletion), large collection cards with recent covers, the new profile order, theme/accent customization, and visibly different font sizes.
+- Discover books can be added directly to a preferred reading list selected in Settings.
+- The native Capacitor HTTP bridge handles Google Books/Open Library and optional German National Library title/ISBN lookups. Ambiguous editions require selecting the correct ISBN.
+- PDF readers include touch-friendly page-area highlighting, notes and fullscreen handling.
+- Changelog and News capitalization are updated. The existing compact mobile reading statistics remain; the desktop analytics dashboard is intentionally excluded.
+- Android-only assets are bundled after Capacitor sync, preserving the existing BooksUp app ID and local storage origin. Android versionName **4.8.0**, versionCode **40800**.
+- Android prerelease asset: **BooksUp-debug.apk**, tag **v4.8.0-android.1**. Windows 4.8.0 is unchanged.
+
+**In-place upgrade warning:** A higher versionCode is not enough: Android requires the same signing certificate. The last public 4.6 debug build did not have a persistent signing secret configured, so an upgrade from that APK is likely to fail. Back up and verify all local book files before considering a reinstall. Never uninstall without a working backup.
+
+**External services:** ISBN discovery does not mean the MediMops price feed is available. The real price source must be configured separately. Admin privileges require the deployed GitHub OAuth Worker; no local switch grants admin rights.
+
 ## [4.8.0] – 2026-10-19 (Windows)
 
 - Fixed index-based list deletion: each reading-list entry now has a stable unique ID; removing a list entry never removes the underlying book.
