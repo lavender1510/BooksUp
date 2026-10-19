@@ -86,6 +86,6 @@ assert.match(win.bu50PairingView(),/192\.168\.1\.10/);
  await win.bu51LanHost();
  assert.match(elements['bu51-lan-host-details'].textContent,/123456/);
  await win.bu51LanJoin();
- assert.deepEqual(lanSignals.map(x=>x.action),['offer','answer']);
+ assert.deepEqual(lanSignals.map(x=>x.action),['offer','answer'],'LAN status: '+elements['bu51-lan-status'].textContent);
  console.log('OK: BooksUp 5.1 persisted presets, mobile font search, discover/metadata, recommendations and LAN PIN');
 })().catch(e=>{console.error(e);process.exitCode=1});
