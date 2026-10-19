@@ -238,6 +238,13 @@ ipcMain.handle('booksup-backup:abort',async(event,id)=>{
  bu45BackupSessions.delete(id);await entry.file.close().catch(()=>{});await fsBackup.unlink(entry.temp).catch(()=>{});return true;
 });
 
+// Local OS credential storage and localhost OAuth only. The renderer never sees refresh tokens.
+const booksupDrive=require('./booksup-drive.cjs');
+ipcMain.handle('booksup-drive:login',event=>{bu45AuthIpc(event);return booksupDrive.login();});
+ipcMain.handle('booksup-drive:resume',event=>{bu45AuthIpc(event);return booksupDrive.resume();});
+ipcMain.handle('booksup-drive:disconnect',event=>{bu45AuthIpc(event);return booksupDrive.disconnect();});
+ipcMain.handle('booksup-drive:request',(event,args)=>{bu45AuthIpc(event);return booksupDrive.request(args);});
+
 app.whenReady().then(() => {
   protocol.handle('booksup', serveApp);
   // Camera scan is opt-in. Other requests are not silently approved.
