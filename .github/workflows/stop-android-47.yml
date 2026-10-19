@@ -1,0 +1,20 @@
+name: Stop unintended Android build for Windows-only 4.7
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/stop-android-47.yml'
+permissions:
+  contents: read
+  actions: write
+jobs:
+  cancel-android:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Cancel unintended Android run for Windows-only release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          gh api -X POST "repos/${GH_REPO}/actions/runs/39238746823/cancel" || true
