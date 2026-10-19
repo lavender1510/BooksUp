@@ -59,7 +59,7 @@ const overview=win.bu45ListsOverview();
 assert.match(overview,/bu48-list-tile/);
 assert.match(overview,/Book A/);
 assert.match(win.bu45ListDetails(),/data-bu48-item/);
-assert.equal(win.bu48LookupResults instanceof Map,false); // Different VM realm
+assert.equal(typeof win.bu48LookupResults.get,'function');
 catalog={google:[{volumeInfo:{title:'Matilda',authors:['Roald Dahl'],publisher:'Puffin',language:'en',industryIdentifiers:[{type:'ISBN_13',identifier:'9780140328721'}]}}],open:[],errors:[]};
 (async()=>{
  const result=await win.bu48Lookup(103,{silent:true});
