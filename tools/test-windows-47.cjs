@@ -10,7 +10,7 @@ const main = fs.readFileSync(path.join(root, 'electron/main.cjs'), 'utf8');
 const desktopWorkflow = fs.readFileSync(path.join(root, '.github/workflows/build-desktop.yml'), 'utf8');
 const androidWorkflow = fs.readFileSync(path.join(root, '.github/workflows/build-android.yml'), 'utf8');
 const pkg = require(path.join(root,'package.json'));
-assert.equal(pkg.version,'4.9.0');
+assert.equal(pkg.version,'5.0.0');
 assert.match(desktopWorkflow, /v4\.9\.0/);
 assert.doesNotMatch(androidWorkflow.split('paths:')[1].split('jobs:')[0], /package\.json/);
 assert.match(main,/booksup-windows-47\.js/);
@@ -36,7 +36,7 @@ const env={
  NEXT_SETTINGS:settings,ALL:{book:state,manga:{books:[],log:[]}},S:state,
  cur:1,pgNow:2,rdFull:false,view:'home',nextSettingCategory:'language',
  bar:(s)=>s,esc:(s)=>String(s),bu45AllLists:()=>[],
- APP_VERSION:'4.9.0',render:()=>{renders++},persist:()=>{saved++},
+ APP_VERSION:'5.0.0',render:()=>{renders++},persist:()=>{saved++},
  navigator:{onLine:false},prompt:()=>null,toast:()=>{},console,
  clearTimeout,setTimeout,crypto:{randomUUID:()=> 'id-1'},Date,Set,Map
 };
