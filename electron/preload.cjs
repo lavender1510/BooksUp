@@ -7,3 +7,5 @@ contextBridge.exposeInMainWorld('booksupBackupFile',Object.freeze({init:()=>ipcR
 contextBridge.exposeInMainWorld('booksupDnb',Object.freeze({isbn:(value)=>ipcRenderer.invoke('booksup-metadata:dnb',value)}));
 
 contextBridge.exposeInMainWorld('booksupCatalog',Object.freeze({search:(criteria)=>ipcRenderer.invoke('booksup-metadata:search',criteria)}));
+
+contextBridge.exposeInMainWorld('booksupDnbTitle',Object.freeze({search:(title)=>ipcRenderer.invoke('booksup-metadata:dnb-title',title)}));
