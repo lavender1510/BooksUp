@@ -11,3 +11,6 @@ contextBridge.exposeInMainWorld('booksupCatalog',Object.freeze({search:(criteria
 contextBridge.exposeInMainWorld('booksupDnbTitle',Object.freeze({search:(title)=>ipcRenderer.invoke('booksup-metadata:dnb-title',title)}));
 
 contextBridge.exposeInMainWorld('booksupDesktopDrive',Object.freeze({login:()=>ipcRenderer.invoke('booksup-drive:login'),resume:()=>ipcRenderer.invoke('booksup-drive:resume'),disconnect:()=>ipcRenderer.invoke('booksup-drive:disconnect'),request:(args)=>ipcRenderer.invoke('booksup-drive:request',args)}));
+
+// Pair directly on the private LAN; remote requests are constrained in main process.
+contextBridge.exposeInMainWorld('booksupLan',Object.freeze({host:offer=>ipcRenderer.invoke('booksup-lan:start',offer),poll:()=>ipcRenderer.invoke('booksup-lan:poll'),stop:()=>ipcRenderer.invoke('booksup-lan:stop'),signal:args=>ipcRenderer.invoke('booksup-lan:signal',args)}));
