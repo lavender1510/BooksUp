@@ -77,6 +77,9 @@ if(!manifest.includes('.booksup.fileprovider')){
  if(!manifest.includes('</application>'))throw Error('Android application manifest missing');
  manifest=manifest.replace('</application>',provider+'\n    </application>');
 }
+// Local HTTP is used only for PIN-protected LAN WebRTC signaling (RFC1918 IPs).
+// Digital book files themselves are transferred over encrypted WebRTC/DTLS.
+if(!/android:usesCleartextTraffic=/.test(manifest))manifest=manifest.replace(/<application/, '<application android:usesCleartextTraffic="true"');
 writeFileSync(manifestPath,manifest);
 
 // Inject mobile-only BooksUp 4.8 assets AFTER Capacitor sync. Do not alter www/
@@ -101,7 +104,7 @@ if(!androidHtml.includes('</head>')||!androidHtml.includes('</body>'))throw Erro
 if(!androidHtml.includes(cssTag))androidHtml=androidHtml.replace('</head>',cssTag+'</head>');
 if(!androidHtml.includes(jsTag))androidHtml=androidHtml.replace('</body>',jsTag+'</body>');
 // Shared 5.0 scripts are loaded after the Android 4.8 overrides, keeping both platforms aligned.
-for(const name of ['booksup-50.css','booksup-50.js','booksup-50-pair.js','booksup-50-services.js']){
+for(const name of ['booksup-50.css','booksup-50.js','booksup-50-pair.js','booksup-50-services.js','booksup-51.css','booksup-51.js']){
  const src=join(ROOT,'www',name);if(!existsSync(src))throw Error('Missing 5.0 source: '+name);
  copyFileSync(src,join(publicDir,name));
  if(name.endsWith('.css')){
