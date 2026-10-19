@@ -349,6 +349,12 @@ document.addEventListener('keydown',e=>{
   }
 });
 // Keep everything in the Windows injection layer; do not touch Android assets.
+const previousChangelog=window.bu47ChangelogView;
+window.bu47ChangelogView=function(){
+  const page=previousChangelog();
+  const entry='<article class="bu47-change"><small>4.8.0 · Windows</small><h2>Deine Bibliothek, sicherer und persönlicher</h2><p>Stabile Löschbuttons in Leselisten, neue große Sammlungs-Vorschauen, Profil-Reihenfolge, eigene Theme-Kombinationen, bessere Schriftgrößen und eine überarbeitete ISBN-/Metadatensuche.</p></article>';
+  return page.replace('<div class="bu47-changelog">','<div class="bu47-changelog">'+entry);
+};
 const oldAfter=window.nextAfterRender;
 window.nextAfterRender=function(){
   oldAfter();
