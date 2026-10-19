@@ -7,6 +7,8 @@ on:
     paths:
       - 'www/**'
       - 'assets/**'
+      - 'mobile/**'
+      - '.github/workflows/build-android.yml'
       - 'capacitor.config.json'
       - 'tools/**'
 
@@ -56,6 +58,9 @@ jobs:
       - name: Check BooksUp source
         run: npm run test:static
 
+      - name: Verify Android 4.8 feature parity
+        run: node tools/test-android-48.cjs
+
       - name: Set persistent debug signing key (optional)
         env:
           BOOKSUP_ANDROID_DEBUG_KEYSTORE_BASE64: ${{ secrets.BOOKSUP_ANDROID_DEBUG_KEYSTORE_BASE64 }}
@@ -75,6 +80,16 @@ jobs:
       - name: Verify APK exists
         run: test -s release/BooksUp-debug.apk
 
+      - name: Verify Android release version and bundled mobile modules
+        run: |
+          unzip -l release/BooksUp-debug.apk | grep 'assets/public/booksup-android-48.js'
+          unzip -l release/BooksUp-debug.apk | grep 'assets/public/booksup-android-48.css'
+          unzip -p release/BooksUp-debug.apk assets/public/index.html > "$RUNNER_TEMP/booksup-android-index.html"
+          grep -q 'const APP_VERSION="4.8.0";' "$RUNNER_TEMP/booksup-android-index.html"
+          grep -q 'booksup-android-48.js' "$RUNNER_TEMP/booksup-android-index.html"
+          grep -q 'booksup-android-48.css' "$RUNNER_TEMP/booksup-android-index.html"
+          "$ANDROID_HOME/build-tools/36.0.0/aapt" dump badging release/BooksUp-debug.apk | grep "versionName='4.8.0'"
+
       - name: Upload downloadable APK artifact
         uses: actions/upload-artifact@v4
         with:
@@ -89,28 +104,35 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         shell: bash
         run: |
-          TAG="v4.6.0-test.1"
+          TAG="v4.8.0-android.1"
           cat > release-notes.md <<'NOTES'
-          # BooksUp 4.6.0 – Android library and backup update
+          # BooksUp 4.8.0 – Android Feature-Parity Update
 
-          **BooksUp-debug.apk** is an installable Android debug APK for testing.
-          This is **not** a production-signed Play Store release.
+          **BooksUp-debug.apk** is the Android 4.8.0 test build (versionCode 40800).
+          It is a debug APK, NOT a production-signed Play Store release.
 
-          - Live profile previews, avatar crop/zoom and profile synchronization
-          - Multi-book import, PDF covers, metadata editing and automatic fullscreen sessions
-          - Improved online book search and recommendation controls
-          - Same BooksUp web interface as Electron desktop edition
-          - PDF/EPUB/comic reading and local library
-          - Android packaging with Capacitor
-          - Offline assets bundled into the APK
-          - Memory-efficient Android backup export
-          - Update checks via GitHub releases
+          - Reading-list deletions now use stable entry IDs; original books are not deleted.
+          - Large reading-list tiles with latest-book cover previews.
+          - Profile sections follow the requested order; statistics remain compact on Android.
+          - Theme colors, custom combinations and noticeably scaled font-size settings.
+          - Discovery books can be saved in the preferred reading list.
+          - Expanded Google Books, Open Library and German National Library metadata/ISBN search using native HTTP.
+          - Reader notes, page-area annotations, full-screen and touch-friendly PDF controls.
+          - News capitalization and version changelog.
+          - Admin/editorial settings are hidden until the GitHub OAuth backend is configured.
 
-          Android may ask you to allow installs from this source. Only install this APK if you trust this repository.
+          **Important: Back up your library before installing.**
+          Updating an installed app requires the SAME Android signing certificate as the previous APK.
+          Without the GitHub secret BOOKSUP_ANDROID_DEBUG_KEYSTORE_BASE64, CI uses an ephemeral
+          debug certificate. In that case an in-place update may fail; do NOT uninstall BooksUp
+          or delete its app data unless your backup is successfully verified.
+          The MediMops price feed also requires a real configured provider; ISBN discovery alone
+          cannot supply genuine prices.
+
           NOTES
           if gh release view "$TAG" >/dev/null 2>&1; then
             gh release upload "$TAG" release/BooksUp-debug.apk --clobber
-            gh release edit "$TAG" --title 'BooksUp 4.6.0 – Android Backup-Fix' --notes-file release-notes.md --prerelease
+            gh release edit "$TAG" --title 'BooksUp 4.8.0 – Android Update' --notes-file release-notes.md --prerelease
           else
-            gh release create "$TAG" release/BooksUp-debug.apk --title 'BooksUp 4.6.0 – Android Backup-Fix' --notes-file release-notes.md --prerelease --target "$GITHUB_SHA"
+            gh release create "$TAG" release/BooksUp-debug.apk --title 'BooksUp 4.8.0 – Android Update' --notes-file release-notes.md --prerelease --target "$GITHUB_SHA"
           fi
