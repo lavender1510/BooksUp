@@ -3,6 +3,7 @@ const { existsSync, readFileSync, writeFileSync, mkdirSync, copyFileSync } = req
 const { join } = require('node:path');
 const { spawnSync } = require('node:child_process');
 const ROOT = join(__dirname, '..');
+const android = join(ROOT, 'android');
 const command = process.platform === 'win32' ? 'npx.cmd' : 'npx';
 
 function execBin(bin, args) {
