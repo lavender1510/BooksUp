@@ -2,6 +2,7 @@
 (function(){
 'use strict';
 const e=v=>esc(v==null?'':String(v));
+const m=()=>window.Capacitor?.getPlatform?.() === 'android';
 const strip=v=>String(v||'').replace(/<[^>]*>/g,' ').replace(/&nbsp;/g,' ').replace(/&amp;/g,'&').replace(/\s+/g,' ').trim().slice(0,7000);
 const isISBN=v=>/^(?:\d{13}|\d{9}[\dX])$/i.test(String(v||'').replace(/[^0-9X]/gi,''));
 function book(id){return [...S.books,...bu45Extra()].find(x=>String(x.id)===String(id));}
@@ -152,7 +153,7 @@ window.nextSettingsDetail=function(){
  if(nextSettingCategory!=='updates')return oldDetail.apply(this,arguments);
  return bar('App-Updates','settings')+'<div class="next-settings-pane">'+updateSection()+'</div>';
 };
-window.bu50OpenReleases=()=>window.open('https://github.com/lavender1510/BooksUp/releases','_blank','noopener,noreferrer');
+window.bu50OpenReleases=()=>{const url='https://github.com/lavender1510/BooksUp/releases';if(typeof booksupOpenRelease==='function')return booksupOpenRelease(url);return window.open(url,'_blank','noopener,noreferrer');};
 window.bu50CheckAppUpdate=async function(){
  const label=document.getElementById('bu50-update-status');const show=s=>{if(label)label.textContent=s;toast(s);};
  if(!m()){
