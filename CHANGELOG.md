@@ -1,3 +1,18 @@
+## [5.0.0] – 2026-10-19 (Android & Windows)
+
+- Save and apply appearance combinations with theme, accent, font and wallpaper tint; 100 optional online fonts with offline system fallback.
+- Device-specific background pictures stored in IndexedDB (not included in sync or exported backups); hide background in reader.
+- Reading-list administration, opt-in list preview for shelf, profile quick tiles cleaned up; unfinished Friends features hidden.
+- Cross-platform notes panel and area annotations retained in local book data.
+- More resilient Google Books/Open Library lookup, online book blurbs and manual description editing; show ISBN choices when editions are ambiguous.
+- Native Android APK download and Android system installer handoff; Electron installer uses app updater. Neither can override OS signature checks.
+- Peer-to-peer direct WebRTC data exchange with manual offer/answer, six-digit verification and receiver confirmation. Works only when local networking permits direct connectivity. No cloud/server is used; existing books are never automatically replaced, and large files may be skipped.
+- Dedicated reading-list controls in Settings and extended translation dictionaries.
+
+**Distribution:** Separate Windows v5.0.0 and Android v5.0.0-android.1 test releases.
+**Signing limitation:** The existing Android releases use ephemeral debug signing keys. The new APK cannot be installed over differently signed older builds without creating a verified backup first.
+**Network/translation limitations:** Optional Google fonts and metadata require working providers; direct WebRTC LAN connectivity is network-dependent and not an unattended background sync; translations beyond the extended dictionary are not guaranteed complete.
+
 ## [4.9.0] – 2026-10-19 (Android & Windows)
 
 - Responsive Android screens and modal fixes, including smaller-phone layouts.

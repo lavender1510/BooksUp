@@ -82,7 +82,12 @@ function createWindow() {
     void wc.insertCSS(fsSync.readFileSync(path.join(__dirname, 'booksup-windows-47.css'), 'utf8')).catch(console.error);
     void wc.executeJavaScript(fsSync.readFileSync(path.join(__dirname, 'booksup-windows-47.js'), 'utf8')).then(() => {
       return wc.insertCSS(fsSync.readFileSync(path.join(__dirname, 'booksup-windows-48.css'), 'utf8'));
-    }).then(() => wc.executeJavaScript(fsSync.readFileSync(path.join(__dirname, 'booksup-windows-48.js'), 'utf8'))).catch(console.error);
+    }).then(() => wc.executeJavaScript(fsSync.readFileSync(path.join(__dirname, 'booksup-windows-48.js'), 'utf8')))
+      .then(async () => {
+        for (const name of ['booksup-50.css']) await wc.insertCSS(fsSync.readFileSync(path.join(__dirname, '..', 'www', name), 'utf8'));
+        for (const name of ['booksup-50.js', 'booksup-50-pair.js', 'booksup-50-services.js'])
+          await wc.executeJavaScript(fsSync.readFileSync(path.join(__dirname, '..', 'www', name), 'utf8'));
+      }).catch(console.error);
   });
   mainWindow.loadURL(APP_ORIGIN + '/index.html');
   if (process.env.BOOKSUP_DEVTOOLS === '1') mainWindow.webContents.openDevTools();

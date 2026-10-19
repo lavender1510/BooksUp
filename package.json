@@ -1,8 +1,8 @@
 {
   "name": "booksup",
-  "version": "4.9.0",
+  "version": "5.0.0",
   "private": true,
-  "description": "BooksUp 4.9 – mobile responsiveness, news, Goodreads and cross-platform Drive sync",
+  "description": "BooksUp 5.0 – cross-platform customization, reader, offline device linking, book data and native updates",
   "productName": "BooksUp",
   "main": "electron/main.cjs",
   "type": "commonjs",
