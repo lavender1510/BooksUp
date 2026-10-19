@@ -40,7 +40,7 @@ function ui(){
   const cfg=$cfg(),status=!supported()?'Cloud-Synchronisierung nicht verfügbar':!sdk()?'Google-Anmeldemodul nicht verfügbar':!client()?'Google-Anmeldung muss vom App-Herausgeber eingerichtet werden':state.authorized?'Verbunden mit '+escape(state.email||'Google'):cfg.enabled?'Warte auf Google-Anmeldung':'Nicht verbunden';
   const online=state.authorized;
   return '<h3>Google Drive · Cloud-Sicherung</h3><div class="pad"><p class="hint">'+status+'</p>'+
-    '<p class="hint">Sichert beide Profile, Lesefortschritte und importierte Buchdateien im privaten BooksUp-Appordner von Google Drive. Nur bei geöffneter App. Cloud-Daten eines anderen Gerätes werden nicht ungefragt über bestehende Bücher geschrieben.</p>'+
+    '<p class="hint">Verbindet Android und Windows über denselben privaten BooksUp-Ordner in deinem Google Drive. Beide Profile, Lesefortschritte und vorhandene digitale Buchdateien werden nur bei geöffneter App abgeglichen. Bei gleichzeitig geänderten Geräten wird ein Konflikt gemeldet statt Daten ungefragt zu überschreiben.</p>'+
     '<div class="row"><button class="btn" onclick="BooksUpCloud.connect()" '+(!ready()||state.busy?'disabled':'')+'>'+(online?'Google-Konto wechseln':'Mit Google verbinden')+'</button>'+
     (online?'<button class="btn o" onclick="BooksUpCloud.disconnect()">Trennen</button>':'')+'</div>'+
     '<label class="pad" style="display:block"><input type="checkbox" style="width:auto" onchange="BooksUpCloud.enable(this.checked)" '+(cfg.enabled?'checked':'')+' '+(!online?'disabled':'')+'> Automatisch sichern und auf anderen Geräten abgleichen</label>'+
