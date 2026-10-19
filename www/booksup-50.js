@@ -147,7 +147,7 @@ window.nextReader=function(){const b=S.books.find(x=>String(x.id)===String(cur))
 // Restore notes after a reader rerender; avoid breaking either 4.7 or 4.8 reader overlays.
 const oldAfter=window.nextAfterRender;
 window.nextAfterRender=function(){
- oldAfter.apply(this,arguments);applyFont();applyBackgroundFilter();
+ oldAfter.apply(this,arguments);document.body.classList.toggle('bu50-reader-active',view==='reader');applyFont();applyBackgroundFilter();
  if(view==='reader'&&typeof window.bu47ShowAnnotations==='function')requestAnimationFrame(()=>{try{window.bu47ShowAnnotations()}catch(e){console.debug(e)}});
 };
 void loadBackground();
