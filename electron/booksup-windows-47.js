@@ -292,8 +292,9 @@
     persist();toast('Notiz gespeichert.');window.bu47ShowAnnotations();
   };
   window.nextCaptureHighlight=function(){window.bu47AddNote();};
-  window.bu47RemoveAnnotation=function(id){
-    const b=activeBook();if(!b)return;b.annotations=(b.annotations||[]).filter(a=>String(a.id)!==String(id));persist();window.bu47ShowAnnotations();
+  window.bu47RemoveAnnotation=function(index){
+    const b=activeBook();if(!b||!Array.isArray(b.annotations)||!Number.isInteger(index)||index<0||index>=b.annotations.length)return;
+    b.annotations.splice(index,1);persist();window.bu47ShowAnnotations();
   };
   function pageOf(canvas){
     if(canvas.id==='pdfCv2')return Number(pgNow)+1;
@@ -321,8 +322,8 @@
     drawHighlights();
     const b=activeBook(),list=document.getElementById('bu47-annotations-list');if(!list||!b)return;
     const annotations=b.annotations||[];
-    list.innerHTML=annotations.length?annotations.slice().reverse().map(a=>'<div class="bu47-note"><b>Seite '+Number(a.page||1)+(a.rect?' · Markierung':' · Notiz')+'</b><p>'+esc(a.comment||a.text||'Bereich auf der Seite markiert')+'</p><button class="chip" data-remove-annotation="'+esc(a.id||'')+'">Löschen</button></div>').join(''):'<p class="hint">Noch keine Notizen oder Markierungen.</p>';
-    list.querySelectorAll('[data-remove-annotation]').forEach(el=>el.addEventListener('click',()=>window.bu47RemoveAnnotation(el.dataset.removeAnnotation)));
+    list.innerHTML=annotations.length?annotations.map((a,i)=>({a,i})).reverse().map(({a,i})=>'<div class="bu47-note"><b>Seite '+Number(a.page||1)+(a.rect?' · Markierung':' · Notiz')+'</b><p>'+esc(a.comment||a.text||'Bereich auf der Seite markiert')+'</p><button class="chip" data-remove-annotation="'+i+'">Löschen</button></div>').join(''):'<p class="hint">Noch keine Notizen oder Markierungen.</p>';
+    list.querySelectorAll('[data-remove-annotation]').forEach(el=>el.addEventListener('click',()=>window.bu47RemoveAnnotation(Number(el.dataset.removeAnnotation))));
   };
   function attachReaderTools(){
     if(view!=='reader')return;
