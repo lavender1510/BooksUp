@@ -155,6 +155,39 @@ window.bu45GoodreadsCommit=function(){
  modal=null;save();go('lists');
  toast(imported+' Bücher importiert · '+mangaCount+' Manga/Comics · '+bookCount+' Bücher. Profile bleiben getrennt.');
 };
+// One-time conservative migration for Goodreads entries imported before profile detection existed.
+// Only library-only Goodreads records move. Files, owned books and user-created entries stay untouched.
+window.bu49ClassifyExistingGoodreads=function(){
+ if(ALL.bu49GoodreadsRouted)return {moved:0};
+ let moved=0;
+ for(const [fromKey,toKey] of [['book','manga'],['manga','book']]){
+  const from=ALL[fromKey],to=ALL[toKey];
+  from.libraryBooks??=[];from.readingLists??=[];to.libraryBooks??=[];to.readingLists??=[];
+  for(const book of [...from.libraryBooks]){
+   if(book?.source!=='goodreads'||book.owned||book.type==='physical'||book.type==='digital')continue;
+   const references=from.readingLists.flatMap(l=>(l.items||[]).filter(x=>String(x.bookId)===String(book.id)).map(x=>({list:l,item:x})));
+   const tags=[book.tags,book.format,...references.map(x=>x.list.name)].join(' ');
+   const isManga=window.bu49IsManga(book.title,tags,book.format);
+   if((toKey==='manga')!==isManga)continue;
+   const duplicate=to.libraryBooks.find(x=>(book.isbn&&x.isbn===book.isbn)||(buNorm(x.title)===buNorm(book.title)&&buNorm(x.author)===buNorm(book.author)));
+   // Reusing an existing record's ID can collide. Never merge without a safe ID mapping.
+   if(duplicate&&String(duplicate.id)!==String(book.id))continue;
+   if(!duplicate)to.libraryBooks.push(book);
+   for(const ref of references){
+     let dest=to.readingLists.find(l=>l.name.toLowerCase()===ref.list.name.toLowerCase());
+     if(!dest){dest={id:Date.now()+Math.floor(Math.random()*1e8),name:ref.list.name,items:[],source:'goodreads',showInShelf:false};to.readingLists.push(dest);}
+     if(!dest.items.some(x=>String(x.bookId)===String(book.id)))dest.items.push(ref.item);
+     ref.list.items=ref.list.items.filter(x=>x!==ref.item);
+   }
+   from.libraryBooks=from.libraryBooks.filter(x=>x!==book);
+   moved++;
+  }
+ }
+ ALL.bu49GoodreadsRouted=Date.now();
+ if(moved){persist();toast(moved+' Goodreads-Bücher dem passenden Profil zugeordnet.');}
+ else persist();
+ return {moved};
+};
 function responsive(){
  document.body.classList.toggle('bu49-mobile',window.Capacitor?.getPlatform?.()==='android');
  const selected=document.getElementById('bu49-selected-count');
@@ -164,4 +197,5 @@ const lastRender=window.nextAfterRender;
 window.nextAfterRender=function(){lastRender?.apply(this,arguments);responsive()};
 window.addEventListener('load',()=>{installChangelog();}, {once:true});
 setTimeout(installChangelog,350);
+setTimeout(()=>{try{window.bu49ClassifyExistingGoodreads()}catch(e){console.warn('Goodreads profile routing:',e)}},700);
 })();
