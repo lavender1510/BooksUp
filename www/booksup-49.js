@@ -116,7 +116,7 @@ function installChangelog(){
  if(Array.isArray(NEXT_SETTINGS)&&!NEXT_SETTINGS.some(x=>x[0]==='changelog'))NEXT_SETTINGS.push(['changelog','Änderungsverlauf','↺','Alle Updates für Android und Windows']);
 }
 // Unifies Goodreads manga/regular-books profile routing; ambiguous records remain regular books.
-const mangaWords=/\b(manga|manhwa|manhua|graphic\s*novel|graphic\s*novels|comics?|webtoon|anime|tank[oō]bon|light\s*novel|light\s*novels|seinen|shonen|shounen|shojo|shoujo)\b/i;
+const mangaWords=/\b(manga|manhwa|manhua|graphic\s*novel|graphic\s*novels|comics?|webtoon|tank[oō]bon|seinen|shonen|shounen|shojo|shoujo)\b/i;
 const famousManga=/^(one piece|naruto|bleach|attack on titan|chainsaw man|jujutsu kaisen|demon slayer|death note|my hero academia|berserk|tokyo ghoul)(?:\s|:|$)/i;
 window.bu49IsManga=(title,tag,binding)=>mangaWords.test([tag,binding].join(' '))||famousManga.test(String(title||'').trim());
 window.bu45GoodreadsCommit=function(){
@@ -149,7 +149,7 @@ window.bu45GoodreadsCommit=function(){
   for(const name of shelves){
     let list=profile.readingLists.find(x=>x.name.toLowerCase()===name.toLowerCase());
     if(!list){list={id:Date.now()*1000+i+profile.readingLists.length,name,items:[],showInShelf:false,folderSync:false,source:'goodreads'};profile.readingLists.push(list);}
-    if(!list.items.some(x=>String(x.bookId)===String(b.id)))list.items.push({id:crypto.randomUUID(),bookId:b.id,title,author,owned:buOwned(b)});
+    if(!list.items.some(x=>String(x.bookId)===String(b.id)))list.items.push({id:crypto.randomUUID(),bookId:b.id,title,author,owned:!!owns});
   }
  }
  modal=null;save();go('lists');
