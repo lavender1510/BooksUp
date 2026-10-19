@@ -47,7 +47,7 @@ const env={window:win,document,ALL,S:book,sp:'book',view:'settingsDetail',cur:nu
  bu43AppearanceBaseline:'',NEXT_SETTINGS:[],
  persist:()=>{saves++},render:()=>{renders++},toast:()=>{},prompt:()=> 'Mein Theme',
  localStorage:{getItem:key=>store.get(key)||null,setItem:(key,v)=>store.set(key,v)},
- esc:v=>String(v??''),metadataGoogle:(v)=>({title:v.title,author:(v.authors||[]).join(', '),isbn:v.industryIdentifiers?.[0]?.identifier}),
+ esc:v=>String(v??''),metadataGoogle:(v)=>({title:v.title,author:(v.authors||[]).join(', '),isbn:v.industryIdentifiers?.[0]?.identifier,publisher:v.publisher||'',description:v.description||''}),
  bu46Allowed:()=>true,bu46SearchResults:[],bu46SearchTerm:'',bu46SearchBusy:false,bu46SearchSeq:0,
  bu46SearchCard:(x,i)=>'<article>'+i+':'+x.title+'</article>',bu43LoadCovers:()=>{},
  bu45Extra:()=>[],bu44Remote:[],bu44LastFetch:0,BU44_REC_KEY:'booksup.rec.v44',bu44FetchRecommendations:async()=>{},
