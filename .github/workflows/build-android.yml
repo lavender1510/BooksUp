@@ -91,6 +91,7 @@ jobs:
           grep -q 'booksup-android-48.js' "$RUNNER_TEMP/booksup-android-index.html"
           grep -q 'booksup-android-48.css' "$RUNNER_TEMP/booksup-android-index.html"
           grep -q 'booksup-49.js' "$RUNNER_TEMP/booksup-android-index.html"
+          grep -q 'booksup-49.css' "$RUNNER_TEMP/booksup-android-index.html"
           "$ANDROID_HOME/build-tools/36.0.0/aapt" dump badging release/BooksUp-debug.apk | grep "versionName='4.9.0'"
 
       - name: Upload downloadable APK artifact
@@ -114,15 +115,15 @@ jobs:
           **BooksUp-debug.apk** is the Android 4.8.0 test build (versionCode 40900).
           It is a debug APK, NOT a production-signed Play Store release.
 
-          - Reading-list deletions now use stable entry IDs; original books are not deleted.
-          - Large reading-list tiles with latest-book cover previews.
-          - Profile sections follow the requested order; statistics remain compact on Android.
-          - Theme colors, custom combinations and noticeably scaled font-size settings.
-          - Discovery books can be saved in the preferred reading list.
-          - Expanded Google Books, Open Library and German National Library metadata/ISBN search using native HTTP.
-          - Reader notes, page-area annotations, full-screen and touch-friendly PDF controls.
-          - News capitalization and version changelog.
-          - Admin/editorial settings are hidden until the GitHub OAuth backend is configured.
+          - Fixed overflowing Android screens and tall edit dialogs.
+          - Bookshelf now offers direct deletion and visible multi-selection bulk actions.
+          - News previews open inside BooksUp; source buttons open the original in the browser.
+          - News favorites persist locally and in optional cloud snapshots.
+          - Goodreads manga/comics go to the Manga profile; regular books to Books.
+          - In-app changelog lists all recorded Android and Windows updates.
+          - Google Drive device sync is prepared for Android and Windows, but both Google
+            OAuth client IDs MUST first be configured by the publisher (docs/DEVICE_SYNC.md).
+          - Android reading statistics remain compact; the Windows analytics dashboard is omitted.
 
           **Important: Back up your library before installing.**
           Updating an installed app requires the SAME Android signing certificate as the previous APK.
