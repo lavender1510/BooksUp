@@ -1,0 +1,11 @@
+package dev.lyvt.booksup;
+
+import android.os.Bundle;
+import com.getcapacitor.BridgeActivity;
+
+public class MainActivity extends BridgeActivity {
+  @Override public void onCreate(Bundle savedInstanceState) {
+    registerPlugin(BooksUpUpdaterPlugin.class);
+    super.onCreate(savedInstanceState);
+  }
+}
