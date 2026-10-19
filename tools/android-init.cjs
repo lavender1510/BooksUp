@@ -58,6 +58,26 @@ const smallIcon='<?xml version="1.0" encoding="utf-8"?>\n'+
 writeFileSync(join(vectorDir,'ic_stat_booksup.xml'),smallIcon);
 execBin(command, ['--no-install', 'cap', 'sync', 'android']);
 
+// Register the native in-app APK installer and its private FileProvider.
+// This is only a user-confirmed installer handoff; Android enforces signatures.
+const native=join(ROOT,'mobile','android-native');
+const javaDir=join(android,'app','src','main','java','dev','lyvt','booksup');
+const xmlDir=join(android,'app','src','main','res','xml');
+mkdirSync(javaDir,{recursive:true});mkdirSync(xmlDir,{recursive:true});
+for(const name of ['MainActivity.java','BooksUpUpdaterPlugin.java'])
+ copyFileSync(join(native,name),join(javaDir,name));
+copyFileSync(join(native,'booksup_paths.xml'),join(xmlDir,'booksup_paths.xml'));
+const manifestPath=join(android,'app','src','main','AndroidManifest.xml');
+let manifest=readFileSync(manifestPath,'utf8');
+if(!manifest.includes('android.permission.REQUEST_INSTALL_PACKAGES'))
+ manifest=manifest.replace('<application','<uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />\n    <application');
+if(!manifest.includes('.booksup.fileprovider')){
+ const provider='<provider android:name="androidx.core.content.FileProvider" android:authorities="\${applicationId}.booksup.fileprovider" android:exported="false" android:grantUriPermissions="true"><meta-data android:name="android.support.FILE_PROVIDER_PATHS" android:resource="@xml/booksup_paths" /></provider>';
+ if(!manifest.includes('</application>'))throw Error('Android application manifest missing');
+ manifest=manifest.replace('</application>',provider+'\n    </application>');
+}
+writeFileSync(manifestPath,manifest);
+
 // Inject mobile-only BooksUp 4.8 assets AFTER Capacitor sync. Do not alter www/
 // or the Electron browser version. This keeps the same Capacitor app origin and
 // its existing IndexedDB / localStorage data when the signing key is stable.
@@ -79,6 +99,18 @@ const jsTag='<script src="booksup-android-48.js"></script>';
 if(!androidHtml.includes('</head>')||!androidHtml.includes('</body>'))throw Error('Android HTML structure missing');
 if(!androidHtml.includes(cssTag))androidHtml=androidHtml.replace('</head>',cssTag+'</head>');
 if(!androidHtml.includes(jsTag))androidHtml=androidHtml.replace('</body>',jsTag+'</body>');
+// Shared 5.0 scripts are loaded after the Android 4.8 overrides, keeping both platforms aligned.
+for(const name of ['booksup-50.css','booksup-50.js','booksup-50-pair.js','booksup-50-services.js']){
+ const src=join(ROOT,'www',name);if(!existsSync(src))throw Error('Missing 5.0 source: '+name);
+ copyFileSync(src,join(publicDir,name));
+ if(name.endsWith('.css')){
+  const tag='<link rel="stylesheet" href="'+name+'">';
+  androidHtml=androidHtml.replace('</head>',tag+'</head>');
+ }else{
+  const tag='<script src="'+name+'"></script>';
+  androidHtml=androidHtml.replace('</body>',tag+'</body>');
+ }
+}
 writeFileSync(indexPath,androidHtml);
 console.log('Android-only BooksUp '+v+' features added to generated APK assets.');
 
