@@ -287,10 +287,13 @@ async function lanSignal(args){
  if(window.booksupLan?.signal)return window.booksupLan.signal(args);
  if(!mobile())throw Error('LAN-Signaling wird auf diesem Gerät nicht unterstützt.');
  const api=window.Capacitor?.Plugins?.CapacitorHttp;
- if(!api?.get||!api?.post)throw Error('Android-HTTP-Schnittstelle fehlt. Bitte die aktuelle Android-APK installieren.');
+ const native=window.Capacitor?.nativePromise;
+ if((!api?.get||!api?.post)&&typeof native!=='function')throw Error('Android-HTTP-Schnittstelle fehlt. Bitte die aktuelle Android-APK installieren.');
  const uri='http://'+args.ip+':'+args.port+'/'+args.action+'?pin='+encodeURIComponent(args.pin);
  const options={url:uri,connectTimeout:12000,readTimeout:12000};
- const result=args.action==='answer'?await api.post({...options,headers:{'Content-Type':'application/json'},data:{answer:args.answer}}):await api.get(options);
+ const method=args.action==='answer'?'post':'get';
+ const request=method==='post'?{...options,headers:{'Content-Type':'application/json'},data:{answer:args.answer}}:options;
+ const result=api?.[method]?await api[method](request):await native.call(window.Capacitor,'CapacitorHttp',method,request);
  if(Number(result.status)<200||Number(result.status)>=300)throw Error('Verbindung abgelehnt (HTTP '+result.status+').');
  return typeof result.data==='string'?JSON.parse(result.data):result.data;
 }
