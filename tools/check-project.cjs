@@ -31,5 +31,6 @@ assert.match(file('www/booksup-library.js'),/excludedIds/);
 assert.match(file('www/booksup-next.js'),/bu46MoreBooks/);
 assert.match(file('electron/preload.cjs'),/booksupBackupFile/);
 assert.match(file('electron/main.cjs'),/booksup-backup:start/);
+require('./test-prices.cjs');
 console.log('OK: BooksUp 4.6 modules wired, version matched,');
 console.log('OK: BooksUp Design-Quellen, Icons, Offline-Bibliotheken, Electron und Android-Konfig.');
