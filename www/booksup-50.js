@@ -8,7 +8,7 @@ const now=()=>Date.now();
 const fonts=[
 'Inter','Roboto','Open Sans','Lato','Montserrat','Poppins','Nunito','Nunito Sans','Raleway','Ubuntu','Source Sans 3','Work Sans','Rubik','Mulish','Manrope','DM Sans','Outfit','Plus Jakarta Sans','Urbanist','Quicksand',
 'Karla','Barlow','Barlow Condensed','Cabin','Fira Sans','IBM Plex Sans','Noto Sans','Noto Sans Display','Public Sans','Red Hat Display','Lexend','Assistant','Hind','Arimo','Asap','Josefin Sans','Titillium Web','Exo 2','Sora','Jost',
-'Archivo','Archivo Narrow','Dosis','Oxygen','PT Sans','Kanit','Signika','Prompt','Heebo','Overpass','Mukta','Chivo','Varela Round','Catamaran','Yantramanav','Teko','Questrial','Maven Pro','Space Grotesk','Albert Sans',
+'Archivo','Archivo Narrow','Dosis','Oxygen','PT Sans','Kanit','Signika','Prompt','Heebo','Overpass','Mukta','Chivo','Varela Round','Catamaran','Yantramanav','Teko','Questrial','Maven Pro','Space Grotesk','Albert Sans','Noto Sans Mono',
 'Newsreader','Merriweather','Lora','Playfair Display','Libre Baskerville','Crimson Text','EB Garamond','Cormorant Garamond','PT Serif','Noto Serif','Source Serif 4','Bitter','Spectral','Vollkorn','Alegreya','Cardo','Domine','Arvo','Rokkitt',
 'Zilla Slab','Roboto Slab','Bree Serif','DM Serif Display','Prata','Fraunces','Literata','Libre Caslon Text','Gelasio','Old Standard TT','Cinzel','Philosopher','Tinos','IBM Plex Serif','Roboto Serif','Lusitana','Unna','Neuton','Yeseva One','Abril Fatface'];
 window.bu50Fonts=fonts;
