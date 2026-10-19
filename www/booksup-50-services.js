@@ -148,6 +148,17 @@ function updateSection(){
  (m&&!hasNative?'<p class="hint">Der native Android-Updater ist in dieser Build-Variante nicht verfügbar. Release-Seite als Alternative.</p>':'')+
  '<p class="hint" id="bu50-update-status" role="status">Automatische Installation ohne Rückfrage wird nicht unterstützt.</p></section>';
 }
+const previousChangelog=window.bu49ChangelogView;
+window.bu49ChangelogView=function(){
+ const existing=previousChangelog.apply(this,arguments);
+ const entry='<article class="bu49-version"><small>Android &amp; Windows</small><h2>BooksUp 5.0.0</h2><p>100 Schriftarten, gespeicherte Designkombinationen, gerätebezogene Hintergrundbilder, Leselistenverwaltung, direkter WebRTC-Datenaustausch, Klappentexte und überarbeitete App-Updates.</p></article>';
+ return existing.replace('<p class="hint"><a href="https://github.com/lavender1510/BooksUp/blob/main/CHANGELOG.md"',entry+'<p class="hint"><a href="https://github.com/lavender1510/BooksUp/blob/main/CHANGELOG.md"');
+};
+const prevShell=window.nextShell;
+window.nextShell=function(html){
+ const original=prevShell.apply(this,arguments);
+ return original.replace('onclick="go(\'transfer\')"','onclick="nextChooseSettings(\'devices\')"');
+};
 const oldDetail=window.nextSettingsDetail;
 window.nextSettingsDetail=function(){
  if(nextSettingCategory!=='updates')return oldDetail.apply(this,arguments);
