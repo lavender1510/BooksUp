@@ -273,7 +273,7 @@ window.bu48Lookup=async function(id,opts={}){
       book.metadataCheckedAt=Date.now();
       book.metadataSources=[...new Set([...(book.metadataSources||[]),...candidates.map(x=>x.source)])];
       persist();
-      if(!opts.silent && view==='detail')render();
+      if(changes && view==='detail')render();
       if(!opts.silent)toast(changes?changes+' Buchangaben ergänzt. '+(to13(book.isbn)?'ISBN gefunden.':'ISBN-Ausgabe bitte prüfen.'):(errors.length&& !candidates.length?'Buchdatenquellen nicht erreichbar.':'Keine eindeutigen neuen Daten gefunden.'));
       return merged;
     }catch(e){if(!opts.silent)toast('Metadatensuche: '+String(e.message||e));return {candidates:[],suggestions:[],errors:[String(e.message||e)]};}
