@@ -183,6 +183,7 @@ const to13=v=>{
   return s+String((10-total%10)%10);
 };
 function scoreBook(c,b){
+  if(b.isbn && c.isbn && to13(b.isbn)===to13(c.isbn))return 120;
   if(!c.title||!b.title)return 0;
   const a=norm48(c.title),target=norm48(b.title);
   let score=a===target?65:(a.includes(target)||target.includes(a))&&Math.min(a.length,target.length)>=10?46:0;
