@@ -171,6 +171,17 @@ ipcMain.handle('booksup-metadata:search', async (event, request) => {
           open: results[2].status==='fulfilled' ? results[2].value.docs || [] : [],
           errors};
 });
+ipcMain.handle('booksup-metadata:dnb-title', async (event, rawTitle) => {
+  if (!mainWindow || event.sender !== mainWindow.webContents || !event.senderFrame?.url.startsWith(APP_ORIGIN + '/')) throw Error('Unauthorized lookup');
+  const title = String(rawTitle || '').replace(/[=*"()]/g,' ').trim().slice(0,140);
+  if (title.length < 3) return '';
+  const url = 'https://services.dnb.de/sru/dnb?version=1.1&operation=searchRetrieve&recordSchema=MARC21-xml&maximumRecords=8&query=' + encodeURIComponent('tit=' + title);
+  const response = await fetch(url, {signal:AbortSignal.timeout(11000),headers:{Accept:'application/xml'}});
+  if(!response.ok)throw Error('DNB HTTP '+response.status);
+  const data=await response.text();
+  if(data.length>350000)throw Error('DNB result too large');
+  return data;
+});
 ipcMain.handle('booksup-metadata:dnb', async (event, rawIsbn) => {
   if (!mainWindow || event.sender !== mainWindow.webContents || !event.senderFrame?.url.startsWith(APP_ORIGIN + '/')) throw Error('Unauthorized metadata lookup');
   const isbn = String(rawIsbn || '').replace(/[^0-9X]/gi, '').toUpperCase();
