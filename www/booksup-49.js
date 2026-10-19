@@ -61,7 +61,7 @@ window.bu44ShelfToolbar=function(){
  const actions='<div class="bu49-shelf-actions"><button class="chip '+(buMulti?'on':'')+'" onclick="buToggleMulti()">'+(buMulti?'✕ Auswahl beenden':'☑ Bücher auswählen')+'</button>'+
  (buMulti?'<span class="bu49-selected" id="bu49-selected-count">'+buSelected.size+' ausgewählt</span>'+
  '<button class="btn o" onclick="buBulkFolder()" '+(buSelected.size?'':'disabled')+'>In Ordner</button><button class="btn bu49-danger" onclick="buBulkDelete()" '+(buSelected.size?'':'disabled')+'>Ausgewählte löschen</button>':'')+'</div>';
- return html.replace('</div>',actions+'</div>');
+ return html+actions;
 };
 const oldSelect=window.buSelect;
 window.buSelect=function(id){oldSelect(id);const el=document.getElementById('bu49-selected-count');if(el)el.textContent=buSelected.size+' ausgewählt';
@@ -135,7 +135,7 @@ window.bu45GoodreadsCommit=function(){
   profile.readingLists??=[];profile.libraryBooks??=[];
   const isbn=(get(row,'ISBN13')||get(row,'ISBN')).replace(/[="]/g,'').replace(/[^0-9X]/gi,'');
   const normalized=buNorm(title)+'|'+buNorm(author);
-  const owns=[...ALL.book.books,...ALL.manga.books].find(x=>(isbn&&x.isbn===isbn)||(buNorm(x.title)+'|'+buNorm(x.author)===normalized));
+  const owns=(profile.books||[]).find(x=>(isbn&&x.isbn===isbn)||(buNorm(x.title)+'|'+buNorm(x.author)===normalized));
   let b=owns||[...profile.libraryBooks].find(x=>(isbn&&x.isbn===isbn)||(buNorm(x.title)+'|'+buNorm(x.author)===normalized));
   if(!b){
     const rate=Number(get(row,'My Rating'))||0,isRead=get(row,'Exclusive Shelf')==='read';
