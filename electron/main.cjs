@@ -80,7 +80,9 @@ function createWindow() {
     // Desktop-only UI extension; the Android web bundle stays unchanged.
     const wc = mainWindow.webContents;
     void wc.insertCSS(fsSync.readFileSync(path.join(__dirname, 'booksup-windows-47.css'), 'utf8')).catch(console.error);
-    void wc.executeJavaScript(fsSync.readFileSync(path.join(__dirname, 'booksup-windows-47.js'), 'utf8')).catch(console.error);
+    void wc.executeJavaScript(fsSync.readFileSync(path.join(__dirname, 'booksup-windows-47.js'), 'utf8')).then(() => {
+      return wc.insertCSS(fsSync.readFileSync(path.join(__dirname, 'booksup-windows-48.css'), 'utf8'));
+    }).then(() => wc.executeJavaScript(fsSync.readFileSync(path.join(__dirname, 'booksup-windows-48.js'), 'utf8'))).catch(console.error);
   });
   mainWindow.loadURL(APP_ORIGIN + '/index.html');
   if (process.env.BOOKSUP_DEVTOOLS === '1') mainWindow.webContents.openDevTools();
@@ -139,6 +141,36 @@ async function checkBooksUpUpdates(manual=false){
 ipcMain.handle('booksup-update:check',()=>checkBooksUpUpdates(true));
 
 // Restrict DNB metadata lookups to a known SRU endpoint and the active BooksUp window.
+// Fetch public catalog data from a fixed set of providers in Electron's main process.
+ipcMain.handle('booksup-metadata:search', async (event, request) => {
+  if (!mainWindow || event.sender !== mainWindow.webContents ||
+      !event.senderFrame?.url.startsWith(APP_ORIGIN + '/')) throw Error('Unauthorized metadata lookup');
+  const title = String(request?.title || '').trim().slice(0, 180);
+  const author = String(request?.author || '').trim().slice(0, 120);
+  const isbn = String(request?.isbn || '').replace(/[^0-9X]/gi, '').toUpperCase();
+  if (!title && !/^(?:[0-9]{9}[0-9X]|[0-9]{13})$/.test(isbn)) throw Error('Title or valid ISBN required');
+  const query = isbn ? 'isbn:' + isbn : 'intitle:' + title + (author ? ' inauthor:' + author : '');
+  const googleUrls = [
+    'https://www.googleapis.com/books/v1/volumes?q=' + encodeURIComponent(query) + '&maxResults=35&printType=books',
+    'https://www.googleapis.com/books/v1/volumes?q=' + encodeURIComponent(title + ' ' + author) + '&maxResults=20&printType=books'
+  ];
+  const openUrl = 'https://openlibrary.org/search.json?' +
+    (isbn ? 'isbn=' + encodeURIComponent(isbn) : 'title=' + encodeURIComponent(title) + (author ? '&author=' + encodeURIComponent(author) : '')) +
+    '&limit=20&lang=de&fields=key,title,author_name,isbn,first_publish_year,cover_i,subject,language,publisher,editions,editions.title,editions.language,editions.isbn_13,editions.isbn_10,editions.publisher,editions.publish_date';
+  const urls = [...googleUrls, openUrl];
+  async function fetchCatalog(url) {
+    const resp = await fetch(url, {signal: AbortSignal.timeout(11000), headers:{Accept:'application/json'}});
+    if (!resp.ok) throw Error('HTTP ' + resp.status);
+    const json = await resp.text();
+    if (json.length > 1600000) throw Error('Catalog response too large');
+    return JSON.parse(json);
+  }
+  const results = await Promise.allSettled(urls.map(fetchCatalog));
+  const errors = results.map((x,i)=>x.status==='rejected'?['Google Books','Google Books','Open Library'][i]+': '+String(x.reason?.message||x.reason):null).filter(Boolean);
+  return {google: results.slice(0,2).flatMap(x=>x.status==='fulfilled' ? x.value.items || [] : []),
+          open: results[2].status==='fulfilled' ? results[2].value.docs || [] : [],
+          errors};
+});
 ipcMain.handle('booksup-metadata:dnb', async (event, rawIsbn) => {
   if (!mainWindow || event.sender !== mainWindow.webContents || !event.senderFrame?.url.startsWith(APP_ORIGIN + '/')) throw Error('Unauthorized metadata lookup');
   const isbn = String(rawIsbn || '').replace(/[^0-9X]/gi, '').toUpperCase();
