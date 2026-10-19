@@ -1,0 +1,25 @@
+name: BooksUp project checks
+on:
+  pull_request:
+    paths:
+      - 'www/**'
+      - 'electron/**'
+      - 'tools/**'
+      - 'package.json'
+      - 'capacitor.config.json'
+      - '.github/workflows/project-checks.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  static-tests:
+    name: Syntax, assets and price regressions
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Run BooksUp static tests
+        run: npm run test:static
