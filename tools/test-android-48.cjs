@@ -13,7 +13,7 @@ assert.ok(css.includes('.bu48-list-tile'));
 assert.ok(css.includes('body.bu-android'));
 assert.match(init,/copyFileSync\(source,join\(publicDir,name\)\)/);
 assert.match(init,/APP_VERSION/);
-assert.match(androidFlow,/v5\.3\.0-android/);
+assert.match(androidFlow,/v5\.4\.0-android/);
 let nextId=10,saves=0,renders=0,requestLog=[];
 const a={id:'l-1',name:'My list',items:[{id:'a',bookId:1,title:'First'},{id:'b',bookId:2,title:'Second'}],autoRule:'manual'};
 const books=[{id:1,title:'First',author:'One',type:'physical'},{id:2,title:'Second',author:'Two',type:'physical'},{id:3,title:'Matilda',author:'Roald Dahl',type:'physical'}];
@@ -28,7 +28,7 @@ const win={
     throw Error('Unknown URL');
  }}}},
  nextSettingsDetail:()=>'',nextChooseSettings:()=>{},nextAfterRender:()=>{},bu43AfterRender:()=>{},bu43AppearanceView:()=>'<div class="bu43-ap-actions"></div>',
- nextApplyTheme:()=>{},home:()=>'<div class="banner"></div>',bu45ListDetails:()=>'',bu45ListsOverview:()=>'',bu45ProfileLists:()=>'',bu46ReadingHistory:()=>'',bu46BookInfo:()=>'',bu46ChooseList:()=>{},bu46AddToList:()=>{},
+ nextApplyTheme:()=>{},home:()=>'<div class="banner"></div>',bu45ListDetails:()=>'<div class="classic-details">Original 4.6 list details</div>',bu45ListsOverview:()=>'<div class="classic-lists">Original 4.6 list cards</div>',bu45ProfileLists:()=>'',bu46ReadingHistory:()=>'',bu46BookInfo:()=>'',bu46ChooseList:()=>{},bu46AddToList:()=>{},
  bu47EnrichOwnedBook:()=>{},bu46EnrichBook:()=>{},bu44WatchPrompt:()=>{},
  mountMode:async()=>{},showPg:async()=>{},drawPg:async()=>{},toggleFull:()=>{},leaveFull:()=>{},
  saveBook:()=>{},batchFiles:async()=>{},getSelection:()=>({toString:()=>''})
@@ -57,7 +57,9 @@ assert.equal(settings.some(s=>s[0]==='admin'),false);
 assert.equal(settings.some(s=>s[0]==='changelog'),true);
 assert.equal(settings.some(s=>s[0]==='discoverList'),true);
 assert.equal(typeof win.bu47ShowAnnotations,'function');
-assert.match(win.bu45ListsOverview(),/bu48-list-tile/);
+assert.match(win.bu45ListsOverview(),/classic-lists/);
+assert.match(win.bu45ListDetails(),/classic-details/);
+assert.match(win.home(),/banner/);
 win.bu48RemoveListEntry('l-1','a');
 assert.equal(a.items.length,1);
 assert.equal(a.items[0].id,'b');
