@@ -127,6 +127,10 @@ autoUpdater.on('update-downloaded',async info=>{
   });
   if(response===0){
      booksupUpdateStatus('Installation wird gestartet. BooksUp beendet sich und wird nach der Installation neu geöffnet.',100);
+     try{
+       // Persist success feedback before the NSIS updater closes the renderer.
+       await mainWindow.webContents.executeJavaScript('localStorage.setItem(\'booksup-update-pending\','+JSON.stringify(info.version)+')');
+     }catch(error){console.warn('Could not persist update completion marker:',error);}
      try{autoUpdater.quitAndInstall(false,true);}catch(error){booksupUpdateStatus('Installation fehlgeschlagen: '+String(error.message||error),null);dialog.showErrorBox('BooksUp Update',String(error.message||error));}
    }
 });
