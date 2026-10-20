@@ -53,6 +53,7 @@ jobs:
           node tools/test-51.cjs
           node tools/test-52.cjs
           node tools/test-53.cjs
+          node tools/test-54.cjs
       - name: Build signed production APK
         env:
           BOOKSUP_RELEASE_STORE_PASSWORD: ${{ secrets.BOOKSUP_ANDROID_RELEASE_STORE_PASSWORD }}
@@ -65,18 +66,20 @@ jobs:
       - name: Verify signed release and LAN policy
         shell: bash
         run: |
-          APK="release/BooksUp-5.3.0.apk"
+          APK="release/BooksUp-5.4.0.apk"
           test -s "$APK"
           "$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --verbose --print-certs "$APK"
-          "$ANDROID_HOME/build-tools/36.0.0/aapt" dump badging "$APK" | grep -q "versionName='5.3.0'"
+          "$ANDROID_HOME/build-tools/36.0.0/aapt" dump badging "$APK" | grep -q "versionName='5.4.0'"
           "$ANDROID_HOME/build-tools/36.0.0/aapt" dump xmltree "$APK" AndroidManifest.xml | grep -q 'usesCleartextTraffic'
-          unzip -p "$APK" assets/public/index.html | grep -q 'const APP_VERSION="5.3.0";'
-          for f in booksup-53.js booksup-53.css booksup-52.js; do unzip -l "$APK" | grep -q "assets/public/$f"; done
+          unzip -p "$APK" assets/public/index.html | grep -q 'const APP_VERSION="5.4.0";'
+          ! unzip -p "$APK" assets/public/index.html | grep -q 'href="booksup-android-48.css"'
+          ! unzip -p "$APK" assets/public/index.html | grep -q 'href="booksup-53.css"'
+          for f in booksup-53.js booksup-52.js booksup-54-features.css; do unzip -l "$APK" | grep -q "assets/public/$f"; done
       - name: Upload signed release artifact
         uses: actions/upload-artifact@v4
         with:
-          name: BooksUp-5.3.0-Android-Production
-          path: release/BooksUp-5.3.0.apk
+          name: BooksUp-5.4.0-Android-Production
+          path: release/BooksUp-5.4.0.apk
           if-no-files-found: error
           retention-days: 90
       - name: Publish stable Android release
@@ -85,20 +88,22 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         shell: bash
         run: |
-          TAG='v5.3.0-android'
+          TAG='v5.4.0-android'
           cat > release-notes.md <<'NOTES'
-          # BooksUp 5.3.0 – Android Production
+          # BooksUp 5.4.0 – Original 4.6 Mobile Look and New Features
           Signed release build (NOT debug). Existing debug-signed installations
           require a verified complete backup before migration. In-place upgrades
           require the same signing certificate.
+          - Restored original Android 4.6 profile, reading-list and visual styles.
+          - Retained 5.3 features: PDF zoom/annotations, PIN pairing, metadata, signed updates.
           - Fixed Android LAN manifest restriction from the supplied screenshot.
           - Persistent PDF zoom and repaired highlight selection.
           - Responsive mobile controls, independent scrolling and toolbar layout.
           - Update download progress and signing validation; improved UI translations.
           NOTES
           if gh release view "$TAG" >/dev/null 2>&1; then
-            gh release upload "$TAG" release/BooksUp-5.3.0.apk --clobber
-            gh release edit "$TAG" --title 'BooksUp 5.3.0 – Android Production' --notes-file release-notes.md --prerelease=false
+            gh release upload "$TAG" release/BooksUp-5.4.0.apk --clobber
+            gh release edit "$TAG" --title 'BooksUp 5.4.0 – Android Production' --notes-file release-notes.md --prerelease=false
           else
-            gh release create "$TAG" release/BooksUp-5.3.0.apk --title 'BooksUp 5.3.0 – Android Production' --notes-file release-notes.md --target "$GITHUB_SHA"
+            gh release create "$TAG" release/BooksUp-5.4.0.apk --title 'BooksUp 5.4.0 – Android Production' --notes-file release-notes.md --target "$GITHUB_SHA"
           fi
