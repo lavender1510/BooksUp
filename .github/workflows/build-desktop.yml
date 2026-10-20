@@ -43,11 +43,11 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          $tag='v5.1.0'
+          $tag='v5.2.0'
           $assets=@(Get-ChildItem release -File | Where-Object { $_.Name -like '*.exe' -or $_.Name -like '*.blockmap' -or $_.Name -eq 'latest.yml' } | Select-Object -ExpandProperty FullName)
           gh release view $tag 2>$null
           if ($LASTEXITCODE -ne 0) {
-            gh release create $tag --target $env:GITHUB_SHA --title 'BooksUp - Windows Test' --notes 'BooksUp 5.1.0 Windows desktop update (installer + portable EXE). Installer supports app-managed updates. Unsigned test application.' --prerelease
+            gh release create $tag --target $env:GITHUB_SHA --title 'BooksUp - Windows Test' --notes 'BooksUp 5.2.0 Windows desktop update (installer + portable EXE). Installer supports app-managed updates. Unsigned test application.' --prerelease
           }
           gh release upload $tag @assets --clobber
           if ($LASTEXITCODE -ne 0) { throw 'Could not upload Windows EXEs' }

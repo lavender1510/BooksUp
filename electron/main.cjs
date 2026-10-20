@@ -86,8 +86,8 @@ function createWindow() {
       return wc.insertCSS(fsSync.readFileSync(path.join(__dirname, 'booksup-windows-48.css'), 'utf8'));
     }).then(() => wc.executeJavaScript(fsSync.readFileSync(path.join(__dirname, 'booksup-windows-48.js'), 'utf8')))
       .then(async () => {
-        for (const name of ['booksup-50.css','booksup-51.css']) await wc.insertCSS(fsSync.readFileSync(path.join(__dirname, '..', 'www', name), 'utf8'));
-        for (const name of ['booksup-50.js', 'booksup-50-pair.js', 'booksup-50-services.js','booksup-51.js'])
+        for (const name of ['booksup-50.css','booksup-51.css','booksup-52.css']) await wc.insertCSS(fsSync.readFileSync(path.join(__dirname, '..', 'www', name), 'utf8'));
+        for (const name of ['booksup-50.js', 'booksup-50-pair.js', 'booksup-50-services.js','booksup-51.js','booksup-52.js'])
           await wc.executeJavaScript(fsSync.readFileSync(path.join(__dirname, '..', 'www', name), 'utf8'));
       }).catch(console.error);
   });
@@ -98,12 +98,16 @@ function createWindow() {
 
 /* Signed-in user data stays in Electron's existing booksup:// origin during upgrades. */
 let updateBusy=false;
+const booksupUpdateStatus=(message,percent)=>{if(mainWindow&&!mainWindow.isDestroyed())mainWindow.webContents.send('booksup-update:status',{message,percent:percent??null})};
+autoUpdater.on('download-progress',info=>booksupUpdateStatus('Lade Update herunter …',Math.round(info.percent||0)));
+autoUpdater.on('update-not-available',()=>booksupUpdateStatus('BooksUp ist aktuell.',null));
 autoUpdater.autoDownload=false;
 autoUpdater.autoInstallOnAppQuit=false;
 autoUpdater.allowPrerelease=true;
 autoUpdater.allowDowngrade=false;
 autoUpdater.setFeedURL({provider:'github',owner:'lavender1510',repo:'BooksUp',releaseType:'prerelease'});
 autoUpdater.on('update-available', async info=>{
+  booksupUpdateStatus('Update verfügbar: '+info.version,null);
   if(!mainWindow||mainWindow.isDestroyed())return;
   const {response}=await dialog.showMessageBox(mainWindow,{
     type:'info',buttons:['Herunterladen','Später'],defaultId:0,cancelId:1,
@@ -112,8 +116,9 @@ autoUpdater.on('update-available', async info=>{
   });
   if(response===0){try{await autoUpdater.downloadUpdate()}catch(e){dialog.showErrorBox('Update konnte nicht geladen werden',String(e.message||e))}}
 });
-autoUpdater.on('error',e=>{console.error('BooksUp updater:',e);});
+autoUpdater.on('error',e=>{console.error('BooksUp updater:',e);booksupUpdateStatus('Update fehlgeschlagen: '+String(e.message||e),null);});
 autoUpdater.on('update-downloaded',async info=>{
+  booksupUpdateStatus('Update '+info.version+' bereit zur Installation.',100);
   if(!mainWindow||mainWindow.isDestroyed())return;
   const {response}=await dialog.showMessageBox(mainWindow,{
     type:'info',buttons:['Jetzt installieren','Später'],defaultId:0,cancelId:1,
@@ -154,15 +159,16 @@ ipcMain.handle('booksup-metadata:search', async (event, request) => {
       !event.senderFrame?.url.startsWith(APP_ORIGIN + '/')) throw Error('Unauthorized metadata lookup');
   const title = String(request?.title || '').trim().slice(0, 180);
   const author = String(request?.author || '').trim().slice(0, 120);
+  const topic=String(request?.topic||'').trim().slice(0,60).replace(/[^a-zA-Z0-9 -]/g,'');
   const isbn = String(request?.isbn || '').replace(/[^0-9X]/gi, '').toUpperCase();
-  if (!title && !/^(?:[0-9]{9}[0-9X]|[0-9]{13})$/.test(isbn)) throw Error('Title or valid ISBN required');
-  const query = isbn ? 'isbn:' + isbn : 'intitle:' + title + (author ? ' inauthor:' + author : '');
+  if (!title && !topic && !/^(?:[0-9]{9}[0-9X]|[0-9]{13})$/.test(isbn)) throw Error('Title or valid ISBN required');
+  const query = topic ? 'subject:' + topic : isbn ? 'isbn:' + isbn : 'intitle:' + title + (author ? ' inauthor:' + author : '');
   const googleUrls = [
     'https://www.googleapis.com/books/v1/volumes?q=' + encodeURIComponent(query) + '&maxResults=35&printType=books',
     'https://www.googleapis.com/books/v1/volumes?q=' + encodeURIComponent(title + ' ' + author) + '&maxResults=20&printType=books'
   ];
   const openUrl = 'https://openlibrary.org/search.json?' +
-    (isbn ? 'isbn=' + encodeURIComponent(isbn) : 'title=' + encodeURIComponent(title) + (author ? '&author=' + encodeURIComponent(author) : '')) +
+    (topic ? 'q=' + encodeURIComponent('subject:' + topic) : isbn ? 'isbn=' + encodeURIComponent(isbn) : 'q=' + encodeURIComponent(title + (author ? ' ' + author : ''))) +
     '&limit=20&lang=de&fields=key,title,author_name,isbn,first_publish_year,cover_i,subject,language,publisher,editions,editions.title,editions.language,editions.isbn_13,editions.isbn_10,editions.publisher,editions.publish_date';
   const urls = [...googleUrls, openUrl];
   async function fetchCatalog(url) {

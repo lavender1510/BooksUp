@@ -1,0 +1,47 @@
+/* BooksUp 5.2: adaptive sizing and accessible custom wallpaper contrast. */
+#rdscroll.bu52-pinch-preview{transform:scale(var(--bu52-preview-scale,1));transform-origin:var(--bu52-origin-x,50%) var(--bu52-origin-y,50%);will-change:transform}
+#rdscroll{touch-action:pan-x pan-y;overscroll-behavior:contain}
+#rdscroll.bu52-pinch-preview canvas,#rdscroll.bu52-pinch-preview .pgw{image-rendering:auto}
+#rdwrap{position:relative}
+.bu52-gesture-zoom{pointer-events:none;position:absolute;right:9px;bottom:65px;z-index:20;background:color-mix(in srgb,var(--card) 92%,transparent);color:var(--ink);border-radius:10px;padding:5px 9px;font-size:13px;font-weight:700;opacity:.7}
+.bu52-android .bu52-gesture-zoom{bottom:90px}
+.bu52-android{--bu52-content-width:100%}
+.bu52-android .next-layout{display:flex;flex-direction:column;width:100%;max-width:100%;min-height:100dvh}
+.bu52-android .next-content{width:100%;max-width:100%;flex:1 1 auto;min-width:0;padding-bottom:calc(82px + env(safe-area-inset-bottom,0px))}
+.bu52-android :is(.next-content,.next-settings-pane,.next-settings-hub,.next-section,.next-home-top,.next-home-top>div,.next-hero,.next-hero-copy,.bu45-pagehead,.bu45-pagehead>div,.bu48-profile-order,.bu48-profile-section,.bu48-profile-lists,.bu48-list-main,.bu48-list-text,.bu50-appearance,.bu50-font-list,.bu46-discover-search,.bu46-search-form,.bu46-result-grid,.bu51-lan-box,.bu51-lan-pair,.card,.tile){min-width:0!important;max-width:100%!important;box-sizing:border-box}
+.bu52-android :is(.next-content h1,.next-content h2,.next-content h3,.next-content p,.next-content small,.next-content b,.next-content button,.next-content label){overflow-wrap:anywhere}
+.bu52-android .next-content h1{font-size:clamp(23px,6.8vw,36px)!important;line-height:1.12}
+.bu52-android .next-content h2{font-size:clamp(18px,5.2vw,27px)!important;line-height:1.2}
+.bu52-android .next-content :is(button,input,select,textarea){font-size:clamp(13px,3.75vw,17px);min-height:36px}
+.bu52-android .next-content .hint,.bu52-android .next-content small{font-size:clamp(11px,3vw,14px);line-height:1.45}
+.bu52-android .next-content .btn,.bu52-android .next-content .chip{min-height:38px;max-width:100%;white-space:normal;line-height:1.25}
+.bu52-android .next-content :is(.row,.next-section header,.bu45-pagehead,.bu-news-header,.next-settings-title,.bu50-combo){flex-wrap:wrap;min-width:0}
+.bu52-android .next-content .grid{grid-template-columns:repeat(auto-fit,minmax(min(150px,100%),1fr));gap:9px}
+.bu52-android .next-content .kpi{grid-template-columns:repeat(auto-fit,minmax(min(120px,100%),1fr));gap:9px}
+.bu52-android .next-content .tile{min-height:70px}
+.bu52-android .next-content .bu46-result-grid{grid-template-columns:repeat(auto-fill,minmax(min(145px,100%),1fr))}
+.bu52-android .next-content .bu45-cover,.bu52-android .next-content .next-cover{max-width:100%}
+.bu52-android .next-content :is(.bu48-list-stack,.bu45-library,.bu50-manage,.bu46-reading-history,.bu48-profile-lists){width:100%;overflow-x:clip}
+.bu52-android .next-content :is(.bu48-profile-section>.card,.bu48-profile-section>.pad){margin-left:10px!important;margin-right:10px!important}
+.bu52-android .next-content .next-bottom-nav{padding-bottom:env(safe-area-inset-bottom,0px)}
+.bu52-android .bu51-lan-box input{width:100%}
+.bu52-android .bu49-article{max-height:calc(100dvh - 45px)}
+.bu52-android .modal>div{max-height:calc(100dvh - 36px);overflow-y:auto}
+@media(max-width:380px){
+ .bu52-android .next-content .grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .bu52-android .next-content .kpi{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .bu52-android .next-content .bu48-profile-section>.grid .tile{min-height:68px}
+ .bu52-android .bu48-list-covers{display:none}
+ .bu52-android .bu46-discover-inline{flex-wrap:wrap}
+ .bu52-android .bu46-discover-inline input{flex:1 1 100%;width:100%}
+}
+/* A mixed-brightness photo gets a substantial, theme-aware scrim. Content cards
+   remain opaque enough to retain text contrast over any image. */
+.bu50-has-background:not(.bu50-reader-active) body:not(.bu50-reader-active)::before{opacity:clamp(.64,var(--bu50-bg-tint,.72),.91)!important}
+.bu50-has-background:not(.bu50-reader-active) :is(.next-settings-hub,.next-section,.next-home-top,.bu50-pair,.bu50-manage,.bu49-news){text-shadow:0 1px 4px #0001}
+.bu50-has-background:not(.bu50-reader-active) :is(.card,.tile,.next-setting-row,.bu48-list-tile,.bu50-combo,.bu51-lan-box,.bu51-lan-pair,.next-book-card){background:color-mix(in srgb,var(--card) 95%,transparent)!important;color:var(--ink)}
+.bu50-has-background:not(.bu50-reader-active) :is(.next-home-top,.next-section header,.next-settings-title){background:color-mix(in srgb,var(--card) 74%,transparent);color:var(--ink);border-radius:12px;padding:8px}
+.bu50-has-background[data-bu52-wallpaper="dark"]{--bu52-wall-label:#fff}
+.bu50-has-background[data-bu52-wallpaper="light"]{--bu52-wall-label:#17202b}
+.bu50-has-background :is(.next-content,.next-settings-hub)>:not(.card){color:var(--ink)}
+.bu50-reader-active .bu52-gesture-zoom{color:var(--ink)}

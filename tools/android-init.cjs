@@ -65,7 +65,7 @@ const native=join(ROOT,'mobile','android-native');
 const javaDir=join(android,'app','src','main','java','dev','lyvt','booksup');
 const xmlDir=join(android,'app','src','main','res','xml');
 mkdirSync(javaDir,{recursive:true});mkdirSync(xmlDir,{recursive:true});
-for(const name of ['MainActivity.java','BooksUpUpdaterPlugin.java'])
+for(const name of ['MainActivity.java','BooksUpUpdaterPlugin.java','BooksUpNetworkPlugin.java'])
  copyFileSync(join(native,name),join(javaDir,name));
 copyFileSync(join(native,'booksup_paths.xml'),join(xmlDir,'booksup_paths.xml'));
 const manifestPath=join(android,'app','src','main','AndroidManifest.xml');
@@ -104,7 +104,7 @@ if(!androidHtml.includes('</head>')||!androidHtml.includes('</body>'))throw Erro
 if(!androidHtml.includes(cssTag))androidHtml=androidHtml.replace('</head>',cssTag+'</head>');
 if(!androidHtml.includes(jsTag))androidHtml=androidHtml.replace('</body>',jsTag+'</body>');
 // Shared 5.0 scripts are loaded after the Android 4.8 overrides, keeping both platforms aligned.
-for(const name of ['booksup-50.css','booksup-50.js','booksup-50-pair.js','booksup-50-services.js','booksup-51.css','booksup-51.js']){
+for(const name of ['booksup-50.css','booksup-50.js','booksup-50-pair.js','booksup-50-services.js','booksup-51.css','booksup-51.js','booksup-52.css','booksup-52.js']){
  const src=join(ROOT,'www',name);if(!existsSync(src))throw Error('Missing 5.0 source: '+name);
  copyFileSync(src,join(publicDir,name));
  if(name.endsWith('.css')){

@@ -28,6 +28,7 @@ jobs:
           node tools/test-49.cjs
           node tools/test-50.cjs
           node tools/test-51.cjs
+          node tools/test-52.cjs
           node tools/test-50.cjs
           node tools/test-windows-47.cjs
           node tools/test-windows-48.cjs

@@ -1,3 +1,17 @@
+## [5.2.0] – 2026-10-20 (Android & Windows)
+
+- Reader: Two-finger touch pinch and Ctrl/Meta+wheel trackpad gesture; delayed PDF rendering avoids work on every movement.
+- Updates: In-app Windows download progress, Android download progress and native package/version/signature checks before invoking Android's installer.
+- Native Android HTTPS catalog bridge searches Google Books and Open Library without WebView restrictions, with extra confidence-based metadata enrichment. Windows catalog uses broader Open Library queries.
+- More varied recommendations using actual online subject searches and filtering of owned, duplicate and recently seen titles. Provider outages remain possible.
+- Device connection: Native Android HTTP LAN signaling joins the Windows-hosted PIN exchange. Both devices still need the same reachable local Wi-Fi/Hotspot, matching security code, and firewall access.
+- Android responsive layout: fluid profile cards, statistics, display areas, controls and safe-area spacing.
+- UI language choice reapplied after renders and async updates, excluding book reader content; remaining legacy strings can still require translations.
+- Image wallpapers: brightness sampling with stronger translucent card and theme color overlays for readability.
+- New automated regressions and platform build checks.
+
+IMPORTANT: Existing Android builds were signed with transient debug keys. Android will refuse updating an installation signed by a different key; verify a full library-and-book-files backup before migration. The updater deliberately refuses unsafe signature mismatches.
+
 ## [5.1.0] – 2026-10-19 (Android & Windows)
 
 - Corrected mobile profile and settings layout on narrow Android screens, including grid cards, cover previews, modal widths and inputs.

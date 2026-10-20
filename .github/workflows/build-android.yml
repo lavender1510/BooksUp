@@ -64,6 +64,7 @@ jobs:
           node tools/test-49.cjs
           node tools/test-50.cjs
           node tools/test-51.cjs
+          node tools/test-52.cjs
 
       - name: Set persistent debug signing key (optional)
         env:
@@ -89,13 +90,13 @@ jobs:
           unzip -l release/BooksUp-debug.apk | grep 'assets/public/booksup-android-48.js'
           unzip -l release/BooksUp-debug.apk | grep 'assets/public/booksup-android-48.css'
           unzip -p release/BooksUp-debug.apk assets/public/index.html > "$RUNNER_TEMP/booksup-android-index.html"
-          grep -q 'const APP_VERSION="5.1.0";' "$RUNNER_TEMP/booksup-android-index.html"
+          grep -q 'const APP_VERSION="5.2.0";' "$RUNNER_TEMP/booksup-android-index.html"
           grep -q 'booksup-android-48.js' "$RUNNER_TEMP/booksup-android-index.html"
           grep -q 'booksup-android-48.css' "$RUNNER_TEMP/booksup-android-index.html"
           grep -q 'booksup-49.js' "$RUNNER_TEMP/booksup-android-index.html"
           grep -q 'booksup-49.css' "$RUNNER_TEMP/booksup-android-index.html"
-          for f in booksup-50.js booksup-50-pair.js booksup-50-services.js booksup-50.css booksup-51.js booksup-51.css; do unzip -l release/BooksUp-debug.apk | grep -q "assets/public/$f"; done
-          "$ANDROID_HOME/build-tools/36.0.0/aapt" dump badging release/BooksUp-debug.apk | grep "versionName='5.1.0'"
+          for f in booksup-50.js booksup-50-pair.js booksup-50-services.js booksup-50.css booksup-51.js booksup-51.css booksup-52.js booksup-52.css; do unzip -l release/BooksUp-debug.apk | grep -q "assets/public/$f"; done
+          "$ANDROID_HOME/build-tools/36.0.0/aapt" dump badging release/BooksUp-debug.apk | grep "versionName='5.2.0'"
 
       - name: Upload downloadable APK artifact
         uses: actions/upload-artifact@v4
@@ -111,13 +112,18 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         shell: bash
         run: |
-          TAG="v5.1.0-android.1"
+          TAG="v5.2.0-android.1"
           cat > release-notes.md <<'NOTES'
-          # BooksUp 5.1.0 – Android Layout, Discovery, Presets and Direct PIN Pairing
+          # BooksUp 5.2.0 – Reader Gesture, Metadata, Device Connection and Accessibility
 
-          **BooksUp-debug.apk** is the Android 5.1.0 test build (versionCode 50100).
+          **BooksUp-debug.apk** is the Android 5.2.0 test build (versionCode 50200).
           It is a debug APK, NOT a production-signed Play Store release.
 
+          - Native Android HTTP requests for book metadata and LAN connections (WebView CORS bypass).
+          - PDF pinch zoom and Windows trackpad zoom, with low-jank gesture preview.
+          - Better language application outside the reader, adaptive Android sizing and wallpaper readability.
+          - Fresh catalog-based book recommendations and genre discovery.
+          - APK signature compatibility checked before opening Android's installer, with download progress.
           - Further small-screen Android profile, grid, book list and settings fixes.
           - Working font search and reliably saved appearance combinations, plus animated GIF wallpapers.
           - Discover search rebuilt with Google Books / Open Library fallbacks and explicit errors.
@@ -147,7 +153,7 @@ jobs:
           NOTES
           if gh release view "$TAG" >/dev/null 2>&1; then
             gh release upload "$TAG" release/BooksUp-debug.apk --clobber
-            gh release edit "$TAG" --title 'BooksUp 5.1.0 – Android Update' --notes-file release-notes.md --prerelease
+            gh release edit "$TAG" --title 'BooksUp 5.2.0 – Android Update' --notes-file release-notes.md --prerelease
           else
-            gh release create "$TAG" release/BooksUp-debug.apk --title 'BooksUp 5.1.0 – Android Update' --notes-file release-notes.md --prerelease --target "$GITHUB_SHA"
+            gh release create "$TAG" release/BooksUp-debug.apk --title 'BooksUp 5.2.0 – Android Update' --notes-file release-notes.md --prerelease --target "$GITHUB_SHA"
           fi
