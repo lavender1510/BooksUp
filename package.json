@@ -1,8 +1,8 @@
 {
   "name": "booksup",
-  "version": "5.2.0",
+  "version": "5.3.0",
   "private": true,
-  "description": "BooksUp 5.1 – responsive Android profiles, discover, metadata, presets, GIFs and local PIN pairing",
+  "description": "BooksUp 5.3 – production releases, persistent zoom, reader annotations, mobile responsive UI",
   "productName": "BooksUp",
   "main": "electron/main.cjs",
   "type": "commonjs",
@@ -16,6 +16,7 @@
     "android:sync": "npx cap sync android",
     "android:open": "npx cap open android",
     "android:apk": "node tools/build-apk.cjs",
+    "android:release": "node tools/build-android-release.cjs",
     "test:static": "node tools/check-project.cjs"
   },
   "dependencies": {
@@ -79,7 +80,7 @@
         "provider": "github",
         "owner": "lavender1510",
         "repo": "BooksUp",
-        "releaseType": "prerelease"
+        "releaseType": "release"
       }
     ]
   },
