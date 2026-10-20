@@ -1,3 +1,15 @@
+## [5.4.0] – 2026-10-20 (Layout Restoration + New Features)
+
+**Design baseline:** Windows visually retains BooksUp 5.2.0. Android returns to the original BooksUp 4.6.0 profile, reading-list screens, typography and layout. The application version and feature set remain current.
+
+- Removed the broad global 5.3 layout stylesheet from Windows loading. Feature-specific controls still receive minimal styling; current 5.3 JavaScript functions remain active.
+- Android renders the original 4.6 profile, reading history and list views again instead of the restructured 4.8 screens. New list deletion safety and online metadata behavior remain.
+- On Android, stopped injecting the oversized 4.8 mobile stylesheet and later 5.1–5.3 design overrides; added a narrowly scoped stylesheet for new-only features (LAN pairing, update progress, reader zoom and PDF marks).
+- Retained current 5.3 reader zoom persistence, PDF highlights, online lookup, device pairing and production-signed APK updates on both platforms.
+- Guardrail tests prevent accidental future loading of unwanted global design overrides.
+
+**Compatibility:** Same data storage, Android package ID and signing key as 5.3.0. No data downgrade, uninstall or reset needed for users of the signed 5.3 release. Earlier temporary debug-signed installs still cannot be updated across Android signing certificates. The Windows executable remains Authenticode unsigned until a publisher certificate is configured.
+
 ## [5.3.0] – 2026-10-20 (Android & Windows)
 
 ### Stability and release engineering

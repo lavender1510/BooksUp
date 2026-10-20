@@ -24,6 +24,7 @@ jobs:
           node-version: '22'
       - run: npm run test:static
       - run: node tools/test-android-48.cjs
+      - run: node tools/test-54.cjs
       - run: node --check mobile/booksup-android-48.js
       - run: node --check tools/android-init.cjs
 
@@ -59,12 +60,13 @@ jobs:
       - name: Verify generated manifest permits validated private LAN signaling
         shell: bash
         run: |
-          APK='release/BooksUp-5.3.0.apk'
+          APK='release/BooksUp-5.4.0.apk'
           test -s "$APK"
           "$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --verbose "$APK"
           "$ANDROID_HOME/build-tools/36.0.0/aapt" dump xmltree "$APK" AndroidManifest.xml > "$RUNNER_TEMP/manifest.txt"
           grep 'usesCleartextTraffic' "$RUNNER_TEMP/manifest.txt"
           grep -q 'usesCleartextTraffic.*0xffffffff' "$RUNNER_TEMP/manifest.txt"
-          "$ANDROID_HOME/build-tools/36.0.0/aapt" dump badging "$APK" | grep -q "versionName='5.3.0'"
+          "$ANDROID_HOME/build-tools/36.0.0/aapt" dump badging "$APK" | grep -q "versionName='5.4.0'"
           unzip -l "$APK" | grep -q 'assets/public/booksup-53.js'
+          unzip -l "$APK" | grep -q 'assets/public/booksup-54-features.css'
           echo 'Compiled Android native modules and verified local LAN manifest policy.'

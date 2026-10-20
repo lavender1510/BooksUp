@@ -127,10 +127,14 @@ androidHtml=androidHtml.replace(versionPattern,'const APP_VERSION='+JSON.stringi
 const cssTag='<link rel="stylesheet" href="booksup-android-48.css">';
 const jsTag='<script src="booksup-android-48.js"></script>';
 if(!androidHtml.includes('</head>')||!androidHtml.includes('</body>'))throw Error('Android HTML structure missing');
-if(!androidHtml.includes(cssTag))androidHtml=androidHtml.replace('</head>',cssTag+'</head>');
+// 4.8 stylesheet replaced the 4.6 typography, list cards and profile layout.
+ // Keep the runtime functionality, but do not apply these newer presentation rules.
+ // The original 4.6 baseline CSS is already in www/index.html.
+ // Feature-only UI styling is supplied by booksup-54-features.css instead.
+ // Skip the mobile 4.8 presentation stylesheet; retain its JS functionality.
 if(!androidHtml.includes(jsTag))androidHtml=androidHtml.replace('</body>',jsTag+'</body>');
 // Shared 5.0 scripts are loaded after the Android 4.8 overrides, keeping both platforms aligned.
-for(const name of ['booksup-50.css','booksup-50.js','booksup-50-pair.js','booksup-50-services.js','booksup-51.css','booksup-51.js','booksup-52.css','booksup-52.js','booksup-53.css','booksup-53.js']){
+for(const name of ['booksup-50.css','booksup-50.js','booksup-50-pair.js','booksup-50-services.js','booksup-51.js','booksup-52.js','booksup-53.js','booksup-54-features.css']){
  const src=join(ROOT,'www',name);if(!existsSync(src))throw Error('Missing 5.0 source: '+name);
  copyFileSync(src,join(publicDir,name));
  if(name.endsWith('.css')){

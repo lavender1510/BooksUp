@@ -30,6 +30,7 @@ jobs:
           node tools/test-51.cjs
           node tools/test-52.cjs
           node tools/test-53.cjs
+          node tools/test-54.cjs
           node tools/test-50.cjs
           node tools/test-windows-47.cjs
           node tools/test-windows-48.cjs
@@ -45,4 +46,5 @@ jobs:
           node --check www/booksup-50-pair.js
           node --check www/booksup-50-services.js
           node --check www/booksup-53.js
+          node --check tools/test-54.cjs
           node --check tools/build-android-release.cjs
