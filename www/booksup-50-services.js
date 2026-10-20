@@ -138,8 +138,8 @@ window.buTranslate=function(text,lang){
  return previousTranslate(text,lang);
 };
 function updateSection(){
- const current=m?'Android':'Windows';
- const hasNative=!!window.Capacitor?.Plugins?.BooksUpUpdater;
+ const current=m()?'Android':'Windows';
+ const hasNative=!!(window.Capacitor?.Plugins?.BooksUpUpdater||window.Capacitor?.nativePromise);
  return '<section class="bu50-update"><h3>App-Updates · '+current+'</h3>'+
  '<p>Installierte Version: <strong>BooksUp '+APP_VERSION+'</strong></p>'+
  (m?'<p class="hint">Eine neue APK kann in der App heruntergeladen und dem Android-System zur Installation übergeben werden. Android muss die Installation bestätigen und prüft die App-Signatur. Fehlende passende Signaturen können nicht umgangen werden.</p>':
