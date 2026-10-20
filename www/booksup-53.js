@@ -335,7 +335,7 @@ window.nextSettingsDetail=function(){
  const progress='<div id="bu53-update-progress" class="bu53-update-progress" aria-live="polite" hidden>'+
  '<progress max="100" value="0" aria-label="Update-Download"></progress>'+
  '<div class="bu53-update-progress-label">Update wird vorbereitet …</div></div>';
- return html.replace('</div></div>',progress+'</div></div>');
+ return /id="bu50-update-status"/.test(html)?html.replace(/(<p[^>]*id="bu50-update-status"[^>]*>[\s\S]*?<\/p>)/,'$1'+progress):html.replace(/<\/div>\s*$/,progress+'</div>');
 };
 try{
  window.booksupUpdateEvents?.subscribe?.(progressUpdate);
