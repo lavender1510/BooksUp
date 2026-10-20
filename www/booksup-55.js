@@ -180,8 +180,12 @@ window.bu45ProfileLists=function(){return view==='profile'?'':previousProfileLis
 window.bu46ReadingHistory=function(){return view==='profile'?'':previousHistory.apply(this,arguments);};
 
 // Bottom navigation only: keep the entire desktop sidebar and profile links.
-const navDefault=['home','library','shelf','profile'];
-function visibleNav(){const candidate=Array.isArray(ALL.bu55BottomNav)?ALL.bu55BottomNav:navDefault;return ['home','library','shelf','news','profile','settings'].filter(x=>candidate.includes(x));}
+const navDefault=['home','library','shelf','news','profile','settings'];
+function visibleNav(){
+ const candidate=Array.isArray(ALL.bu55BottomNav)?ALL.bu55BottomNav:navDefault;
+ const visible=navDefault.filter(x=>candidate.includes(x));
+ return visible.length?visible:navDefault;
+}
 window.bu55SetNav=function(id,enabled){
  let arr=visibleNav();
  arr=enabled?[...new Set([...arr,id])]:arr.filter(x=>x!==id);

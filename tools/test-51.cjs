@@ -8,7 +8,7 @@ assert.match(css,/bu51-mobile/);
 assert.match(read('electron/main.cjs'),/booksup-lan\.cjs/);
 assert.match(read('electron/preload.cjs'),/booksupLan/);
 assert.match(read('tools/android-init.cjs'),/usesCleartextTraffic/);
-assert.equal(JSON.parse(read('package.json')).version,'5.5.0');
+assert.equal(JSON.parse(read('package.json')).version,'5.5.1');
 let renders=0,saves=0,joined=0,discover=[],lookupCalls=0;
 const fontRows=[{dataset:{font:'inter'},hidden:false},{dataset:{font:'roboto'},hidden:false},{dataset:{font:'comic sans'},hidden:false}];
 const elements={

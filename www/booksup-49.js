@@ -45,12 +45,13 @@ function newsCard(item,i,isSaved){
  '<button class="chip" onclick="bu49OpenOriginal('+safeKey+')">Original ↗</button></div></article>';
 }
 window.buNewsView = function(){
- const all=buNewsArticles;
- const saved=Object.values(savedNews()).sort((a,b)=>Number(b.savedAt||0)-Number(a.savedAt||0));
+ const all=Array.isArray(buNewsArticles)?buNewsArticles:[];
+ const saved=Object.values(savedNews()).filter(a=>a&&typeof a==='object').sort((a,b)=>Number(b.savedAt||0)-Number(a.savedAt||0));
  const onlySaved=newsTab==='saved';
  const entries=onlySaved?saved:all;
+ const status=buNewsLastError?'<div class="card" role="status"><p>'+q('News konnten nicht geladen werden: '+buNewsLastError)+'</p><button class="chip" onclick="buLoadNews(true)">Wiederholen</button></div>':(!entries.length&&buNewsLoading?'<p class="hint" role="status">News werden geladen …</p>':'');
  return '<section class="bu-news bu49-news"><header class="bu-news-header"><div><span class="next-overline">BOOKSUP / NEWS</span><h1>News</h1><p class="hint">Lies Zusammenfassungen direkt in BooksUp oder öffne die Originalquelle im Browser.</p></div><button class="chip" onclick="buLoadNews(true)">↻ Aktualisieren</button></header>'+
- '<div class="bu49-news-tabs" role="group" aria-label="News filtern"><button class="chip '+(!onlySaved?'on':'')+'" onclick="bu49NewsTab(\'all\')">Alle Artikel ('+all.length+')</button><button class="chip '+(onlySaved?'on':'')+'" onclick="bu49NewsTab(\'saved\')">♥ Favoriten ('+saved.length+')</button></div>'+
+ '<div class="bu49-news-tabs" role="group" aria-label="News filtern"><button class="chip '+(!onlySaved?'on':'')+'" onclick="bu49NewsTab(\'all\')">Alle Artikel ('+all.length+')</button><button class="chip '+(onlySaved?'on':'')+'" onclick="bu49NewsTab(\'saved\')">♥ Favoriten ('+saved.length+')</button></div>'+status+
  (entries.length?'<div class="bu-news-grid">'+entries.map((a,i)=>newsCard(a,i,onlySaved)).join('')+'</div>':
  '<div class="card"><p>'+(onlySaved?'Noch keine News favorisiert.':'Keine News geladen. Verbinde dich mit dem Internet und aktualisiere die Meldungen.')+'</p></div>')+'</section>';
 };

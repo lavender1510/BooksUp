@@ -1,7 +1,7 @@
 /* BooksUp 4.2 – additive UX, real news feed and UI localization.
    Keep all pre-existing app functions and data intact. */
 const BU_NEWS_URL='https://raw.githubusercontent.com/lavender1510/BooksUp/main/www/news.json';
-let buNewsArticles=[],buNewsUpdated=0,buNewsRequest=0,buNewsLoading=false;
+let buNewsArticles=[],buNewsUpdated=0,buNewsRequest=0,buNewsLoading=false,buNewsLastError='';
 let buLastUiLang='';
 const buLangFallback=['de','en','fr','es','it'];
 const BU_WORDS={
@@ -140,20 +140,28 @@ function buNewsView(){
 }
 async function buLoadNews(force=false){
  if(view!=='news'||buNewsLoading)return;
- if(!force&&buNewsArticles.length&&Date.now()-buNewsRequest<6*3600000)return;
- buNewsLoading=true;buNewsRequest=Date.now();
+ const now=Date.now();
+ if(!force&&buNewsLastError&&now-buNewsRequest<30000)return;
+ if(!force&&buNewsArticles.length&&now-buNewsRequest<6*3600000)return;
+ buNewsLoading=true;buNewsRequest=now;
  try{
+  if(navigator.onLine===false)throw Error('Keine Internetverbindung.');
   const ctrl=new AbortController(),timeout=setTimeout(()=>ctrl.abort(),12000);
-  let response;try{response=await fetch(BU_NEWS_URL+'?t='+Math.floor(Date.now()/3600000),{cache:'no-store',signal:ctrl.signal})}finally{clearTimeout(timeout)}
-  if(!response.ok)throw Error('HTTP '+response.status);
+  let response;try{response=await fetch(BU_NEWS_URL+'?t='+Math.floor(Date.now()/3600000),{cache:'no-store',signal:ctrl.signal});}finally{clearTimeout(timeout);}
+  if(!response.ok)throw Error('News-Server: HTTP '+response.status);
   const data=await response.json();
-  if(!Array.isArray(data.articles))throw Error('Ungültiges News-Format');
-  buNewsArticles=data.articles.filter(a=>a.title&&/^https:\/\//i.test(a.url)).slice(0,28);if(typeof bu46ApplyEditorial==='function')bu46ApplyEditorial();
-  buNewsUpdated=data.updatedAt||Date.now();
-  try{localStorage.setItem('booksup.news.cache',JSON.stringify({articles:buNewsArticles,updatedAt:buNewsUpdated}))}catch{}
+  if(!Array.isArray(data.articles))throw Error('News-Server liefert ein ungültiges Datenformat.');
+  const articles=data.articles.filter(a=>a&&typeof a.title==='string'&&/^https:\/\//i.test(a.url||'')).slice(0,28);
+  if(!articles.length)throw Error('Die News-Antwort enthält keine gültigen Artikel.');
+  buNewsArticles=articles;buNewsUpdated=data.updatedAt||Date.now();buNewsLastError='';
+  try{if(typeof bu46ApplyEditorial==='function')bu46ApplyEditorial();}catch(error){console.warn('Optional editorial enrichment failed',error);}
+  try{localStorage.setItem('booksup.news.cache',JSON.stringify({articles:buNewsArticles,updatedAt:buNewsUpdated}));}catch(error){console.warn('News cache unavailable',error);}
   if(view==='news')render();
- }catch(e){if(force)toast('News konnten nicht aktualisiert werden. '+String(e.message||e))}
- finally{buNewsLoading=false}
+ }catch(error){
+  buNewsLastError=error?.name==='AbortError'?'Zeitüberschreitung beim Laden der News.':String(error?.message||error);
+  if(view==='news')render();
+  if(force)toast('News konnten nicht geladen werden: '+buNewsLastError);
+ }finally{buNewsLoading=false;}
 }
 try{const n=JSON.parse(localStorage.getItem('booksup.news.cache')||'null');if(n&&Array.isArray(n.articles)){buNewsArticles=n.articles;buNewsUpdated=n.updatedAt||0}}catch{}
 function buPolishAfterRender(){

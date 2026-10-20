@@ -1,3 +1,9 @@
+## 5.5.1 – Android Settings/News Regression Fix (20.10.2026)
+- Restored News and Settings to the default bottom navigation; individual choices remain supported.
+- News loading now handles offline/API failures with visible retry status and keeps existing cached articles.
+- Disabled repeated failed News requests after each render without breaking manual refresh.
+- Retains the Android 4.6 layout, book data, and all previously implemented features.
+
 ## [5.5.0] – 2026-10-20 (Reading, Collections and Edition Fixes)
 
 **Design preserved:** Windows retains its 5.2.0 layout; Android retains its original 4.6.0 layout. No replacement shell or navigation architecture.
