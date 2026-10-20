@@ -1,6 +1,11 @@
 package dev.lyvt.booksup;
 
 import android.content.Intent;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.Signature;
+import java.util.Arrays;
+
 import android.net.Uri;
 import android.os.Build;
 import android.provider.Settings;
@@ -53,6 +58,7 @@ public class BooksUpUpdaterPlugin extends Plugin {
             int count;
             while ((count = input.read(block)) != -1) {
               size += count;
+              if (size % (512*1024) < block.length) {JSObject progress=new JSObject();progress.put("downloadedBytes",size);progress.put("totalBytes",connection.getContentLengthLong());notifyListeners("downloadProgress",progress);}
               if (size > 100 * 1024 * 1024) throw new Exception("APK ist zu groß");
               output.write(block, 0, count);
             }
@@ -61,6 +67,21 @@ public class BooksUpUpdaterPlugin extends Plugin {
           connection.disconnect();
         }
         if (size < 100000) throw new Exception("APK unvollständig");
+        // APK installer can never update an existing package signed with an ephemeral
+        // different key. Reject before launching install, preserving all app data.
+        PackageManager pm=getContext().getPackageManager();
+        final int flags=Build.VERSION.SDK_INT>=28?PackageManager.GET_SIGNING_CERTIFICATES:PackageManager.GET_SIGNATURES;
+        PackageInfo incoming=pm.getPackageArchiveInfo(temp.getAbsolutePath(),flags);
+        if(incoming==null||!getContext().getPackageName().equals(incoming.packageName))
+          throw new Exception("Keine gültige BooksUp-APK. Download wurde nicht installiert.");
+        PackageInfo current=pm.getPackageInfo(getContext().getPackageName(),flags);
+        Signature[] oldCert=Build.VERSION.SDK_INT>=28?current.signingInfo.getApkContentsSigners():current.signatures;
+        Signature[] newCert=Build.VERSION.SDK_INT>=28?incoming.signingInfo.getApkContentsSigners():incoming.signatures;
+        if(oldCert==null||newCert==null||oldCert.length==0||newCert.length==0||!Arrays.equals(oldCert,newCert))
+          throw new Exception("Update blockiert: Die APK hat eine andere Signatur als deine installierte Version. NICHT deinstallieren! Erst ein vollständiges, geprüftes Backup erstellen.");
+        if(Build.VERSION.SDK_INT>=28&&incoming.getLongVersionCode()<=current.getLongVersionCode())
+          throw new Exception("Die heruntergeladene APK ist nicht neuer als die installierte Version.");
+        JSObject complete=new JSObject();complete.put("downloadedBytes",size);complete.put("totalBytes",size);notifyListeners("downloadProgress",complete);
         Uri content = FileProvider.getUriForFile(getContext(),
               getContext().getPackageName() + ".booksup.fileprovider", temp);
         Intent intent = new Intent(Intent.ACTION_VIEW);
