@@ -83,6 +83,21 @@ async function combined(request){
    }
    if(i===0&&found.some(c=>scoreMatch(request,c)>=175))break;
   }
+  // The ISBN-specific Open Library edition endpoint includes publisher,
+  // series and volume hints often omitted by broad search indexes.
+  if(validISBN(isbn)&&typeof metadataOL==='function'){
+   try{
+    const url='https://openlibrary.org/api/books?bibkeys=ISBN:'+encodeURIComponent(isbn)+'&format=json&jscmd=data';
+    const nativeHttp=window.Capacitor?.Plugins?.CapacitorHttp;
+    const http=nativeHttp?.get?await nativeHttp.get({url,connectTimeout:8500,readTimeout:8500}):null;
+    const raw=http?(typeof http.data==='string'?JSON.parse(http.data):http.data):await fetchMetaUrl(url);
+    const edition=raw?.['ISBN:'+isbn];
+    if(edition?.title){
+     const extra=metadataOL(edition);
+     found.push({...extra,title:edition.title,author:extra.author||request.author||'',isbns:[isbn],isbn,lang:extra.language||'',cover:extra.cover||'',description:cleanDesc(edition.description),source:'Open Library edition'});
+    }
+   }catch(error){errors.push('ISBN editions: '+String(error.message||error));}
+  }
   const merged=new Map();
   for(const c of found){
    if(!c.title)continue;
