@@ -84,6 +84,8 @@ document.addEventListener('touchend',onTouchDone,{capture:true,passive:false});
 document.addEventListener('touchcancel',onTouchDone,{capture:true,passive:false});
 document.addEventListener('wheel',onWheel,{capture:true,passive:false});
 function zoomToolbar(){
+ // Windows 5.2 already has its own zoom controls. Keep that exact toolbar.
+ if(!android())return;
  const wrap=document.getElementById('rdwrap');if(!wrap||wrap.querySelector('.bu53-zoom-toolbar'))return;
  const header=wrap.querySelector('.rdtop');if(!header)return;
  const toolbar=document.createElement('div');toolbar.className='bu53-zoom-toolbar';
