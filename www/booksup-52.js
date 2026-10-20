@@ -284,4 +284,19 @@ window.nextAfterRender=function(){
  bindLanguageObserver();
  if(view!=='reader')forceLanguage();
 };
+
+/* Platform update progress is delivered into the settings page without silently
+ * restarting the app, and signing errors are surfaced rather than hidden. */
+function updateStatus(message,percent){
+ const element=document.getElementById('bu50-update-status');
+ if(element)element.textContent=String(message||'')+(Number.isFinite(percent)?' '+Math.max(0,Math.min(100,Math.round(percent)))+'%':'');
+}
+try{
+ window.booksupUpdateEvents?.subscribe?.(data=>updateStatus(data.message,data.percent));
+ const updates=window.Capacitor?.Plugins?.BooksUpUpdater;
+ updates?.addListener?.('downloadProgress',progress=>{
+  const total=Number(progress.totalBytes),downloaded=Number(progress.downloadedBytes);
+  updateStatus('Android-APK wird heruntergeladen …',total>0?100*downloaded/total:null);
+ });
+}catch(e){console.debug('BooksUp update progress listener:',e);}
 })();
