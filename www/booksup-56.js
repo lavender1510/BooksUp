@@ -144,6 +144,40 @@ if(typeof lookupIsbn==='function'){
   return oldIsbnLookup(isbn);
  };
 }
+/* Goodreads import enrichment is bounded and never replaces manually entered data.
+   Import stays functional offline and can be revisited for missing metadata. */
+let importEnrichmentBusy=false;
+window.bu56EnrichImports=async function(){
+ if(importEnrichmentBusy||navigator.onLine===false)return;
+ importEnrichmentBusy=true;
+ try{
+  const missing=[];
+  for(const profile of [ALL.book,ALL.manga])for(const item of [...(profile.libraryBooks||[]),...(profile.books||[])]){
+   if(!item?.title||(!item.isbn&&!item.author))continue;
+   if(item.publisher&&item.description&&(item.cover||item.covers?.length))continue;
+   if(item.metadataCheckedAt&&Date.now()-Number(item.metadataCheckedAt)<86400000)continue;
+   missing.push(item);
+  }
+  let changed=false;
+  for(const item of missing.slice(0,12)){
+   if(navigator.onLine===false)break;
+   try{
+    const result=await combined(item);
+    if(fillMissing(item,result))changed=true;
+    item.metadataCheckedAt=Date.now();
+   }catch(error){console.debug('Import enrichment deferred:',error);}
+  }
+  if(changed)persist();
+ }finally{importEnrichmentBusy=false;}
+};
+if(typeof window.bu45GoodreadsCommit==='function'){
+ const priorGoodreadsImport=window.bu45GoodreadsCommit;
+ window.bu45GoodreadsCommit=function(){
+  const outcome=priorGoodreadsImport.apply(this,arguments);
+  setTimeout(()=>void window.bu56EnrichImports(),550);
+  return outcome;
+ };
+}
 /* Similar books: title-specific queries and a minimum semantic relevance score.
    Low-confidence candidates are hidden instead of serving generic bestseller lists. */
 const pending=new Set();
