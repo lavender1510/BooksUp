@@ -82,13 +82,13 @@ if(!manifest.includes('.booksup.fileprovider')){
 // Android 9+ blocks HTTP LAN by default. The native BooksUpNetwork plugin only
 // accepts validated private RFC1918 addresses; the manifest must explicitly
 // allow cleartext for the local PIN handshake. Never silently skip this setting.
-const appTag=/<application\\b[^>]*>/;
+const appTag=/<application\b[^>]*>/;
 if(!appTag.test(manifest))throw Error('Android manifest <application> element missing');
 manifest=manifest.replace(appTag,tag=>{
- if(/android:usesCleartextTraffic\\s*=/.test(tag))return tag.replace(/android:usesCleartextTraffic\\s*=\\s*"[^"]*"/,'android:usesCleartextTraffic="true"');
+ if(/android:usesCleartextTraffic\s*=/.test(tag))return tag.replace(/android:usesCleartextTraffic\s*=\s*"[^"]*"/,'android:usesCleartextTraffic="true"');
  return tag.replace('<application','<application android:usesCleartextTraffic="true"');
 });
-if(!/<application\\b[^>]*android:usesCleartextTraffic="true"/.test(manifest))throw Error('Android LAN HTTP permission not configured');
+if(!/<application\b[^>]*android:usesCleartextTraffic="true"/.test(manifest))throw Error('Android LAN HTTP permission not configured');
 writeFileSync(manifestPath,manifest);
 
 // Inject mobile-only BooksUp 4.8 assets AFTER Capacitor sync. Do not alter www/
