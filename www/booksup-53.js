@@ -375,4 +375,38 @@ window.bu50CheckAppUpdate=async function(){
  catch(error){progressUpdate({message:'Update fehlgeschlagen: '+String(error.message||error)});throw error;}
 };
 
+/* Check local LAN reachability separately from WebRTC ICE. This distinguishes
+ * Android HTTP policy, wrong PIN and Windows firewall before pairing starts. */
+window.bu53LanTest=async function(){
+ const output=document.getElementById('bu51-lan-status');
+ const address=String(document.getElementById('bu51-lan-address')?.value||'').trim();
+ const pin=String(document.getElementById('bu51-lan-pin')?.value||'').trim();
+ const match=address.match(/^((?:10|192|172)\.(?:\d{1,3}\.){2}\d{1,3}):(\d{4,5})$/);
+ if(!match||!/^\d{6}$/.test(pin)){
+  if(output)output.textContent='Bitte zunächst lokale IP:Port und einen sechsstelligen PIN eingeben.';
+  return false;
+ }
+ if(output)output.textContent='Teste Verbindung zum Windows-PC über das lokale Netzwerk …';
+ try{
+  const result=await window.booksupLan?.signal?.({ip:match[1],port:Number(match[2]),pin,action:'offer'});
+  if(result?.offer?.type!=='offer')throw Error('Der PC hat kein gültiges Angebot geliefert.');
+  if(output)output.textContent='Windows-PC erreichbar und PIN akzeptiert. Du kannst jetzt Verbinden drücken.';
+  return true;
+ }catch(error){
+  const msg=String(error?.message||error);
+  const help=/cleartext/i.test(msg)?'Android blockiert lokales HTTP; bitte BooksUp 5.3 Release installieren.':
+   /403|PIN|abgelehnt/i.test(msg)?'Der PIN stimmt nicht oder ist abgelaufen.':
+   /ECONN|timed out|failed to connect|timeout|ETIMEDOUT/i.test(msg)?'Windows-Firewall prüfen und beide Geräte im selben WLAN/Hotspot verwenden.':
+   'IP, WLAN, Windows-Firewall und PIN prüfen.';
+  if(output)output.textContent='Verbindungstest fehlgeschlagen: '+msg+'. '+help;
+  return false;
+ }
+};
+const beforePairView=window.bu50PairingView;
+if(typeof beforePairView==='function')window.bu50PairingView=function(){
+ return beforePairView.apply(this,arguments).replace(
+  '<button class="btn" onclick="bu51LanJoin()">Verbinden</button>',
+  '<div class="bu53-pair-buttons"><button class="chip" onclick="bu53LanTest()">Verbindung testen</button><button class="btn" onclick="bu51LanJoin()">Verbinden</button></div>');
+};
+
 })();
