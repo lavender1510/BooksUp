@@ -4,7 +4,7 @@
  */
 (function(){
 'use strict';
-let peer=null,channel=null,role='',code='',ready=false,receiving='',expected=0,importBusy=false,transferBusy=false,remoteInfo=null,transferId='';
+let peer=null,channel=null,role='',code='',ready=false,receiving='',expected=0,importBusy=false,transferBusy=false,remoteInfo=null,transferId='',ackTimer=null;
 const el=id=>document.getElementById(id);
 const say=s=>{const n=el('bu50-peer-status');if(n)n.textContent=s;};
 let deviceId;try{deviceId=localStorage.getItem('booksup.deviceId');if(!deviceId){deviceId=crypto.randomUUID();localStorage.setItem('booksup.deviceId',deviceId);}}catch{deviceId=crypto.randomUUID();}
@@ -25,7 +25,7 @@ const waitIce=pc=>new Promise(resolve=>{
  function listen(){if(pc.iceGatheringState==='complete'){clearTimeout(timer);pc.removeEventListener('icegatheringstatechange',listen);resolve();}}
  pc.addEventListener('icegatheringstatechange',listen);
 });
-function close(){try{channel?.close();peer?.close()}catch{}channel=null;peer=null;ready=false;remoteInfo=null;transferBusy=false;transferId='';role='';receiving='';expected=0;syncUi();}
+function close(){clearTimeout(ackTimer);ackTimer=null;try{channel?.close();peer?.close()}catch{}channel=null;peer=null;ready=false;remoteInfo=null;transferBusy=false;transferId='';role='';receiving='';expected=0;syncUi();}
 window.bu50PeerStop=function(){close();say('Verbindung getrennt.');};
 function make(){
  close();
@@ -34,14 +34,14 @@ function make(){
  peer.addEventListener('connectionstatechange',()=>{
   const state=peer?.connectionState;
   if(state==='connected')say('Direkte verschlüsselte Verbindung steht.');
-  else if(['failed','disconnected','closed'].includes(state||'')){ready=false;transferBusy=false;remoteInfo=null;syncUi();say('Verbindung unterbrochen. Neues Angebot erstellen und erneut verbinden.');}
+  else if(['failed','disconnected','closed'].includes(state||'')){clearTimeout(ackTimer);ready=false;transferBusy=false;remoteInfo=null;syncUi();say('Verbindung unterbrochen. Neues Angebot erstellen und erneut verbinden.');}
  });
  peer.addEventListener('datachannel',e=>bindChannel(e.channel));
 }
 function bindChannel(c){
  channel=c;channel.binaryType='arraybuffer';channel.bufferedAmountLowThreshold=262144;
  channel.onopen=()=>{ready=true;remoteInfo=null;syncUi();say('Verbindung hergestellt. Warte auf Gerätekennung …');notifyPeer('hello',{device:ownDevice});void computeCode();};
- channel.onclose=()=>{ready=false;transferBusy=false;remoteInfo=null;syncUi();say('Verbindung geschlossen. Zum erneuten Verbinden ein neues Angebot erstellen.');};
+ channel.onclose=()=>{clearTimeout(ackTimer);ready=false;transferBusy=false;remoteInfo=null;syncUi();say('Verbindung geschlossen. Zum erneuten Verbinden ein neues Angebot erstellen.');};
  channel.onerror=()=>{transferBusy=false;syncUi();say('Netzwerkfehler: Direkte Verbindung prüfen und bei Bedarf neu verbinden.');};
  channel.onmessage=e=>void message(e.data);
 }
@@ -125,6 +125,8 @@ async function send(data){
   }
  }
  channel.send(JSON.stringify({type:'finish',id:transferId}));
+ clearTimeout(ackTimer);
+ ackTimer=setTimeout(()=>{if(!transferBusy)return;transferBusy=false;syncUi();progress(95,null,'Keine Bestätigung erhalten');say('Übertragung gesendet, aber das Zielgerät hat nicht bestätigt. Prüfe dort den Importstatus und sende nicht blind erneut.');},120000);
  progress(95,null,'Gesendet – warte auf Bestätigung des Zielgeräts');
  say('Daten versendet. Das Zielgerät muss den Import noch bestätigen.');
 }
@@ -145,7 +147,7 @@ async function message(v){
  }
  if(obj.type==='ack'){
   if(!transferBusy||obj.id!==transferId)return;
-  transferBusy=false;transferId='';syncUi();
+  clearTimeout(ackTimer);ackTimer=null;transferBusy=false;transferId='';syncUi();
   if(obj.ok){progress(100,0,'Auf Zielgerät erfolgreich übernommen');say('Übertragung abgeschlossen: Zielgerät hat den Import bestätigt.');}
   else{progress(95,null,'Import auf Zielgerät nicht übernommen');say('Daten gesendet, aber Zielgerät meldet: '+String(obj.message||'Import abgelehnt').slice(0,160));}
   return;
