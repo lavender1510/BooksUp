@@ -93,7 +93,7 @@ window.bu43RefreshList=function(list){
  if(list.autoRule==='abandoned'){
   const excluded=new Set((list.excludedIds||[]).map(String));
   const manual=(list.items||[]).filter(x=>!x.bookId);
-  list.items=[...manual,...S.books.filter(b=>(b.status==='abandoned'||b.status==='dnf')&&!excluded.has(String(b.id))).map(b=>{
+  list.items=[...manual,...[...S.books,...bu45Extra()].filter(b=>(b.status==='abandoned'||b.status==='dnf')&&!excluded.has(String(b.id))).map(b=>{
    const old=previous.get(String(b.id));
    return {...old,id:old?.id||'auto-'+b.id,bookId:b.id,title:b.title,author:b.author,owned:true,mediaFormat:old?.mediaFormat||fmt(b.mediaFormat||b.type)};
   })];
@@ -273,6 +273,77 @@ window.saveEdit=function(id){
   if(book){book.covers=cover;book.cover=cover[0];persist();}
  }
  return result;
+};
+
+
+// Goodreads imports often live in libraryBooks, not S.books. Give those edition
+// records the same camera lookup without silently turning them into owned copies.
+const previousLibraryDetail=window.bu45LibraryDetail;
+window.bu45LibraryDetail=function(){
+ const html=previousLibraryDetail.apply(this,arguments),book=currentBook(cur);
+ if(!book)return html;
+ const id=key(book.id);
+ const indicator=book.status==='abandoned'?'Abgebrochen':book.finished?'Gelesen':'Nicht als gelesen abgeschlossen';
+ const content=html.replace('<button class="btn o" onclick="bu45EditIsbn',
+  '<button class="chip" onclick="bu55LibraryISBN('+id+')">▣ ISBN scannen / Ausgabe prüfen</button><button class="btn o" onclick="bu45EditIsbn');
+ const statusControls='<div class="bu55-book-status"><label>Lesestatus</label><div class="row">'+
+  [['read','Gelesen'],['abandoned','Abgebrochen'],['unread','Nicht abgeschlossen']].map(([code,title])=>
+  '<button class="chip '+((indicator===title)?'on':'')+'" onclick="bu55SetReadStatus('+id+','+JSON.stringify(code)+')">'+title+'</button>').join('')+
+  '</div></div>';
+ return content.replace(/<p>(Gelesen|Nicht als gelesen abgeschlossen)<\/p>/,'<p>'+indicator+'</p>')
+  .replace('</section>',statusControls+'</section>');
+};
+window.bu55LibraryISBN=function(id){
+ const book=currentBook(id);if(!book)return;
+ stopScanner();
+ modal='<h3>ISBN / Ausgabe abgleichen</h3><p class="hint">Scanne die Ausgabe oder gib eine ISBN ein. Es wird nichts geändert, bis du die Vorschau bestätigst.</p>'+
+ '<video id="bu55-lib-video" playsinline muted></video><label>ISBN-10 / ISBN-13</label>'+
+ '<input id="bu55-lib-isbn" value="'+esc(book.isbn||'')+'" inputmode="numeric">'+
+ '<p id="bu55-lib-status" class="hint"></p><div class="row">'+
+ '<button class="btn" onclick="bu55ApplyLibraryISBN('+key(id)+',$(\'bu55-lib-isbn\').value)">Daten prüfen</button>'+
+ '<button class="chip" onclick="bu55StopScanner();modal=null;render()">Schließen</button></div>';
+ render();
+ const video=document.getElementById('bu55-lib-video'),label=document.getElementById('bu55-lib-status');
+ if(!('BarcodeDetector' in window)||!navigator.mediaDevices?.getUserMedia){
+  if(video)video.hidden=true;if(label)label.textContent='Kamerascanner nicht verfügbar. ISBN bitte manuell eingeben.';return;
+ }
+ (async()=>{
+  try{
+   scanStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}});
+   if(!video?.isConnected){stopScanner();return;}
+   video.srcObject=scanStream;await video.play();
+   const detector=new BarcodeDetector({formats:['ean_13','upc_a']});
+   const scan=async()=>{
+    if(!scanStream||!video.isConnected)return stopScanner();
+    try{
+     const entries=await detector.detect(video);
+     const isbn=entries.map(x=>isbnClean(x.rawValue)).find(isbnValid);
+     if(isbn){stopScanner();const field=document.getElementById('bu55-lib-isbn');if(field)field.value=isbn;await window.bu55ApplyLibraryISBN(id,isbn);return;}
+    }catch(error){console.debug('Barcode frame:',error);}
+    scanTimer=setTimeout(scan,400);
+   };void scan();
+  }catch(error){stopScanner();if(video)video.hidden=true;if(label)label.textContent='Kamera nicht verfügbar: '+String(error.message||error);}
+ })();
+};
+window.bu55ApplyLibraryISBN=async function(id,raw){
+ const isbn=isbnClean(raw),book=currentBook(id),status=document.getElementById('bu55-lib-status');
+ if(!book)return;
+ if(!isbnValid(isbn)){if(status)status.textContent='ISBN-10/13 ungültig. Prüfziffer kontrollieren.';return;}
+ if(status)status.textContent='Lade Ausgabendaten …';
+ try{
+  const result=await Promise.race([lookupIsbn(isbn),new Promise((_,reject)=>setTimeout(()=>reject(Error('Timeout')),15000))]);
+  const preview='ISBN: '+isbn+'\nTitel: '+(result?.title||book.title)+'\nVerlag: '+(result?.publisher||'nicht verfügbar')+
+   '\nEinband: '+(result?.format||'nicht verfügbar')+'\nCover: '+(result?.cover?'gefunden':'nicht verfügbar')+
+   '\n\nDiese Vorschläge für die Goodreads-Ausgabe speichern? Titel, Lesestatus und Leselisten bleiben erhalten.';
+  if(!confirm(preview)){if(status)status.textContent='Keine Änderungen übernommen.';return;}
+  book.isbn=isbn;
+  if(result?.publisher)book.publisher=result.publisher;
+  if(result?.format)book.format=result.format;
+  if(result?.cover){book.covers=[result.cover,...(book.covers||[]).filter(c=>c!==result.cover)];book.cover=result.cover;}
+  if(result?.language)book.language=result.language;
+  if(result?.edition)book.edition=result.edition;
+  stopScanner();modal=null;persist();render();toast('ISBN und bestätigte Ausgabendaten gespeichert.');
+ }catch(error){if(status)status.textContent='Ausgabendaten konnten nicht geladen werden: '+String(error.message||error);}
 };
 
 // A failed recommendation fetch must never leave a perpetual loading view.
