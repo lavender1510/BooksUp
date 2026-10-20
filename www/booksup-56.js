@@ -40,13 +40,22 @@ const openEntry=x=>{
  return {title:x.title||'',author:(x.author_name||[]).join(', '),isbns:ids,isbn:ids.find(x=>x.length===13)||ids[0]||'',lang:(x.language||[]).includes(language())?language():(x.language||[])[0]||'',cover:x.cover_i?'https://covers.openlibrary.org/b/id/'+Number(x.cover_i)+'-L.jpg':'',genre:sub[0]||'',tags:sub.join(', '),publisher:(x.publisher||[])[0]||'',year:x.first_publish_year||'',pages:x.number_of_pages_median||0,description:cleanDesc(x.description),series,seriesNumber:series.match(/(?:vol(?:ume)?\.?|band|#)\s*(\d+)/i)?.[1]||'',workKey:x.key,source:'Open Library'};
 };
 const catalogCall=async(q)=>{
- if(window.booksupCatalog?.search)return window.booksupCatalog.search(q);
+ if(window.booksupCatalog?.search&&!q.topic)return window.booksupCatalog.search(q);
  const title=String(q.title||'').trim(),isbn=isoISBN(q.isbn);
+ const query=q.topic?'subject:'+q.topic:isbn?'isbn:'+isbn:'intitle:'+title+(q.author?' inauthor:'+q.author:'');
  const urls=[
-  'https://www.googleapis.com/books/v1/volumes?q='+encodeURIComponent(isbn?'isbn:'+isbn:'intitle:'+title+(q.author?' inauthor:'+q.author:''))+'&maxResults=20&langRestrict='+encodeURIComponent(language()),
-  'https://openlibrary.org/search.json?'+(isbn?'isbn='+encodeURIComponent(isbn):'title='+encodeURIComponent(title)+(q.author?'&author='+encodeURIComponent(q.author):''))+'&limit=25&fields=key,title,author_name,isbn,first_publish_year,cover_i,subject,publisher,language,series,number_of_pages_median'
+  'https://www.googleapis.com/books/v1/volumes?q='+encodeURIComponent(query)+'&maxResults=25&langRestrict='+encodeURIComponent(language()),
+  'https://openlibrary.org/search.json?'+(q.topic?'subject='+encodeURIComponent(q.topic):isbn?'isbn='+encodeURIComponent(isbn):'title='+encodeURIComponent(title)+(q.author?'&author='+encodeURIComponent(q.author):''))+'&limit=25&fields=key,title,author_name,isbn,first_publish_year,cover_i,subject,publisher,language,series,number_of_pages_median'
  ];
- const r=await Promise.allSettled(urls.map(url=>fetchMetaUrl(url)));
+ const remote=window.Capacitor?.Plugins?.CapacitorHttp;
+ const load=async url=>{
+  if(remote?.get){const r=await remote.get({url,connectTimeout:10000,readTimeout:10000});
+   if(r.status<200||r.status>=300)throw Error('HTTP '+r.status);
+   return typeof r.data==='string'?JSON.parse(r.data):r.data;
+  }
+  return fetchMetaUrl(url);
+ };
+ const r=await Promise.allSettled(urls.map(load));
  return {google:r[0].status==='fulfilled'?r[0].value.items||[]:[],open:r[1].status==='fulfilled'?r[1].value.docs||[]:[],errors:r.filter(x=>x.status==='rejected').map(x=>String(x.reason?.message||x.reason))};
 };
 const lookupLocks=new Map();
@@ -91,12 +100,14 @@ async function combined(request){
 function fillMissing(book,results){
  const candidates=results.candidates||[],best=candidates[0];if(!best)return 0;
  const matched=candidates.filter(x=>x.score>=Math.max(85,best.score-24)),changed=[];
+ const sameEdition=validISBN(book.isbn)?matched.filter(x=>x.isbns.includes(isoISBN(book.isbn))):matched;
  const set=(k,value)=>{if((book[k]===undefined||book[k]===null||book[k]==='')&&value!==undefined&&value!==null&&value!==''){book[k]=value;changed.push(k);}};
  for(const k of ['author','publisher','year','pages','genre','tags','description','language','series','seriesNumber']){
-  const val=matched.find(x=>x[k==='language'?'lang':k])?.[k==='language'?'lang':k];
+  const pool=['publisher','pages','year','language','seriesNumber'].includes(k)&&sameEdition.length?sameEdition:matched;
+  const val=pool.find(x=>x[k==='language'?'lang':k])?.[k==='language'?'lang':k];
   set(k,val);
  }
- const bestCover=matched.find(x=>x.cover)?.cover;
+ const bestCover=(sameEdition.length?sameEdition:matched).find(x=>x.cover)?.cover;
  if(bestCover&&!book.cover&&!book.covers?.length){book.covers=[bestCover];changed.push('cover');}
  const id=isoISBN(book.isbn);
  if(!id){
@@ -162,7 +173,7 @@ window.bu46SimilarLoad=async function(book){
  try{
   const seeds=unique([String(book.genre||'').split(',')[0].trim(),...String(book.tags||'').split(',').map(s=>s.trim()).filter(Boolean).slice(0,2),book.author]).filter(s=>s.length>2).slice(0,4);
   if(!seeds.length){bu46SimilarCache.set(key,[]);return;}
-  const searches=seeds.map((s,i)=>i===seeds.length-1&&norm(s)===norm(book.author)?{title:'',author:book.author}:{title:s});
+  const searches=seeds.map(s=>norm(s)===norm(book.author)?{title:book.title,author:book.author}:{title:s,topic:s});
   const result=await Promise.allSettled(searches.slice(0,3).map(catalogCall));
   const candidates=[];
   for(const entry of result){
@@ -316,7 +327,7 @@ function restoreText(){
  const b=ownBook(cur),root=document.getElementById('txt');if(!b||!root)return;
  for(const a of b.annotations||[]){
   if(a.type!=='text-highlight'||!a.text||!a.id)continue;
-  if(root.querySelector('[data-bu56-highlight="'+CSS.escape(String(a.id))+'"]'))continue;
+  if([...root.querySelectorAll('[data-bu56-highlight]')].some(x=>x.dataset.bu56Highlight===String(a.id)))continue;
   const quote=String(a.text).trim();if(quote.length<2)continue;
   for(const element of root.querySelectorAll('p[data-p],h3[data-p]')){
    if(Number(a.page)&&Number(element.dataset.p)!==Number(a.page))continue;
