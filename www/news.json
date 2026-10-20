@@ -1,6 +1,96 @@
 {
-  "updatedAt": "2026-10-19T22:22:59.162641+00:00",
+  "updatedAt": "2026-10-20T11:41:11.204116+00:00",
   "articles": [
+    {
+      "title": "The Best New Horror Books for Book Clubs",
+      "url": "https://bookriot.com/best-new-horror-books-for-book-clubs/",
+      "source": "Book Riot",
+      "newsletter": "https://bookriot.com",
+      "date": "2026-10-20T10:10:00+00:00",
+      "summary": "The best new for book club horror books have short stories full of Indigenous lore, haunted Black Hollywood stars, Gothic settings, and more.",
+      "image": "https://bookriot.com/wp-content/uploads/2026/10/people-and-things-2026-10-19T171713.807.jpg.optimal.jpg"
+    },
+    {
+      "title": "Here Comes the Sun: 4 Books for Fans of KLARA AND THE SUN",
+      "url": "https://bookriot.com/books-like-klara-and-the-sun/",
+      "source": "Book Riot",
+      "newsletter": "https://bookriot.com",
+      "date": "2026-10-20T10:00:00+00:00",
+      "summary": "These thought-provoking books about humanity and technology are perfect for fans of Klara and the Sun.",
+      "image": "https://bookriot.com/wp-content/uploads/2023/04/klara-and-the-sun-closeup.jpg.optimal.jpg"
+    },
+    {
+      "title": "What Happens to a Book That’s Challenged But Not Removed in a High School Library?",
+      "url": "https://bookriot.com/challenged-books-in-school-libraries/",
+      "source": "Book Riot",
+      "newsletter": "https://bookriot.com",
+      "date": "2026-10-20T10:00:00+00:00",
+      "summary": "What happens to books that are challenged but not banned in a high school library? It's rarely simple.",
+      "image": "https://bookriot.com/wp-content/uploads/2022/07/caution-tape-on-books.png"
+    },
+    {
+      "title": "The Best Queer Books of 2026, According to Barnes and Noble",
+      "url": "https://bookriot.com/best-queer-books-2026-barnes-and-noble/",
+      "source": "Book Riot",
+      "newsletter": "https://bookriot.com",
+      "date": "2026-10-20T10:00:00+00:00",
+      "summary": "Here are the queer books included in Barnes & Noble's Best Books of 2026, from gay literary fiction to trans horror to queer science writing.",
+      "image": "https://bookriot.com/wp-content/uploads/2026/10/best-queer-books-2026-barnes-and-noble.jpg.optimal.jpg"
+    },
+    {
+      "title": "How to Break a Reading Slump",
+      "url": "https://bookriot.com/how-to-break-a-reading-slump/",
+      "source": "Book Riot",
+      "newsletter": "https://bookriot.com",
+      "date": "2026-10-20T10:00:00+00:00",
+      "summary": "Tips and book recs to get your groove back",
+      "image": "https://bookriot.com/wp-content/uploads/2026/10/reading-slump-flagship.jpg.optimal.jpg"
+    },
+    {
+      "title": "📚 Libraries are on the ballot",
+      "url": "https://bookriot.com/10-20-flagship-newsletter-draft-libraries-are-on-the-ballot/",
+      "source": "Book Riot",
+      "newsletter": "https://bookriot.com",
+      "date": "2026-10-20T09:30:00+00:00",
+      "summary": "How to be an informed voter for libraries and books",
+      "image": "https://bookriot.com/wp-content/uploads/2026/10/voting.jpg.optimal.jpg"
+    },
+    {
+      "title": "Peter James Recommends His Favorite Crime Novels",
+      "url": "https://bookriot.com/peter-james-favorite-crime-novels/",
+      "source": "Book Riot",
+      "newsletter": "https://bookriot.com",
+      "date": "2026-10-20T09:00:00+00:00",
+      "summary": "Peter James, the bestselling author of the Roy Grace series, recommends three of his favorite crime novels",
+      "image": "https://bookriot.com/wp-content/uploads/2026/10/Peter-James.jpg.optimal.jpg"
+    },
+    {
+      "title": "6 of the Best New Book Releases Out October 20, 2026",
+      "url": "https://bookriot.com/new-book-releases-october-20-2026/",
+      "source": "Book Riot",
+      "newsletter": "https://bookriot.com",
+      "date": "2026-10-20T09:00:00+00:00",
+      "summary": "In today's best new books, nuns bond with women on death row, a Muslim teen shares her life in a graphic memoir, and more.",
+      "image": "https://bookriot.com/wp-content/uploads/2025/10/autumn-reading.jpg.optimal.jpg"
+    },
+    {
+      "title": "Alone With a Book by Tessa Hadley review – an acclaimed writer’s cultural prescription",
+      "url": "https://www.theguardian.com/books/2026/oct/20/alone-with-a-book-by-tessa-hadley-review-an-acclaimed-writers-cultural-prescription",
+      "source": "The Guardian · Books",
+      "newsletter": "https://www.theguardian.com/books",
+      "date": "2026-10-20T08:10:57+00:00",
+      "summary": "This collection of essays from the beloved novelist is full of gem-like insights on art and books When Tessa Hadley was a child, someone gave her a copy of Lois Lenski’s Papa Small, which follows Mr Small and his family through a typical week. Papa Small goes to work, Mama Small cooks the supper, and the small Smalls dry and put away the dishes. “I thrilled ",
+      "image": "https://www.theguardian.com/books/2026/oct/20/1200"
+    },
+    {
+      "title": "Gilgamesh by Simon Armitage review – an ancient epic is brilliantly translated for our times",
+      "url": "https://www.theguardian.com/books/2026/oct/20/gilgamesh-by-simon-armitage-review-an-ancient-epic-is-brilliantly-translated-for-our-times",
+      "source": "The Guardian · Books",
+      "newsletter": "https://www.theguardian.com/books",
+      "date": "2026-10-20T06:00:19+00:00",
+      "summary": "The poet laureate’s visceral take on the legendary Mesopotamian hero’s wild adventures is a tour de force The poet laureate is paid a salary of £5,750 per annum plus a barrel of sherry. No specific duties are attached to the role, but there is an expectation that poets will write verse for public occasions and royal events, a duty that Simon Armitage has ful",
+      "image": "https://www.theguardian.com/books/2026/oct/20/1200"
+    },
     {
       "title": "Life Out of Order by Audrey Niffenegger review – does this sequel measure up to The Time Traveler’s Wife?",
       "url": "https://www.theguardian.com/books/2026/oct/19/life-out-of-order-by-audrey-niffenegger-review-does-this-sequel-measure-up-to-the-time-travelers-wife",
@@ -47,78 +137,6 @@
       "image": "https://bookriot.com/wp-content/uploads/2026/10/partial-cover-of-54.jpg.optimal.jpg"
     },
     {
-      "title": "8 Nonviolent True Crime Books That Read Like Thrillers",
-      "url": "https://bookriot.com/nonviolent-true-crime-books/",
-      "source": "Book Riot",
-      "newsletter": "https://bookriot.com",
-      "date": "2026-10-19T10:04:00+00:00",
-      "summary": "These nonviolent true crime books are low on body count, but they're just as engrossing as their bloodier counterparts.",
-      "image": "https://bookriot.com/wp-content/uploads/2024/11/cropped-cover-of-ConArtist.png"
-    },
-    {
-      "title": "4 Perfect Queer Romance Graphic Novels",
-      "url": "https://bookriot.com/queer-romance-graphic-novels/",
-      "source": "Book Riot",
-      "newsletter": "https://bookriot.com",
-      "date": "2026-10-19T10:03:00+00:00",
-      "summary": "Swoon over these queer romance graphic novels, from a sapphic magical girl softball romance to a nonbinary take on Emma.",
-      "image": "https://bookriot.com/wp-content/uploads/2026/03/closeup-of-patience-and-esther-book-cover.jpg.optimal.jpg"
-    },
-    {
-      "title": "YA Authors Who’ve Written Multiple Series (And Which of Them to Start With)",
-      "url": "https://bookriot.com/ya-authors-whove-written-multiple-series/",
-      "source": "Book Riot",
-      "newsletter": "https://bookriot.com",
-      "date": "2026-10-19T10:02:00+00:00",
-      "summary": "Wondering where to start with YA authors who've written multiple series? Here's a guide to help decide which ones to read first.",
-      "image": "https://bookriot.com/wp-content/uploads/2026/10/ya-authors-whove-written-multiple-series.jpg.optimal.jpg"
-    },
-    {
-      "title": "The Scariest Teachers in Children’s Literature",
-      "url": "https://bookriot.com/scariest-teachers-in-childrens-books/",
-      "source": "Book Riot",
-      "newsletter": "https://bookriot.com",
-      "date": "2026-10-19T10:01:00+00:00",
-      "summary": "We've all had them, and we love reading about them: here are some of the scariest teachers in children's books, and what makes them so scary.",
-      "image": "https://bookriot.com/wp-content/uploads/2026/10/scariest-teachers-in-childrens-books.jpg.optimal.jpg"
-    },
-    {
-      "title": "Spooky Spiritualism: 5 Mysteries Featuring Séances and Tarot",
-      "url": "https://bookriot.com/mysteries-with-seances-and-tarot/",
-      "source": "Book Riot",
-      "newsletter": "https://bookriot.com",
-      "date": "2026-10-19T10:00:00+00:00",
-      "summary": "These five mysteries with seances or tarot in their plots use spiritualism to solve the crime—and sometimes, they're the cause of it.",
-      "image": "https://bookriot.com/wp-content/uploads/2026/10/seance-crystal-ball.jpg.optimal.jpg"
-    },
-    {
-      "title": "📚 We have some stories",
-      "url": "https://bookriot.com/we-have-some-stories/",
-      "source": "Book Riot",
-      "newsletter": "https://bookriot.com",
-      "date": "2026-10-19T09:30:00+00:00",
-      "summary": "We're 15 years in the game",
-      "image": "https://bookriot.com/wp-content/uploads/2026/10/old-book-riot-homepage.jpg.optimal.jpg"
-    },
-    {
-      "title": "If It Wasn’t Hard, Everyone Would Do It: Sapphic Baseball Romances",
-      "url": "https://bookriot.com/sapphic-baseball-romances/",
-      "source": "Book Riot",
-      "newsletter": "https://bookriot.com",
-      "date": "2026-10-19T09:00:00+00:00",
-      "summary": "This year marked the first time in 70 years where women had a professional baseball league in the United States.",
-      "image": "https://bookriot.com/wp-content/uploads/2026/10/sapphic-baseball-romances-book-cover-collage.jpg.optimal.jpg"
-    },
-    {
-      "title": "Goblin-Cozy Fantasy Books",
-      "url": "https://bookriot.com/goblin-cozy-fantasy-books/",
-      "source": "Book Riot",
-      "newsletter": "https://bookriot.com",
-      "date": "2026-10-19T09:00:00+00:00",
-      "summary": "A. J. Hackwith, author of Goblin Market, recommends cozy fantasy for book goblins: they're scrappy, queer, and feral, with resilient hearts.",
-      "image": "https://bookriot.com/wp-content/uploads/2026/10/AJ-Hackwith.jpg.optimal.jpg"
-    },
-    {
       "title": "Emperor of Nothing by Blake J Harris review – the definitive portrait of Larry David",
       "url": "https://www.theguardian.com/books/2026/oct/19/emperor-of-nothing-blake-j-harris-review-larry-david-biography",
       "source": "The Guardian · Books",
@@ -128,15 +146,6 @@
       "image": "https://www.theguardian.com/books/2026/oct/19/1200"
     },
     {
-      "title": "The problem with telling people the world is ending",
-      "url": "https://www.theguardian.com/environment/2026/oct/18/the-problem-with-telling-people-the-world-is-ending",
-      "source": "The Guardian · Books",
-      "newsletter": "https://www.theguardian.com/books",
-      "date": "2026-10-18T11:00:02+00:00",
-      "summary": "In the face of terrible crises, it can feel right to shock people into action. But what if that has the opposite effect? These days, it’s easy to succumb to hopelessness. Whether you’re thinking about the climate crisis, the prospect of AI apocalypse, war or political turmoil, the list of challenges facing humanity can seem insurmountable. It certainly feels",
-      "image": "https://www.theguardian.com/environment/2026/oct/18/1200"
-    },
-    {
       "title": "‘Medieval romance overflowed with sexually active fairies’: the surprisingly long roots of romantasy",
       "url": "https://www.theguardian.com/books/2026/oct/18/medieval-romance-overflowed-with-sexually-active-fairies-the-surprisingly-long-roots-of-romantasy",
       "source": "The Guardian · Books",
@@ -144,15 +153,6 @@
       "date": "2026-10-18T11:00:01+00:00",
       "summary": "Critics mock it as raunchy trash – but this enchanting genre is much older, and wilder, than you might imagine There’s a popular genre, filled with beautiful, human-sized fairies having sex with humans (often quite violent sex, but the people reading it seem to enjoy it). Word is that it’s badly written and unashamedly escapist – all golden, glittering palac",
       "image": "https://www.theguardian.com/books/2026/oct/18/1200"
-    },
-    {
-      "title": "‘Is there any value in writing a story in a time of chaos?’: novelist Elif Shafak on her creative crisis",
-      "url": "https://www.theguardian.com/books/2026/oct/17/is-there-any-value-in-writing-a-story-in-a-time-of-chaos-novelist-elif-shafak-on-her-creative-crisis",
-      "source": "The Guardian · Books",
-      "newsletter": "https://www.theguardian.com/books",
-      "date": "2026-10-17T08:00:25+00:00",
-      "summary": "The author talks about her nomadic childhood, being targeted by the Turkish government and overcoming depression to write her latest novel For a long time Elif Shafak was referred to as Turkey’s “most widely read female author”. Today, she is surely simply its best loved. Orhan Pamuk may have won the Nobel prize in literature, but it is Shafak whose novels a",
-      "image": "https://www.theguardian.com/books/2026/oct/17/1200"
     },
     {
       "title": "The best recent crime and thrillers – review roundup",
