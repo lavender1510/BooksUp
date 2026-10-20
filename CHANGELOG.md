@@ -1,3 +1,14 @@
+## 5.6.0 (Entwicklungsstand – noch nicht vollständig abgenommen)
+- Direkter Gerätetransfer: verbundene Gerätekennung, Status, Sende-Button nur bei aktiver Verbindung, Fortschrittsanzeige mit ETA, Zielbestätigung und Fehlermeldungen.
+- Metadaten: mehrere Suchwege nach ISBN/Titel/Autor und abweichenden Titeln, zusammengeführte verifizierte Treffer mit sicheren Fallbacks.
+- Empfehlungen: buchabhängige Themen-/Genre-Suche und Relevanzfilter statt beliebiger Treffer.
+- MediMops: verständliche ISBN-Auswahl und manueller Eintrag, transparenter Umgang mit nicht erreichbarer Preisquelle.
+- Hell/Dunkel/System: Vorrang der Helligkeit vor unpassenden statischen Farbpaletten; bestehende Designs bleiben erhalten.
+- Einstellungen: geordnete bestehende Bereiche und staged Speichern/Verwerfen, ohne neue visuelle Komponenten.
+- Reader: Sitzungsdauer und Seite/Gesamtzahl in Vollbild, Auto-Speichern und Wiederherstellung unterbrochener Sessions; robustere Markierungswiederherstellung.
+- Übersetzungen: weitere UI-Begriffe; eine vollständige 5-Sprachen-Prüfung steht noch aus.
+- Offen: produktiver MediMops-Preisfeed und Benachrichtigungen bei vollständig beendeter App benötigen externe Infrastruktur. Android-/Windows-Endtests am Gerät noch ausstehend.
+
 ## 5.5.1 – Android Settings/News Regression Fix (20.10.2026)
 - Restored News and Settings to the default bottom navigation; individual choices remain supported.
 - News loading now handles offline/API failures with visible retry status and keeps existing cached articles.

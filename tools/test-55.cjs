@@ -2,7 +2,7 @@
 const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');
 const root=path.join(__dirname,'..'),read=p=>fs.readFileSync(path.join(root,p),'utf8');
 const src=read('www/booksup-55.js'),pkg=JSON.parse(read('package.json'));
-assert.equal(pkg.version,'5.5.1');
+assert.equal(pkg.version,'5.6.0');
 new Function(src);
 for(const needle of ['bu55SetVisibility','bu55SetListFormat','bu55SetEntryFormat','abandoned','bu55SetReadStatus','bu55GoodreadsFormat','bu55OpenEditionScanner','bu46SimilarLoad','bu46MoreBooks','bu55SetNav','bu55HighlightColor','bu55NoteLastHighlight','bu55PenToggle','paintPen','restoreTextMarks'])assert.ok(src.includes(needle),'missing '+needle);
 assert.match(read('mobile/android-native/BooksUpUpdaterPlugin.java'),/SHA-256|sha256/);

@@ -105,8 +105,8 @@ async function bu44CheckWatches(){
    }
    w.lastPrice=amount;w.lastChecked=now;
   }
-  ALL.lastPriceCheck=now;persist();
- }catch(e){console.debug('MediMops price monitor inactive:',e)}
+  ALL.lastPriceCheck=now;ALL.priceFeedError='';persist();return true;
+ }catch(e){ALL.priceFeedError=String(e.message||e).slice(0,180);console.debug('MediMops price monitor inactive:',e);return false;}
  finally{bu44PriceBusy=false}
 }
 function bu44PriceNotificationsView(){

@@ -26,7 +26,7 @@ successful restoration of the library and locally stored PDF/EPUB files.
 
 The workflow intentionally fails if any of the above are absent. It builds
 assembleRelease with the key from Actions Secrets, verifies the package with
-apksigner, then publishes the stable v5.5.1-android release.
+apksigner, then publishes the stable v5.6.0-android release.
 
 Never commit or publish the private signing certificate/passwords.
 
@@ -36,6 +36,6 @@ A permanent signature ensures future updates using the same certificate,
 but cannot retroactively update an older debug-signed installation.
 Users must separately verify a complete backup before any migration.
 
-Windows v5.5.1 is a stable installer/portable release. Authenticode
+Windows v5.6.0 is a stable installer/portable release. Authenticode
 code signing is a separate optional publisher certificate and is not
 equivalent to Android APK signing.

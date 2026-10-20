@@ -35,6 +35,7 @@ jobs:
           node tools/test-windows-47.cjs
           node tools/test-windows-48.cjs
           node tools/test-android-48.cjs
+          node tools/test-56.cjs
       - name: Check native and shared JavaScript
         run: |
           node --check electron/main.cjs
@@ -46,5 +47,6 @@ jobs:
           node --check www/booksup-50-pair.js
           node --check www/booksup-50-services.js
           node --check www/booksup-53.js
+          node --check www/booksup-56.js
           node --check tools/test-54.cjs
           node --check tools/build-android-release.cjs

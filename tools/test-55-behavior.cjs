@@ -16,7 +16,7 @@ const state={
  navigator:{onLine:true},crypto:{randomUUID:()=>String(Math.random())},
  setTimeout(){},clearTimeout(){},requestAnimationFrame(){},
  getComputedStyle:()=>({position:'relative'}),
- APP_VERSION:'5.5.1',rdFull:false,pgNow:1,editDraft:null,
+ APP_VERSION:'5.6.0',rdFull:false,pgNow:1,editDraft:null,
  bu45AllLists:()=>state.S.readingLists,bu45Extra:()=>state.S.libraryBooks,
  bu45Book:item=>[...state.S.books,...state.S.libraryBooks].find(b=>String(b.id)===String(item.bookId))||item,
  bu45IsOwned:book=>state.S.books.some(b=>String(b.id)===String(book.id)),
