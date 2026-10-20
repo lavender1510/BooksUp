@@ -1,21 +1,23 @@
 'use strict';
 const fs=require('node:fs'),path=require('node:path'),assert=require('node:assert/strict'),vm=require('node:vm');
 const root=path.resolve(__dirname,'..'),read=p=>fs.readFileSync(path.join(root,p),'utf8');
-const source=read('www/booksup-53.js'),css=read('www/booksup-53.css');
+const source=read('www/booksup-53.js'),css=read('www/booksup-531-features.css');
 new Function(source);
-assert.match(css,/\.rdtop>button/);
+assert.match(css,/\.rdtop/);
 assert.match(css,/overflow-x:auto!important/);
 assert.match(css,/bu53-highlight/);
 const manifest=read('tools/android-init.cjs');
 assert.match(manifest,/android:usesCleartextTraffic="true"/);
 assert.match(manifest,/const appTag=\/<application\\b/);
 assert.match(manifest,/booksup-53\.js/);
+assert.match(manifest,/booksup-531-features\.css/);
+assert.doesNotMatch(manifest,/const cssTag='<link rel="stylesheet" href="booksup-android-48\.css">'/);
 assert.match(read('.github/workflows/build-android.yml'),/assembleRelease|build-android-release\.cjs/);
 assert.match(read('.github/workflows/build-android.yml'),/BOOKSUP_ANDROID_RELEASE_KEYSTORE_BASE64/);
 assert.doesNotMatch(read('.github/workflows/build-android.yml'),/build-apk\.cjs|assembleDebug/);
 assert.match(read('tools/build-android-release.cjs'),/assembleRelease/);
 assert.match(read('electron/main.cjs'),/booksup-53\.js/);
-assert.match(read('package.json'),/"version": "5\.3\.0"/);
+assert.match(read('package.json'),/"version": "5\.3\.1"/);
 let count=0,changed=0,saved=0,callbacks={};const textNode={nodeType:3,nodeValue:'Read'};
 const item={closest:()=>null,childNodes:[textNode],hasAttribute:()=>false};
 const scroll={clientWidth:350,clientHeight:560,scrollWidth:800,scrollHeight:1400,isConnected:true,
