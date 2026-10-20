@@ -120,6 +120,12 @@ window.bu45ListSettings=function(){
  return originalListSettingsWithRules.apply(this,arguments).replace('</select><label>Wann aktualisieren?', '<option value="abandoned" '+(findList(cur||bu45ListSettingsId)?.autoRule==='abandoned'?'selected':'')+'>Abgebrochene Bücher</option></select><label>Wann aktualisieren?');
 };
 
+// The existing completion modal must clear an earlier abandoned status too.
+const prevSetRate=window.setRate;
+window.setRate=function(id,completed){const result=prevSetRate.apply(this,arguments);const b=currentBook(id);
+ if(b?.finished){b.status='read';b.abandonedAt=null;persist();}
+ return result;};
+
 // Read/abandoned are mutually exclusive and persisted on the original book object.
 window.bu55SetReadStatus=function(id,status){
  const book=currentBook(id);if(!book||!['read','abandoned','unread'].includes(status))return;
@@ -143,7 +149,8 @@ window.nextBookDetails=function(){
  const group='<div class="bu55-book-status"><label>Lesestatus</label><div class="row">'+
  [['read','Gelesen'],['abandoned','Abgebrochen'],['unread','Nicht abgeschlossen']].map(([value,name])=>
  '<button class="chip '+(selected===value?'on':'')+'" onclick="bu55SetReadStatus('+key(book.id)+','+JSON.stringify(value)+')">'+name+'</button>').join('')+'</div></div>';
- return html.replace('</section>',group+'</section>');
+ const statusText=selected==='abandoned'?html.replace(/<span>(Am Lesen|Noch nicht begonnen|Gelesen)<\/span>/,'<span>Abgebrochen</span>'):html;
+ return statusText.replace('</section>',group+'</section>');
 };
 const originalBookProgress=window.bu45ProgressBar;
 window.bu45ProgressBar=function(book){
@@ -251,6 +258,21 @@ window.bu45GoodreadsCommit=function(){
   }
  }
  persist();return result;
+};
+
+// Scanned edition covers also need to be copied back: the legacy saveEdit method
+// only persisted a fixed set of scalar fields and silently dropped editDraft.covers.
+const previousEditSave=window.saveEdit;
+window.saveEdit=function(id){
+ if(!editDraft)return previousEditSave.apply(this,arguments);
+ captureEdit();
+ const cover=Array.isArray(editDraft.covers)?[...editDraft.covers]:null;
+ const result=previousEditSave.apply(this,arguments);
+ if(editDraft===null&&cover?.length){
+  const book=currentBook(id);
+  if(book){book.covers=cover;book.cover=cover[0];persist();}
+ }
+ return result;
 };
 
 // A failed recommendation fetch must never leave a perpetual loading view.
@@ -389,6 +411,27 @@ function decorateHighlights(){
   if(color)el.style.background=color+'66';
  });
 }
+// Text-mode and EPUB highlights are restored after loadSeg rebuilds #txt.
+function restoreTextMarks(){
+ const root=document.getElementById('txt'),book=S.books.find(b=>String(b.id)===String(cur));
+ if(!root||!book)return;
+ for(const note of book.annotations||[]){
+  if(note.type!=='text-highlight'||!note.text)continue;
+  if(root.querySelector('[data-bu55-note="'+String(note.id||'').replace(/[^a-z0-9-]/gi,'')+'"]'))continue;
+  const text=String(note.text).trim();
+  for(const paragraph of root.querySelectorAll('p[data-p],h3[data-p]')){
+   const node=[...paragraph.childNodes].find(n=>n.nodeType===3&&n.textContent.includes(text));
+   if(!node)continue;
+   const offset=node.textContent.indexOf(text),range=document.createRange();
+   range.setStart(node,offset);range.setEnd(node,offset+text.length);
+   const mark=document.createElement('mark');mark.className='bu53-highlighted-text';
+   mark.dataset.bu55Note=String(note.id||'');mark.style.backgroundColor=(note.color||'#ffe36a')+'88';
+   mark.title=note.comment||'Markierung auf Seite '+note.page;
+   try{range.surroundContents(mark);}catch(error){console.debug('Unable to restore selection',error);}
+   break;
+  }
+ }
+}
 function readerTools(){
  if(view!=='reader')return;
  const holder=document.getElementById('rdwrap'),target=holder?.querySelector('.bu53-zoom-toolbar')||holder?.querySelector('.bu47-reader-tools')||holder?.querySelector('.rdtop');
@@ -401,6 +444,7 @@ function readerTools(){
   const note=document.createElement('button');note.className='chip';note.textContent='Notiz zur Markierung';note.onclick=window.bu55NoteLastHighlight;target.appendChild(note);
  }
  decorateHighlights();
+ restoreTextMarks();
  mountPen();
 }
 window.bu55NoteLastHighlight=function(){
@@ -492,7 +536,12 @@ function mountPen(){
   paintPen();
  },true);
  area.addEventListener('pointercancel',()=>{penActive=null;paintPen();},true);
- const observer=new MutationObserver(()=>{if(!area.isConnected){observer.disconnect();return;}requestAnimationFrame(paintPen)});
+ const observer=new MutationObserver(changes=>{
+  if(!area.isConnected){observer.disconnect();return;}
+  // The SVG overlays are our own DOM changes, not newly loaded book pages.
+  const significant=changes.some(m=>[...m.addedNodes,...m.removedNodes].some(n=>!n.classList?.contains('bu55-pen-overlay')));
+  if(significant)requestAnimationFrame(paintPen);
+ });
  observer.observe(area,{childList:true,subtree:true});
  paintPen();
 }
@@ -505,7 +554,7 @@ const oldAfter=window.nextAfterRender;
 window.nextAfterRender=function(){
  oldAfter?.apply(this,arguments);
  entryControls();
- if(view==='reader'){setTimeout(readerTools,100);setTimeout(()=>{decorateHighlights();paintPen();},450);}
+ if(view==='reader'){setTimeout(readerTools,100);setTimeout(()=>{decorateHighlights();paintPen();restoreTextMarks();},450);}
 };
 const style=document.createElement('style');
 style.textContent='.bu55-book-status,.bu55-list-controls,.bu55-import{margin:12px 0;padding:10px;border:1px solid var(--bd);border-radius:10px}.bu55-list-controls label,.bu55-book-status label,.bu55-medium{display:block;font-size:13px;margin:8px 0}.bu55-import-pages{max-height:40vh;overflow:auto}.bu55-import-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px solid var(--bd)}.bu55-import-row span{min-width:0}.bu55-import-row small{display:block;color:var(--mut)}.bu55-import-row select{flex-shrink:0}.bu55-highlight-colors{display:flex;align-items:center;gap:6px;font-size:12px}#bu55-edition-video{max-width:100%;width:100%;max-height:200px;object-fit:cover;border-radius:10px;background:#111}.bu55-abandoned{color:var(--mut)}#rdwrap.full.bu55-focus .rdtop,#rdwrap.full.bu55-focus .next-reading-tools,#rdwrap.full.bu55-focus .bu47-reader-tools,#rdwrap.full.bu55-focus .bu53-zoom-toolbar{display:none!important}';

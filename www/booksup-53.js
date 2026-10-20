@@ -162,7 +162,10 @@ function bindHighlightPointer(){
   const d=markDrag;markDrag=null;highlightSave(d.canvas,d.start,point(d.canvas,e));
  },true);
  sc.addEventListener('pointercancel',()=>{markDrag=null;},true);
- const observer=new MutationObserver(()=>{if(!sc.isConnected){observer.disconnect();return;}requestAnimationFrame(renderHighlights);});
+ const observer=new MutationObserver(mutations=>{
+   if(!sc.isConnected){observer.disconnect();return;}
+   if(mutations.some(m=>[...m.addedNodes,...m.removedNodes].some(node=>!node.classList?.contains('bu53-highlight'))))requestAnimationFrame(renderHighlights);
+  });
  observer.observe(sc,{childList:true,subtree:false});
 }
 function addAnnotationToolbar(){
