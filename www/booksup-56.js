@@ -274,7 +274,8 @@ const originalPriceScreen=window.bu44PriceNotificationsView;
 window.bu44PriceNotificationsView=function(){
  const html=originalPriceScreen.apply(this,arguments);
  const last=ALL.lastPriceCheck?new Date(ALL.lastPriceCheck).toLocaleString(language()):'Keine Datenquelle geprüft';
- return html.replace('</div>','<p class="hint">Letzte Datenprüfung: '+esc(last)+'. Preisabruf bei geöffneter App; für Benachrichtigungen im Hintergrund ist ein separater Dienst erforderlich.</p><button class="chip" onclick="bu56RefreshPrices()">Preise jetzt prüfen</button></div>');
+ const end=html.lastIndexOf('</div>');
+ return end<0?html:html.slice(0,end)+'<p class="hint">Letzte Datenprüfung: '+esc(last)+'. Preisabruf bei geöffneter App; für Benachrichtigungen im Hintergrund ist ein separater Dienst erforderlich.</p><button class="chip" onclick="bu56RefreshPrices()">Preise jetzt prüfen</button>'+html.slice(end);
 };
 window.bu56RefreshPrices=async function(){
  if(navigator.onLine===false)return toast('Offline – Preisabfrage benötigt Internet.');
