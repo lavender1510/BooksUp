@@ -19,6 +19,8 @@ import com.getcapacitor.annotation.CapacitorPlugin;
 import java.io.File;
 import java.io.InputStream;
 import java.io.FileOutputStream;
+import java.security.MessageDigest;
+import android.content.ClipData;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
@@ -27,6 +29,8 @@ public class BooksUpUpdaterPlugin extends Plugin {
   @PluginMethod
   public void installGithubApk(PluginCall call) {
     final String uri = call.getString("url", "");
+    final String sha256 = call.getString("sha256", "");
+    if (!sha256.isEmpty() && !sha256.matches("(?i)[0-9a-f]{64}")) {call.reject("Ungültiger SHA-256-Prüfwert.");return;}
     if (!uri.matches("^https://github\\.com/lavender1510/BooksUp/releases/download/[^?#]+/[^/?#]+\\.apk$")) {
       call.reject("Nur offizielle BooksUp-APK-Dateien von GitHub sind zugelassen.");
       return;
@@ -51,6 +55,7 @@ public class BooksUpUpdaterPlugin extends Plugin {
         connection.setReadTimeout(22000);
         connection.setRequestProperty("User-Agent", "BooksUp-Android-5.0");
         int size = 0;
+        MessageDigest digest=MessageDigest.getInstance("SHA-256");
         try {
           if (connection.getResponseCode() != 200) throw new Exception("Download HTTP " + connection.getResponseCode());
           try (InputStream input = connection.getInputStream(); FileOutputStream output = new FileOutputStream(temp)) {
@@ -61,12 +66,17 @@ public class BooksUpUpdaterPlugin extends Plugin {
               if (size % (512*1024) < block.length) {JSObject progress=new JSObject();progress.put("downloadedBytes",size);progress.put("totalBytes",connection.getContentLengthLong());notifyListeners("downloadProgress",progress);}
               if (size > 100 * 1024 * 1024) throw new Exception("APK ist zu groß");
               output.write(block, 0, count);
+              digest.update(block,0,count);
             }
           }
         } finally {
           connection.disconnect();
         }
         if (size < 100000) throw new Exception("APK unvollständig");
+        StringBuilder actualHash=new StringBuilder();
+        for(byte b:digest.digest())actualHash.append(String.format("%02x",b & 0xff));
+        if(!sha256.isEmpty()&&!sha256.equalsIgnoreCase(actualHash.toString()))throw new Exception("SHA-256-Prüfung fehlgeschlagen: Download beschädigt.");
+        JSObject validated=new JSObject();validated.put("message","Download abgeschlossen. Prüfe Signatur und installierbare Version …");validated.put("downloadedBytes",size);validated.put("totalBytes",size);notifyListeners("downloadProgress",validated);
         // APK installer can never update an existing package signed with an ephemeral
         // different key. Reject before launching install, preserving all app data.
         PackageManager pm=getContext().getPackageManager();
@@ -86,10 +96,12 @@ public class BooksUpUpdaterPlugin extends Plugin {
               getContext().getPackageName() + ".booksup.fileprovider", temp);
         Intent intent = new Intent(Intent.ACTION_VIEW);
         intent.setDataAndType(content, "application/vnd.android.package-archive");
+        intent.setClipData(ClipData.newRawUri("BooksUp Update",content));
         intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_ACTIVITY_NEW_TASK);
+        if(intent.resolveActivity(getContext().getPackageManager())==null)throw new Exception("Android-Paketinstaller nicht gefunden.");
         getContext().startActivity(intent);
         JSObject result = new JSObject();
-        result.put("message", "APK heruntergeladen. Android-Installationsdialog geöffnet; Installation muss bestätigt werden.");
+        result.put("message", "APK vollständig heruntergeladen und geprüft. Android-Installationsdialog geöffnet. Erst nach der Systembestätigung wird das Update installiert.");
         call.resolve(result);
       } catch (Exception ex) {
         if (temp != null) temp.delete();

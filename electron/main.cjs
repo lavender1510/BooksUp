@@ -87,7 +87,7 @@ function createWindow() {
     }).then(() => wc.executeJavaScript(fsSync.readFileSync(path.join(__dirname, 'booksup-windows-48.js'), 'utf8')))
       .then(async () => {
         for (const name of ['booksup-50.css','booksup-51.css','booksup-52.css','booksup-54-features.css']) await wc.insertCSS(fsSync.readFileSync(path.join(__dirname, '..', 'www', name), 'utf8'));
-        for (const name of ['booksup-50.js', 'booksup-50-pair.js', 'booksup-50-services.js','booksup-51.js','booksup-52.js','booksup-53.js'])
+        for (const name of ['booksup-50.js', 'booksup-50-pair.js', 'booksup-50-services.js','booksup-51.js','booksup-52.js','booksup-53.js','booksup-55.js'])
           await wc.executeJavaScript(fsSync.readFileSync(path.join(__dirname, '..', 'www', name), 'utf8'));
       }).catch(console.error);
   });
@@ -125,7 +125,10 @@ autoUpdater.on('update-downloaded',async info=>{
     title:'BooksUp-Update bereit',message:'BooksUp '+info.version+' wurde heruntergeladen.',
     detail:'BooksUp wird zum Installieren neu gestartet. Deine Bibliotheksdaten bleiben auf diesem Gerät.'
   });
-  if(response===0)autoUpdater.quitAndInstall(false,true);
+  if(response===0){
+     booksupUpdateStatus('Installation wird gestartet. BooksUp beendet sich und wird nach der Installation neu geöffnet.',100);
+     try{autoUpdater.quitAndInstall(false,true);}catch(error){booksupUpdateStatus('Installation fehlgeschlagen: '+String(error.message||error),null);dialog.showErrorBox('BooksUp Update',String(error.message||error));}
+   }
 });
 async function checkBooksUpUpdates(manual=false){
   if(!app.isPackaged||process.platform!=='win32'){

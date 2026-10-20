@@ -134,7 +134,7 @@ if(!androidHtml.includes('</head>')||!androidHtml.includes('</body>'))throw Erro
  // Skip the mobile 4.8 presentation stylesheet; retain its JS functionality.
 if(!androidHtml.includes(jsTag))androidHtml=androidHtml.replace('</body>',jsTag+'</body>');
 // Shared 5.0 scripts are loaded after the Android 4.8 overrides, keeping both platforms aligned.
-for(const name of ['booksup-50.css','booksup-50.js','booksup-50-pair.js','booksup-50-services.js','booksup-51.js','booksup-52.js','booksup-53.js','booksup-54-features.css']){
+for(const name of ['booksup-50.css','booksup-50.js','booksup-50-pair.js','booksup-50-services.js','booksup-51.js','booksup-52.js','booksup-53.js','booksup-55.js','booksup-54-features.css']){
  const src=join(ROOT,'www',name);if(!existsSync(src))throw Error('Missing 5.0 source: '+name);
  copyFileSync(src,join(publicDir,name));
  if(name.endsWith('.css')){

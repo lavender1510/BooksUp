@@ -183,8 +183,8 @@ window.bu50CheckAppUpdate=async function(){
   if(!confirm('BooksUp '+newer.v+' herunterladen und installieren? Android wird eine Systembestätigung verlangen.'))return show('Update abgebrochen.');
   const native=window.Capacitor?.Plugins?.BooksUpUpdater;
   if(native?.installGithubApk){
-   show('Lade APK in die App …');const result=await native.installGithubApk({url:asset.browser_download_url});
-   show(result.message||'APK an Android-Installer übergeben.');
+   show('Lade APK in die App …');const result=await native.installGithubApk({url:asset.browser_download_url,sha256:String(asset.digest||'').replace(/^sha256:/,'')});
+   localStorage.setItem('booksup-update-pending',newer.v);show(result.message||'APK geprüft. Android-Installationsdialog geöffnet. Bitte Installation bestätigen.');
   }else{window.bu50OpenReleases();show('In-App-APK-Installation auf diesem Gerät nicht verfügbar.');}
  }catch(e){show('Updateprüfung fehlgeschlagen: '+(e.message||e));}
 };

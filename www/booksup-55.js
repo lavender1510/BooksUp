@@ -403,7 +403,7 @@ function readerTools(){
  decorateHighlights();
 }
 window.bu55NoteLastHighlight=function(){
- const book=S.books.find(b=>String(b.id)===String(cur)),item=[...(book?.annotations||[])].reverse().find(x=>x.rect||x.text);
+ const book=S.books.find(b=>String(b.id)===String(cur)),item=[...(book?.annotations||[])].reverse().find(x=>x.rect||x.text||x.type==='ink');
  if(!item)return toast('Bitte zuerst eine Stelle markieren.');
  const note=prompt('Notiz zur Markierung auf Seite '+(item.page||1)+':',item.comment||'');
  if(note===null)return;
@@ -418,6 +418,7 @@ window.nextAfterRender=function(){
 const style=document.createElement('style');
 style.textContent='.bu55-book-status,.bu55-list-controls,.bu55-import{margin:12px 0;padding:10px;border:1px solid var(--bd);border-radius:10px}.bu55-list-controls label,.bu55-book-status label,.bu55-medium{display:block;font-size:13px;margin:8px 0}.bu55-import-pages{max-height:40vh;overflow:auto}.bu55-import-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px solid var(--bd)}.bu55-import-row span{min-width:0}.bu55-import-row small{display:block;color:var(--mut)}.bu55-import-row select{flex-shrink:0}.bu55-highlight-colors{display:flex;align-items:center;gap:6px;font-size:12px}#bu55-edition-video{max-width:100%;width:100%;max-height:200px;object-fit:cover;border-radius:10px;background:#111}.bu55-abandoned{color:var(--mut)}#rdwrap.full.bu55-focus .rdtop,#rdwrap.full.bu55-focus .next-reading-tools,#rdwrap.full.bu55-focus .bu47-reader-tools,#rdwrap.full.bu55-focus .bu53-zoom-toolbar{display:none!important}';
 document.head.appendChild(style);
+setTimeout(()=>{const pending=localStorage.getItem('booksup-update-pending');if(pending&&pending===APP_VERSION){localStorage.removeItem('booksup-update-pending');toast('BooksUp '+APP_VERSION+' wurde erfolgreich installiert.');}},2000);
 const oldFull=window.toggleFull;
 window.toggleFull=function(){
  const entering=!rdFull;oldFull.apply(this,arguments);

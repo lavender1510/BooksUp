@@ -1,8 +1,8 @@
 {
   "name": "booksup",
-  "version": "5.4.0",
+  "version": "5.5.0",
   "private": true,
-  "description": "BooksUp 5.4 – Windows 5.2 and Android 4.6 original designs with the latest features",
+  "description": "BooksUp 5.5 – Windows 5.2 and Android 4.6 original designs with the latest features",
   "productName": "BooksUp",
   "main": "electron/main.cjs",
   "type": "commonjs",

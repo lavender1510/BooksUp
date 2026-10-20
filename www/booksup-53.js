@@ -107,7 +107,7 @@ function highlightSave(canvas,start,end){
  if(rect.w<.012||rect.h<.008){toast('Ziehe über den Bereich, den du markieren möchtest.');return;}
  const b=book();if(!b)return;
  b.annotations??=[];
- b.annotations.push({id:crypto.randomUUID(),page:canvasPage(canvas),rect,type:'highlight',text:'',comment:'',created:Date.now()});
+ b.annotations.push({id:crypto.randomUUID(),page:canvasPage(canvas),rect,type:'highlight',color:ALL.bu55HighlightColor||'#ffe36a',text:'',comment:'',created:Date.now()});
  persist();marking=false;updateHighlightButton();renderHighlights();
  toast('Markierung gespeichert – auch nach dem Zoomen.');
 }
@@ -133,6 +133,7 @@ function renderHighlights(){
    el.style.top=(canvas.offsetTop+r.y*canvas.clientHeight)+'px';
    el.style.width=(r.w*canvas.clientWidth)+'px';el.style.height=(r.h*canvas.clientHeight)+'px';
    el.title=a.comment||'Markierung auf Seite '+page;
+   if(a.color)el.style.background=a.color+'66';
    parent.appendChild(el);
   }
  }
@@ -190,7 +191,7 @@ window.nextCaptureHighlight=function(){
   const comment=prompt('Notiz zur markierten Textstelle (optional):','');
   if(comment===null)return;
   b.annotations??=[];
-  b.annotations.push({id:crypto.randomUUID(),page:Number(pgNow||b.page||1),type:'text-highlight',text:selection.slice(0,2000),comment:String(comment).slice(0,2000),created:Date.now()});
+  b.annotations.push({id:crypto.randomUUID(),page:Number(pgNow||b.page||1),type:'text-highlight',color:ALL.bu55HighlightColor||'#ffe36a',text:selection.slice(0,2000),comment:String(comment).slice(0,2000),created:Date.now()});
   try{const active=window.getSelection?.();if(active?.rangeCount){const range=active.getRangeAt(0);if(document.getElementById('rdscroll')?.contains(range.commonAncestorContainer)){const marker=document.createElement('mark');marker.className='bu53-highlighted-text';range.surroundContents(marker);active.removeAllRanges();}}}catch{}
   persist();toast('Textmarkierung gespeichert.');return;
  }
