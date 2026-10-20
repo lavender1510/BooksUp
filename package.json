@@ -1,8 +1,8 @@
 {
   "name": "booksup",
-  "version": "5.3.0",
+  "version": "5.3.1",
   "private": true,
-  "description": "BooksUp 5.3 – production releases, persistent zoom, reader annotations, mobile responsive UI",
+  "description": "BooksUp 5.3.1 – original Windows 5.2 and Android 4.6 appearance with 5.3 features",
   "productName": "BooksUp",
   "main": "electron/main.cjs",
   "type": "commonjs",
