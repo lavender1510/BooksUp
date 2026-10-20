@@ -45,13 +45,23 @@ jobs:
           packages: 'platform-tools'
       - run: sdkmanager --install 'platforms;android-36' 'build-tools;36.0.0'
       - run: npm install --no-audit --no-fund
-      - name: Compile APK only for validation (never published)
-        run: npm run android:apk
+      - name: Create temporary CI signing key (NOT the publisher key)
+        shell: bash
+        run: |
+          keytool -genkeypair -noprompt -keystore "$RUNNER_TEMP/qa-only.p12" -storetype PKCS12 -alias ci-qa -storepass qa-only-testing -keypass qa-only-testing -dname 'CN=BooksUp QA,O=CI,C=DE' -keyalg RSA -keysize 2048 -validity 2
+          echo "BOOKSUP_RELEASE_KEYSTORE=$RUNNER_TEMP/qa-only.p12" >> "$GITHUB_ENV"
+      - name: Verify release variant with ephemeral CI-only key (NEVER distributed)
+        env:
+          BOOKSUP_RELEASE_STORE_PASSWORD: qa-only-testing
+          BOOKSUP_RELEASE_KEY_ALIAS: ci-qa
+          BOOKSUP_RELEASE_KEY_PASSWORD: qa-only-testing
+        run: npm run android:release
       - name: Verify generated manifest permits validated private LAN signaling
         shell: bash
         run: |
-          APK='release/BooksUp-debug.apk'
+          APK='release/BooksUp-5.3.0.apk'
           test -s "$APK"
+          "$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --verbose "$APK"
           "$ANDROID_HOME/build-tools/36.0.0/aapt" dump xmltree "$APK" AndroidManifest.xml > "$RUNNER_TEMP/manifest.txt"
           grep 'usesCleartextTraffic' "$RUNNER_TEMP/manifest.txt"
           grep -q 'usesCleartextTraffic.*0xffffffff' "$RUNNER_TEMP/manifest.txt"
