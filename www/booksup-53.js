@@ -298,4 +298,56 @@ window.nextAfterRender=function(){
  else{applyLanguage();observeLanguage();}
 };
 window.bu53ApplyLanguage=applyLanguage;
+
+/* Real transfer progress is not an animation: only bytes reported by the
+ * Android native downloader and Windows electron-updater advance this bar. */
+let updateStart=0;
+let downloadLast={bytes:0,time:0};
+function fmtBytes(bytes){return Number(bytes)>0?(Number(bytes)/1048576).toFixed(1)+' MB':'0 MB';}
+function fmtTime(seconds){const s=Math.max(0,Math.ceil(seconds));return s>=60?Math.floor(s/60)+' min '+s%60+' s':s+' s';}
+function progressUpdate(data){
+ const panel=document.getElementById('bu53-update-progress');if(!panel)return;
+ const bytes=Number(data?.transferred||data?.downloadedBytes||0);
+ const total=Number(data?.total||data?.totalBytes||0);
+ const now=Date.now();
+ if(!updateStart){updateStart=now;downloadLast={bytes:0,time:now};}
+ const seconds=Math.max(.001,(now-updateStart)/1000);
+ const speed=Number(data?.bytesPerSecond||0)||(bytes>0?bytes/seconds:0);
+ const rawPct=total>0?Math.round(bytes/total*100):data?.percent;
+ const pct=Number.isFinite(Number(rawPct))&&rawPct!==null?Math.max(0,Math.min(100,Number(rawPct))):null;
+ const bar=panel.querySelector('progress'),label=panel.querySelector('.bu53-update-progress-label');
+ if(bar){if(pct===null)bar.removeAttribute('value');else bar.value=pct;}
+ if(label){
+  const eta=total>bytes&&speed>100?fmtTime((total-bytes)/speed):'wird berechnet';
+  label.textContent=(data?.message||'Update wird heruntergeladen …')+
+    (pct!==null?' · '+pct+'%':'')+
+    (bytes>0?' · '+fmtBytes(bytes)+(total>0?' / '+fmtBytes(total):''):'')+
+    (speed>100?' · '+fmtBytes(speed)+'/s':'')+
+    (total>bytes?' · Restzeit ca. '+eta:'');
+ }
+ panel.hidden=false;
+ if(pct===100||/aktuell|fehlgeschlagen|blockiert|Abgeschlossen/i.test(String(data?.message||''))){downloadLast={bytes:0,time:0};updateStart=0;}
+}
+const prevSettingsDetail=window.nextSettingsDetail;
+window.nextSettingsDetail=function(){
+ const html=prevSettingsDetail.apply(this,arguments);
+ if(nextSettingCategory!=='updates')return html;
+ const progress='<div id="bu53-update-progress" class="bu53-update-progress" aria-live="polite" hidden>'+
+ '<progress max="100" value="0" aria-label="Update-Download"></progress>'+
+ '<div class="bu53-update-progress-label">Update wird vorbereitet …</div></div>';
+ return html.replace('</div></div>',progress+'</div></div>');
+};
+try{
+ window.booksupUpdateEvents?.subscribe?.(progressUpdate);
+ window.Capacitor?.Plugins?.BooksUpUpdater?.addListener?.('downloadProgress',progressUpdate);
+}catch(error){console.debug('Update progress setup',error);}
+const oldUpdate=window.bu50CheckAppUpdate;
+window.bu50CheckAppUpdate=async function(){
+ updateStart=0;downloadLast={bytes:0,time:0};
+ const box=document.getElementById('bu53-update-progress');
+ if(box){box.hidden=false;const t=box.querySelector('.bu53-update-progress-label');if(t)t.textContent='Prüfe auf neue Versionen …';}
+ try{return await oldUpdate.apply(this,arguments);}
+ catch(error){progressUpdate({message:'Update fehlgeschlagen: '+String(error.message||error)});throw error;}
+};
+
 })();
