@@ -1,0 +1,38 @@
+/* BooksUp 5.3.1: ONLY additive feature styling. Windows retains 5.2 UI;
+   Android retains 4.6 layout. No global typography, cards, profile or navigation overrides. */
+.bu50-font-row[hidden]{display:none!important}
+.bu51-lan-pair{border:1px solid var(--bd);background:var(--card);border-radius:16px;padding:16px;margin:12px 18px;max-width:calc(100% - 36px);box-sizing:border-box}
+.bu51-lan-box{border:1px solid var(--bd);background:var(--card);border-radius:12px;padding:12px;margin:12px 0;min-width:0}
+.bu51-lan-box input{max-width:100%;min-width:0;box-sizing:border-box}
+.bu51-lan-address{overflow-wrap:anywhere}
+.bu53-pair-buttons{display:flex;flex-wrap:wrap;gap:8px;max-width:100%}
+.bu53-zoom-toolbar{display:flex;gap:8px;align-items:center;overflow-x:auto;overflow-y:hidden;max-width:100%;min-width:0;padding:8px 12px;scrollbar-width:thin;border-bottom:1px solid var(--bd);background:var(--card)}
+.bu53-zoom-toolbar>*{flex:0 0 auto;white-space:nowrap}
+.bu53-zoom-toolbar input[type=range]{width:clamp(80px,22vw,180px);min-width:80px}
+.bu53-zoom-toolbar .chip{flex:0 0 auto;min-height:36px}
+.bu53-zoom-toolbar strong{font-variant-numeric:tabular-nums}
+.bu53-reader .rdtop{display:flex;flex-wrap:nowrap;align-items:center;gap:7px;min-width:0;max-width:100%;overflow-x:auto;overflow-y:hidden;scrollbar-width:thin;overscroll-behavior-x:contain}
+.bu53-reader .rdtop>*,.bu53-reader .rdtop .chip{min-width:max-content;white-space:nowrap!important;word-break:normal!important;overflow-wrap:normal!important;flex-shrink:0}
+.bu53-reader .rdtop .tt{min-width:100px;max-width:50vw;overflow:hidden;text-overflow:ellipsis}
+.bu53-reader .next-reading-tools{display:flex;flex-wrap:nowrap;overflow-x:auto;gap:8px;max-width:100%}
+.bu53-reader .next-reading-tools>*{white-space:nowrap;flex-shrink:0}
+.bu53-reader #rdwrap{min-width:0;max-width:100%}
+.bu53-reader #rdscroll{min-width:0;overflow:auto;overscroll-behavior:contain;touch-action:pan-x pan-y}
+.bu53-reader #rdscroll.bu44-zoomed{overflow:auto!important}
+.bu53-reader #rdscroll.bu44-zoomed canvas{max-width:none!important;max-height:none!important}
+#rdscroll.bu52-pinch-preview{transform:scale(var(--bu52-preview-scale,1));transform-origin:var(--bu52-origin-x,50%) var(--bu52-origin-y,50%)}
+.bu53-marking canvas{cursor:crosshair;touch-action:none}
+.bu53-highlight{position:absolute;pointer-events:none;background:rgba(255,224,74,.31);box-shadow:inset 0 0 0 1px rgba(208,149,0,.5)}
+.bu53-highlighted-text{background:#f5db76;color:inherit}
+.bu53-update-progress{margin:12px 0;padding:12px;border:1px solid var(--bd);border-radius:12px}
+.bu53-update-progress[hidden]{display:none}
+.bu53-update-progress progress{display:block;width:100%;height:12px;accent-color:var(--acc);margin:8px 0}
+.bu53-update-progress-label{font-size:12px;overflow-wrap:anywhere;color:var(--mut)}
+/* Only keep areas reachable by scrolling; do not rescale entire UI or restyle cards. */
+.bu-android #app,.bu-android .next-layout,.bu-android .next-content{width:100%;min-width:0;max-width:100%;box-sizing:border-box}
+.bu-android .next-content{overflow-x:clip;overflow-y:visible}
+.bu-android .next-settings-pane,.bu-android .bu50-pair,.bu-android .bu45-library{padding-bottom:calc(80px + env(safe-area-inset-bottom,0px))}
+.bu-android .next-book-rail{overflow-x:auto}
+.bu-android .modal>div{max-height:calc(100dvh - 32px);overflow-y:auto}
+.bu-android :is(input,textarea,select){max-width:100%;box-sizing:border-box}
+.bu-android .bu53-zoom-toolbar .chip{font-size:13px}
