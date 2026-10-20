@@ -4,29 +4,35 @@
  */
 (function(){
 'use strict';
-let peer=null,channel=null,role='',code='',ready=false,receiving='',expected=0,importBusy=false;
+let peer=null,channel=null,role='',code='',ready=false,receiving='',expected=0,importBusy=false, sending=false,transferId='',ackTimer=null,startedAt=0;
 const el=id=>document.getElementById(id);
 const say=s=>{const n=el('bu50-peer-status');if(n)n.textContent=s;};
+const connected=()=>ready&&channel?.readyState==='open'&&peer?.connectionState==='connected';
+function controls(){const b=el('bu50-send-button');if(b)b.disabled=!connected()||sending;const d=el('bu50-peer-identity');if(d)d.textContent=connected()?'Verbundenes Gerät: '+(code?'Sicherheitskennung '+code:'WebRTC-Gegenstelle – Kennung wird ermittelt'):'Kein Gerät verbunden';}
+function progress(sent,total){const bar=el('bu50-transfer-progress'),status=el('bu50-transfer-info');const pct=total?Math.min(100,Math.floor(sent/total*100)):0;if(bar){bar.max=100;bar.value=pct;}if(status){const elapsed=(Date.now()-startedAt)/1000,rate=elapsed>0?sent/elapsed:0,left=rate>0?Math.ceil((total-sent)/rate):null;status.textContent=pct+' % übertragen · '+(left===null?'Restzeit wird berechnet':left+' s verbleibend');}}
+function abortTransfer(reason){if(ackTimer){clearTimeout(ackTimer);ackTimer=null;}if(sending){sending=false;say(reason||'Übertragung unterbrochen. Bitte erneut verbinden und senden.');}controls();}
+function completeTransfer(){if(ackTimer){clearTimeout(ackTimer);ackTimer=null;}sending=false;const n=el('bu50-transfer-info');if(n)n.textContent='100 % · Empfang auf dem Zielgerät bestätigt';say('Übertragung auf dem Zielgerät bestätigt.');controls();}
+
 const waitIce=pc=>new Promise(resolve=>{
  if(pc.iceGatheringState==='complete')return resolve();
  const timer=setTimeout(()=>{pc.removeEventListener('icegatheringstatechange',listen);resolve()},9000);
  function listen(){if(pc.iceGatheringState==='complete'){clearTimeout(timer);pc.removeEventListener('icegatheringstatechange',listen);resolve();}}
  pc.addEventListener('icegatheringstatechange',listen);
 });
-function close(){try{channel?.close();peer?.close()}catch{}channel=null;peer=null;ready=false;role='';receiving='';expected=0;}
+function close(){abortTransfer('Verbindung beendet. Übertragung gegebenenfalls erneut starten.');try{channel?.close();peer?.close()}catch{}channel=null;peer=null;ready=false;role='';code='';receiving='';expected=0;controls();}
 window.bu50PeerStop=function(){close();say('Verbindung getrennt.');};
 function make(){
  close();
  if(!window.RTCPeerConnection)throw Error('Dieses Gerät unterstützt WebRTC nicht.');
  peer=new RTCPeerConnection({iceServers:[]});
- peer.addEventListener('connectionstatechange',()=>{if(peer?.connectionState==='connected')say('Direkte verschlüsselte Verbindung steht.');else if(['failed','disconnected'].includes(peer?.connectionState||''))say('Verbindung unterbrochen. Gleiches WLAN oder Hotspot prüfen.');});
+ peer.addEventListener('connectionstatechange',()=>{if(peer?.connectionState==='connected')say('Direkte verschlüsselte Verbindung steht.');else if(['failed','disconnected','closed'].includes(peer?.connectionState||'')){ready=false;abortTransfer('Verbindung unterbrochen. Bitte im gleichen WLAN erneut verbinden und Daten wieder senden.');say('Verbindung unterbrochen. Gleiches WLAN oder Hotspot prüfen.');}controls();});
  peer.addEventListener('datachannel',e=>bindChannel(e.channel));
 }
 function bindChannel(c){
  channel=c;channel.binaryType='arraybuffer';channel.bufferedAmountLowThreshold=262144;
- channel.onopen=()=>{ready=true;say('Verbunden! Prüft auf beiden Geräten den gleichen Sicherheitscode. Danach kannst du Daten senden.');void computeCode();};
- channel.onclose=()=>{ready=false;say('Verbindung geschlossen.');};
- channel.onerror=()=>say('Netzwerkfehler: Direkte Verbindung prüfen.');
+ channel.onopen=()=>{ready=true;say('Verbunden! Prüft auf beiden Geräten den gleichen Sicherheitscode. Danach kannst du Daten senden.');controls();void computeCode();};
+ channel.onclose=()=>{ready=false;abortTransfer('Verbindung geschlossen. Erneut verbinden und Daten wieder senden.');say('Verbindung geschlossen.');controls();};
+ channel.onerror=()=>{abortTransfer('Netzwerkfehler: Übertragung abgebrochen.');say('Netzwerkfehler: Direkte Verbindung prüfen.');};
  channel.onmessage=e=>void message(e.data);
 }
 async function computeCode(){
@@ -36,7 +42,7 @@ async function computeCode(){
   if(patterns.some(x=>!x))return;
   const key=patterns.sort().join('|'),buf=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(key));
   const bytes=new Uint8Array(buf);code=String(((bytes[0]<<16)|(bytes[1]<<8)|bytes[2])%1000000).padStart(6,'0');
-  say('Direkt verbunden. Sicherheitscode: '+code+' – auf beiden Geräten vergleichen.');
+  say('Direkt verbunden. Sicherheitscode: '+code+' – auf beiden Geräten vergleichen.');controls();
  }catch(e){console.debug('Pairing code',e);}
 }
 function localText(){return el('bu50-local-sdp')}
@@ -93,32 +99,38 @@ async function packet(){
  return JSON.stringify({version:1,app:'BooksUp',snapshot,files,created:Date.now()});
 }
 async function send(data){
- if(!channel||channel.readyState!=='open')throw Error('Keine direkte Verbindung.');
+ if(!connected())throw Error('Keine direkte Verbindung.');
  if(data.length>43*1024*1024)throw Error('Übertragung zu groß (max. 43 MB).');
- channel.send(JSON.stringify({type:'start',length:data.length}));
+ transferId=String(Date.now())+'-'+Math.random().toString(36).slice(2);startedAt=Date.now();progress(0,data.length);
+ channel.send(JSON.stringify({type:'start',length:data.length,id:transferId}));
  const slice=12000;
  for(let i=0;i<data.length;i+=slice){
-  while(channel.bufferedAmount>512000)await new Promise(ok=>setTimeout(ok,25));
-  if(channel.readyState!=='open')throw Error('Verbindung getrennt');
+  let delay=0;
+  while(channel.bufferedAmount>512000){if(!connected())throw Error('Verbindung getrennt');if(++delay>1200)throw Error('Datenkanal blockiert – Übertragung abgebrochen');await new Promise(ok=>setTimeout(ok,25));}
+  if(!connected())throw Error('Verbindung getrennt');
   channel.send(JSON.stringify({type:'chunk',content:data.slice(i,i+slice)}));
-  if(i%(slice*50)===0)say('Sende: '+Math.round(i/data.length*100)+'%');
+  if(i%(slice*25)===0||i+slice>=data.length)progress(Math.min(i+slice,data.length),data.length);
  }
- channel.send(JSON.stringify({type:'finish'}));say('Übertragung gesendet. Das zweite Gerät muss die Daten noch bestätigen.');
+ channel.send(JSON.stringify({type:'finish',id:transferId}));say('Daten gesendet. Warte auf Bestätigung des Zielgeräts …');
+ ackTimer=setTimeout(()=>abortTransfer('Keine Empfangsbestätigung erhalten. Bitte auf dem Zielgerät prüfen, bevor du erneut sendest.'),90000);
 }
 window.bu50SendPeer=async function(){
- if(!ready)return say('Noch nicht verbunden.');
+ if(!connected())return say('Noch nicht verbunden. Verbinde zuerst ein Gerät.');
+ if(sending)return;
  if(!confirm('Bücher, Lesefortschritt und vorhandene digitale Dateien auf das verbundene Gerät übertragen? Hintergrundbilder werden NICHT gesendet.'))return;
- try{say('Erstelle Übertragung …');await send(await packet());}catch(e){say('Senden fehlgeschlagen: '+(e.message||e));}
+ sending=true;controls();
+ try{say('Erstelle Übertragung …');await send(await packet());}catch(e){abortTransfer('Senden fehlgeschlagen: '+(e.message||e));}
 };
 async function message(v){
  if(typeof v!=='string')return;
  let obj;try{obj=JSON.parse(v)}catch{return}
- if(obj.type==='start'){if(!Number.isInteger(obj.length)||obj.length>43*1024*1024)return;receiving='';expected=obj.length;say('Empfange Daten …');return;}
+ if(obj.type==='ack'){if(sending&&obj.id===transferId)completeTransfer();return;}
+ if(obj.type==='start'){if(!Number.isInteger(obj.length)||obj.length<=0||obj.length>43*1024*1024)return;receiving='';expected=obj.length;say('Empfange Daten …');return;}
  if(obj.type==='chunk'){if(!expected||typeof obj.content!=='string'||obj.content.length>16000)return;receiving+=obj.content;if(receiving.length>expected){receiving='';expected=0;return;}return;}
  if(obj.type==='finish'){
   if(receiving.length!==expected||!expected)return;
   const data=receiving;expected=0;receiving='';
-  try{const p=JSON.parse(data);await preview(p);}catch(e){say('Übertragung konnte nicht gelesen werden: '+e.message);}
+  try{const p=JSON.parse(data);await preview(p);if(channel?.readyState==='open')channel.send(JSON.stringify({type:'ack',id:obj.id||''}));}catch(e){say('Übertragung konnte nicht gelesen werden: '+e.message);}
  }
 }
 function key(b){return b.isbn?'isbn:'+String(b.isbn).replace(/\W/g,''):(String(b.title||'').toLowerCase().trim()+'|'+String(b.author||'').toLowerCase().trim());}
@@ -177,6 +189,7 @@ window.bu50PairingView=function(){
  '<div class="bu50-pair-steps"><div class="bu50-pair-step"><h3>1 · Verbinden</h3><button class="btn" onclick="bu50StartPeer()">Gerät A: Angebot erstellen</button><button class="btn o" onclick="bu50AcceptPeer()">Gerät B: Angebot beantworten</button><button class="chip" onclick="bu50FinishPeer()">Gerät A: Antwort übernehmen</button><p id="bu50-peer-status" role="status">Noch nicht verbunden.</p></div>'+
  '<div class="bu50-pair-step"><h3>2 · Text von diesem Gerät</h3><textarea id="bu50-local-sdp" readonly placeholder="Hier erscheint dein Verbindungstext"></textarea><button class="chip" onclick="bu50CopyPeer()">Kopieren</button></div>'+
  '<div class="bu50-pair-step"><h3>3 · Text vom anderen Gerät</h3><textarea id="bu50-remote-sdp" placeholder="Angebot oder Antwort vom anderen Gerät hier einfügen"></textarea></div>'+
- '<div class="bu50-pair-step"><h3>4 · Daten übertragen</h3><button class="btn" onclick="bu50SendPeer()">Daten sicher senden</button><button class="chip" onclick="bu50PeerStop()">Verbindung trennen</button><p class="hint">Bei gleichen Büchern wird nichts automatisch überschrieben. Es gibt keinen dauerhaften Hintergrund-Sync; beide Apps müssen geöffnet bleiben. Größere Dateien über 8 MB werden übersprungen. Hintergrundbilder bleiben immer auf dem jeweiligen Gerät.</p></div></div></section>';
+ '<div class="bu50-pair-step"><h3>4 · Daten übertragen</h3><button class="btn" id="bu50-send-button" onclick="bu50SendPeer()" disabled>Daten sicher senden</button><p id="bu50-peer-identity" class="hint">Kein Gerät verbunden</p><progress id="bu50-transfer-progress" value="0" max="100" style="width:100%"></progress><p id="bu50-transfer-info" class="hint" role="status">Noch keine Übertragung</p><button class="chip" onclick="bu50PeerStop()">Verbindung trennen</button><p class="hint">Bei gleichen Büchern wird nichts automatisch überschrieben. Es gibt keinen dauerhaften Hintergrund-Sync; beide Apps müssen geöffnet bleiben. Größere Dateien über 8 MB werden übersprungen. Hintergrundbilder bleiben immer auf dem jeweiligen Gerät.</p></div></div></section>';
+;setTimeout(controls,0);
 };
 })();
