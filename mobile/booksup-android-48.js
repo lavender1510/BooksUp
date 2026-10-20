@@ -302,8 +302,11 @@ window.buRemoveListItem=function(lid,idx) {
   const item=list.items[Number(idx)];
   if(item)stableDelete(lid,item.id);
 };
+const booksupUseOriginalMobileLayout=true;
+// BooksUp 5.4: 4.6 presentation is the Android baseline; keep the new data handlers.
 const oldListDetails=window.bu45ListDetails;
 window.bu45ListDetails=function(){
+  if(booksupUseOriginalMobileLayout)return oldListDetails.apply(this,arguments);
   const list=listById(cur || bu45ListId);
   if(!list)return oldListDetails();
   if(list.autoTiming==='open')bu43RefreshList(list);
@@ -325,17 +328,19 @@ function listTile(list,i,compact=false) {
   const covers=sample.map(x=>'<span class="bu48-preview-cover" title="'+safe(x.book.title)+'">'+bu43CoverHtml(x.book)+'</span>').join('');
   return '<article class="bu48-list-tile"><button class="bu48-list-main" onclick="bu45OpenList('+id+')"><span class="bu48-list-symbol">'+['▤','◈','✦','▣'][i%4]+'</span><span class="bu48-list-text"><strong>'+safe(list.name)+'</strong><small>'+(list.items||[]).length+' Bücher · '+(list.showInShelf?'Im Bücherregal sichtbar':'Eigene Leseliste')+'</small><span class="bu48-preview-caption">'+(sample.length?'Neueste Einträge: '+sample.map(x=>safe(x.book.title)).join(' · '):'Noch keine Bücher eingetragen')+'</span></span><span class="bu48-list-covers">'+(covers||'<span class="bu48-preview-empty">＋</span>')+'</span><span class="bu48-list-arrow">→</span></button><button class="chip bu48-list-settings" onclick="bu45OpenListSettings('+id+')">⋯</button></article>';
 }
+const originalListsOverview=window.bu45ListsOverview;
 window.bu45ListsOverview=function(){
+  if(booksupUseOriginalMobileLayout)return originalListsOverview.apply(this,arguments);
   const lists=readLists();
   return bar('Leselisten','profile')+'<section class="bu48-lists"><header class="bu45-pagehead"><div><span class="next-overline">BOOKSUP / COLLECTIONS</span><h1>Deine Leselisten</h1><p class="hint">Große Sammlungen mit einer Vorschau der zuletzt hinzugefügten Bücher.</p></div><button class="btn" onclick="buNewList()">＋ Neue Leseliste</button></header><div class="bu48-list-stack">'+lists.map((l,i)=>listTile(l,i)).join('')+'</div>'+(lists.length?'':'<div class="card">Noch keine Leselisten vorhanden.</div>')+'</section>';
 };
 const previousProfileLists=window.bu45ProfileLists;
 const previousHistory=window.bu46ReadingHistory;
 const previousHome=window.home;
-window.bu45ProfileLists=function(){return view==='profile'?'':previousProfileLists();};
-window.bu46ReadingHistory=function(){return view==='profile'?'':previousHistory();};
+window.bu45ProfileLists=function(){return booksupUseOriginalMobileLayout?previousProfileLists.apply(this,arguments):(view==='profile'?'':previousProfileLists());};
+window.bu46ReadingHistory=function(){return booksupUseOriginalMobileLayout?previousHistory.apply(this,arguments):(view==='profile'?'':previousHistory());};
 window.home=function(){
-  if(view!=='profile')return previousHome();
+  if(booksupUseOriginalMobileLayout||view!=='profile')return previousHome.apply(this,arguments);
   const holder=document.createElement('div');holder.innerHTML=previousHome();
   const pick=selector=>holder.querySelector(selector)?.outerHTML||'';
   const cards=[...holder.querySelectorAll(':scope > .card')];
