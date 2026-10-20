@@ -1,3 +1,10 @@
+## [5.3.1] – 2026-10-20 – Original Appearance Restoration
+
+- Windows: restore the complete BooksUp 5.2 visual stylesheet; retain the 5.3 functions (reader pinch zoom, annotations, safe updates, direct transfer and localization) without the 5.3 global redesign. The 5.2 reader zoom toolbar is reused.
+- Android: restore the 4.6 mobile profile composition and the original 4.6 layout/styles. Stop loading global 4.8–5.3 restyling CSS; load only narrowly scoped styles needed by newer features. Keep all new feature JavaScript and the signed Android release build.
+- Preserve existing IndexedDB/localStorage book and profile data. No destructive migration.
+- New release uses the same publisher signing credentials as 5.3.0; Android versionCode is incremented for in-place updates to production-signed installations.
+
 ## [5.3.0] – 2026-10-20 (Android & Windows)
 
 ### Stability and release engineering
