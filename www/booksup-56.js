@@ -311,7 +311,8 @@ function sessionLabel(){
  if(!mark){mark=document.createElement('span');mark.id='bu56-session-status';mark.className='chip';mark.setAttribute('role','status');(wrap.querySelector('.rdtop')||wrap).appendChild(mark);}
  const pg=Number(typeof pgNow==='number'?pgNow:b.page)||1,total=Number(typeof pdfDoc!=='undefined'&&pdfDoc?.numPages||b.pages||0);
  const seconds=S.sess?.automatic?Math.max(0,Math.floor((Date.now()-S.sess.start)/1000)):0;
- mark.textContent='Seite '+pg+' von '+(total||'?')+' · '+String(Math.floor(seconds/60)).padStart(2,'0')+':'+String(seconds%60).padStart(2,'0');
+ const currentLang=language(),word={de:['Seite','von'],en:['Page','of'],fr:['Page','sur'],es:['Página','de'],it:['Pagina','di']}[currentLang]||['Page','of'];
+ mark.textContent=word[0]+' '+pg+' '+word[1]+' '+(total||'?')+' · '+String(Math.floor(seconds/60)).padStart(2,'0')+':'+String(seconds%60).padStart(2,'0');
 }
 setInterval(()=>{
  if(view!=='reader'||!rdFull||!S.sess?.automatic)return;
@@ -369,9 +370,43 @@ const WORDS={
  'Noch nicht verbunden.':['Not connected yet.','Pas encore connecté.','Aún no conectado.','Non ancora connesso.']
 };
 const priorTranslation=window.buTranslate;
+const canon=new Map();
+for(const pack of [typeof BU_WORDS==='object'?BU_WORDS:{},typeof BU43_WORDS==='object'?BU43_WORDS:{},
+ typeof BU44_WORDS==='object'?BU44_WORDS:{},typeof BU45_WORDS==='object'?BU45_WORDS:{},typeof BU46_WORDS==='object'?BU46_WORDS:{},WORDS]){
+ for(const [base,versions] of Object.entries(pack)){
+  if(!Array.isArray(versions))continue;
+  canon.set(base.trim().toLowerCase(),base);
+  for(const translation of versions)if(translation)canon.set(String(translation).trim().toLowerCase(),base);
+ }
+}
 window.buTranslate=function(t,lang){
- const p=priorTranslation?.apply(this,arguments);if(p&&p!==t)return p;
- const index={en:0,fr:1,es:2,it:3}[lang],v=WORDS[String(t||'').trim()];
- return v&&index!==undefined?v[index]:p||t;
+ const value=String(t??''),trimmed=value.trim(),base=canon.get(trimmed.toLowerCase())||trimmed;
+ const index={en:0,fr:1,es:2,it:3}[lang];
+ if(lang==='de')return value.replace(trimmed,base);
+ const own=WORDS[base],target=index===undefined?null:own?.[index];
+ if(target)return value.replace(trimmed,target);
+ // Translate from the canonical German string through existing packs.
+ const translated=priorTranslation?.call(this,base,lang);
+ return translated&&translated!==base?value.replace(trimmed,translated):value;
+};
+/* The document reader uses the same locale for buttons and controls. Never
+   translate the book content, imported titles or user-authored notes. */
+const readerAfter=window.nextAfterRender;
+window.nextAfterRender=function(){
+ readerAfter?.apply(this,arguments);
+ if(view!=='reader')return;
+ const root=document.getElementById('rdwrap');if(!root)return;
+ document.documentElement.lang=language();
+ for(const element of root.querySelectorAll('button,label,output,[aria-label],[placeholder]')){
+  if(element.closest('#txt,#rdscroll,.next-annotations,.next-chapters'))continue;
+  for(const node of element.childNodes){
+   if(node.nodeType!==3||!node.nodeValue?.trim())continue;
+   const next=window.buTranslate(node.nodeValue,language());if(next!==node.nodeValue)node.nodeValue=next;
+  }
+  for(const attribute of ['aria-label','placeholder']){
+   const previous=element.getAttribute(attribute);
+   if(previous){const next=window.buTranslate(previous,language());if(next!==previous)element.setAttribute(attribute,next);}
+  }
+ }
 };
 })();
