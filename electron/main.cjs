@@ -86,8 +86,8 @@ function createWindow() {
       return wc.insertCSS(fsSync.readFileSync(path.join(__dirname, 'booksup-windows-48.css'), 'utf8'));
     }).then(() => wc.executeJavaScript(fsSync.readFileSync(path.join(__dirname, 'booksup-windows-48.js'), 'utf8')))
       .then(async () => {
-        for (const name of ['booksup-50.css','booksup-51.css','booksup-52.css']) await wc.insertCSS(fsSync.readFileSync(path.join(__dirname, '..', 'www', name), 'utf8'));
-        for (const name of ['booksup-50.js', 'booksup-50-pair.js', 'booksup-50-services.js','booksup-51.js','booksup-52.js'])
+        for (const name of ['booksup-50.css','booksup-51.css','booksup-52.css','booksup-53.css']) await wc.insertCSS(fsSync.readFileSync(path.join(__dirname, '..', 'www', name), 'utf8'));
+        for (const name of ['booksup-50.js', 'booksup-50-pair.js', 'booksup-50-services.js','booksup-51.js','booksup-52.js','booksup-53.js'])
           await wc.executeJavaScript(fsSync.readFileSync(path.join(__dirname, '..', 'www', name), 'utf8'));
       }).catch(console.error);
   });
@@ -98,14 +98,14 @@ function createWindow() {
 
 /* Signed-in user data stays in Electron's existing booksup:// origin during upgrades. */
 let updateBusy=false;
-const booksupUpdateStatus=(message,percent)=>{if(mainWindow&&!mainWindow.isDestroyed())mainWindow.webContents.send('booksup-update:status',{message,percent:percent??null})};
-autoUpdater.on('download-progress',info=>booksupUpdateStatus('Lade Update herunter …',Math.round(info.percent||0)));
+const booksupUpdateStatus=(message,percent,progress)=>{if(mainWindow&&!mainWindow.isDestroyed())mainWindow.webContents.send('booksup-update:status',{message,percent:percent??null,transferred:Number(progress?.transferred||0),total:Number(progress?.total||0),bytesPerSecond:Number(progress?.bytesPerSecond||0)})};
+autoUpdater.on('download-progress',info=>{const pct=Math.round(info.percent||0);booksupUpdateStatus('Lade Update herunter …',pct,info);});
 autoUpdater.on('update-not-available',()=>booksupUpdateStatus('BooksUp ist aktuell.',null));
 autoUpdater.autoDownload=false;
 autoUpdater.autoInstallOnAppQuit=false;
-autoUpdater.allowPrerelease=true;
+autoUpdater.allowPrerelease=false;
 autoUpdater.allowDowngrade=false;
-autoUpdater.setFeedURL({provider:'github',owner:'lavender1510',repo:'BooksUp',releaseType:'prerelease'});
+autoUpdater.setFeedURL({provider:'github',owner:'lavender1510',repo:'BooksUp',releaseType:'release'});
 autoUpdater.on('update-available', async info=>{
   booksupUpdateStatus('Update verfügbar: '+info.version,null);
   if(!mainWindow||mainWindow.isDestroyed())return;
