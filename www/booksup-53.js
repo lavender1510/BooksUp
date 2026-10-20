@@ -3,7 +3,7 @@
 'use strict';
 if(window.booksup53)return;window.booksup53=true;
 const android=()=>window.Capacitor?.getPlatform?.()==='android';
-const clamp=(v,min,max)=>Math.min(max,Math.max(min,Number(v)||1));
+const clamp=(v,min,max)=>{const n=Number(v);return Math.min(max,Math.max(min,Number.isFinite(n)?n:1));};
 const book=()=>S.books.find(b=>String(b.id)===String(cur));
 const reading=()=>view==='reader'&&!!document.getElementById('rdscroll');
 const escape=v=>typeof esc==='function'?esc(String(v??'')):String(v??'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;');
@@ -122,7 +122,7 @@ function renderHighlights(){
  const sc=document.getElementById('rdscroll'),b=book();if(!sc||!b||view!=='reader')return;
  sc.querySelectorAll('.bu53-highlight').forEach(n=>n.remove());
  for(const canvas of sc.querySelectorAll('canvas')){
-  if(!canvas.clientWidth||!canvas.clientHeight||!canvas.width)return;
+  if(!canvas.clientWidth||!canvas.clientHeight||!canvas.width)continue;
   const page=canvasPage(canvas),parent=canvas.parentElement;
   if(!parent)continue;
   if(getComputedStyle(parent).position==='static')parent.style.position='relative';
@@ -179,6 +179,10 @@ function addAnnotationToolbar(){
  renderHighlights();
 }
 const previousHighlight=window.nextCaptureHighlight;
+const originalShowPage=window.showPg;
+if(typeof originalShowPage==='function')window.showPg=async function(){const result=await originalShowPage.apply(this,arguments);requestAnimationFrame(renderHighlights);return result;};
+const originalRenderPage=window.drawPg;
+if(typeof originalRenderPage==='function')window.drawPg=async function(){const result=await originalRenderPage.apply(this,arguments);requestAnimationFrame(renderHighlights);return result;};
 window.nextCaptureHighlight=function(){
  const selection=window.getSelection?.().toString().trim()||'';
  if(selection){
@@ -187,6 +191,7 @@ window.nextCaptureHighlight=function(){
   if(comment===null)return;
   b.annotations??=[];
   b.annotations.push({id:crypto.randomUUID(),page:Number(pgNow||b.page||1),type:'text-highlight',text:selection.slice(0,2000),comment:String(comment).slice(0,2000),created:Date.now()});
+  try{const active=window.getSelection?.();if(active?.rangeCount){const range=active.getRangeAt(0);if(document.getElementById('rdscroll')?.contains(range.commonAncestorContainer)){const marker=document.createElement('mark');marker.className='bu53-highlighted-text';range.surroundContents(marker);active.removeAllRanges();}}}catch{}
   persist();toast('Textmarkierung gespeichert.');return;
  }
  window.bu53HighlightToggle();
