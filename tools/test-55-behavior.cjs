@@ -50,6 +50,7 @@ state.bu55SetListFormat(7,'physical');
 assert.equal(profile.readingLists[0].mediaFormat,'physical');
 state.bu55SetEntryFormat(7,'i1','digital');
 assert.equal(profile.readingLists[0].items[0].mediaFormat,'digital');
+state.bu55SetListFormat(7,'both');
 state.bu55SetReadStatus(42,'abandoned');
 assert.equal(original.status,'abandoned');
 assert.equal(original.finished,null);
