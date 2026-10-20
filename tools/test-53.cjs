@@ -38,7 +38,7 @@ const window={nextAfterRender:()=>{},nextSettingsDetail:()=>'<section><p id="bu5
  nextCaptureHighlight:()=>{},getSelection:()=>({toString:()=> 'important sentence',rangeCount:0}),
  booksupUpdateEvents:{subscribe:()=>{}},Capacitor:{getPlatform:()=> 'windows'}};
 const env={window,document,S,ALL:{},view:'reader',nextSettingCategory:'updates',cur:1,pgNow:3,pdfDoc:{},
- bu44ZoomSet:x=>{changed++;S.pdfZoom=x;},persist:()=>{saved++},toast:()=>{},esc:x=>x,
+ bu44ZoomSet:x=>{changed++;S.pdfZoom=x;},persist:()=>{saved++},toast:()=>{},esc:x=>x,prompt:()=>'',
  nextLanguage:()=> 'de',buTranslateUI:()=>{},MutationObserver:class{observe(){}disconnect(){}},
  requestAnimationFrame:cb=>{count++;if(count<50)cb();return 1;},setTimeout:()=>1,clearTimeout:()=>{},
  Math,Number,String,Date,Set,Map,Promise,crypto:{randomUUID:()=> 'test-highlight'},
