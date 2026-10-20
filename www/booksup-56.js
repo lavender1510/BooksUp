@@ -42,7 +42,7 @@ const openEntry=x=>{
 const catalogCall=async(q)=>{
  if(window.booksupCatalog?.search&&!q.topic)return window.booksupCatalog.search(q);
  const title=String(q.title||'').trim(),isbn=isoISBN(q.isbn);
- const query=q.topic?'subject:'+q.topic:isbn?'isbn:'+isbn:'intitle:'+title+(q.author?' inauthor:'+q.author:'');
+ const query=q.topic?'subject:'+q.topic:isbn?'isbn:'+isbn:title?'intitle:'+title+(q.author?' inauthor:'+q.author:''):'inauthor:'+(q.author||'');
  const urls=[
   'https://www.googleapis.com/books/v1/volumes?q='+encodeURIComponent(query)+'&maxResults=25&langRestrict='+encodeURIComponent(language()),
   'https://openlibrary.org/search.json?'+(q.topic?'subject='+encodeURIComponent(q.topic):isbn?'isbn='+encodeURIComponent(isbn):'title='+encodeURIComponent(title)+(q.author?'&author='+encodeURIComponent(q.author):''))+'&limit=25&fields=key,title,author_name,isbn,first_publish_year,cover_i,subject,publisher,language,series,number_of_pages_median'
@@ -205,9 +205,10 @@ window.bu46SimilarLoad=async function(book){
  if(pending.has(key)||bu46SimilarCache.has(key))return;
  pending.add(key);
  try{
-  const seeds=unique([String(book.genre||'').split(',')[0].trim(),...String(book.tags||'').split(',').map(s=>s.trim()).filter(Boolean).slice(0,2),book.author]).filter(s=>s.length>2).slice(0,4);
-  if(!seeds.length){bu46SimilarCache.set(key,[]);return;}
-  const searches=seeds.map(s=>norm(s)===norm(book.author)?{title:book.title,author:book.author}:{title:s,topic:s});
+  const topics=unique([String(book.genre||'').split(',')[0].trim(),String(book.tags||'').split(',')[0]?.trim(),String(book.series||'').trim()]).filter(s=>s.length>2).slice(0,2);
+  const searches=topics.map(s=>({title:s,topic:s}));
+  if(book.author)searches.push({author:book.author});
+  if(!searches.length){bu46SimilarCache.set(key,[]);return;}
   const result=await Promise.allSettled(searches.slice(0,3).map(catalogCall));
   const candidates=[];
   for(const entry of result){
