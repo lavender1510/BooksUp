@@ -98,12 +98,16 @@ function createWindow() {
 
 /* Signed-in user data stays in Electron's existing booksup:// origin during upgrades. */
 let updateBusy=false;
+const booksupUpdateStatus=(message,percent)=>{if(mainWindow&&!mainWindow.isDestroyed())mainWindow.webContents.send('booksup-update:status',{message,percent:percent??null})};
+autoUpdater.on('download-progress',info=>booksupUpdateStatus('Lade Update herunter …',Math.round(info.percent||0)));
+autoUpdater.on('update-not-available',()=>booksupUpdateStatus('BooksUp ist aktuell.',null));
 autoUpdater.autoDownload=false;
 autoUpdater.autoInstallOnAppQuit=false;
 autoUpdater.allowPrerelease=true;
 autoUpdater.allowDowngrade=false;
 autoUpdater.setFeedURL({provider:'github',owner:'lavender1510',repo:'BooksUp',releaseType:'prerelease'});
 autoUpdater.on('update-available', async info=>{
+  booksupUpdateStatus('Update verfügbar: '+info.version,null);
   if(!mainWindow||mainWindow.isDestroyed())return;
   const {response}=await dialog.showMessageBox(mainWindow,{
     type:'info',buttons:['Herunterladen','Später'],defaultId:0,cancelId:1,
@@ -112,8 +116,9 @@ autoUpdater.on('update-available', async info=>{
   });
   if(response===0){try{await autoUpdater.downloadUpdate()}catch(e){dialog.showErrorBox('Update konnte nicht geladen werden',String(e.message||e))}}
 });
-autoUpdater.on('error',e=>{console.error('BooksUp updater:',e);});
+autoUpdater.on('error',e=>{console.error('BooksUp updater:',e);booksupUpdateStatus('Update fehlgeschlagen: '+String(e.message||e),null);});
 autoUpdater.on('update-downloaded',async info=>{
+  booksupUpdateStatus('Update '+info.version+' bereit zur Installation.',100);
   if(!mainWindow||mainWindow.isDestroyed())return;
   const {response}=await dialog.showMessageBox(mainWindow,{
     type:'info',buttons:['Jetzt installieren','Später'],defaultId:0,cancelId:1,
