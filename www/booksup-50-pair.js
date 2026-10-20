@@ -130,7 +130,7 @@ async function message(v){
  if(obj.type==='finish'){
   if(receiving.length!==expected||!expected)return;
   const data=receiving;expected=0;receiving='';
-  try{const p=JSON.parse(data);await preview(p);if(channel?.readyState==='open')channel.send(JSON.stringify({type:'ack',id:obj.id||''}));}catch(e){say('Übertragung konnte nicht gelesen werden: '+e.message);}
+  try{const p=JSON.parse(data);const accepted=await preview(p);if(accepted&&channel?.readyState==='open')channel.send(JSON.stringify({type:'ack',id:obj.id||''}));}catch(e){say('Übertragung konnte nicht gelesen werden: '+e.message);}
  }
 }
 function key(b){return b.isbn?'isbn:'+String(b.isbn).replace(/\W/g,''):(String(b.title||'').toLowerCase().trim()+'|'+String(b.author||'').toLowerCase().trim());}
@@ -178,8 +178,8 @@ async function preview(payload){
    try{const raw=atob(f.data),bytes=Uint8Array.from(raw,x=>x.charCodeAt(0));await put(Number(f.id),new Blob([bytes],{type:f.type||'application/octet-stream'}));}catch(e){console.warn('Digital book transfer',e);}
   }
   for(const k of ['book','manga'])delete ALL[k].bu50NewFileIds;
-  persist();render();say('Importiert: '+added+' Bücher. '+skipped+' vorhandene/konfliktbehaftete Bücher wurden nicht überschrieben.');
- }catch(e){say('Import fehlgeschlagen: '+e.message);}
+  persist();render();say('Importiert: '+added+' Bücher. '+skipped+' vorhandene/konfliktbehaftete Bücher wurden nicht überschrieben.');return true;
+ }catch(e){say('Import fehlgeschlagen: '+e.message);return false;}
  finally{importBusy=false;}
 }
 window.bu50PairingView=function(){
