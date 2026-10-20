@@ -2,7 +2,7 @@
   "name": "booksup",
   "version": "5.4.0",
   "private": true,
-  "description": "BooksUp 5.3 – production releases, persistent zoom, reader annotations, mobile responsive UI",
+  "description": "BooksUp 5.4 – Windows 5.2 and Android 4.6 original designs with the latest features",
   "productName": "BooksUp",
   "main": "electron/main.cjs",
   "type": "commonjs",
@@ -86,5 +86,9 @@
   },
   "engines": {
     "node": ">=22.0.0"
+  },
+  "overrides": {
+    "@trapezedev/project": "7.1.3",
+    "@trapezedev/gradle-parse": "7.1.3"
   }
 }
