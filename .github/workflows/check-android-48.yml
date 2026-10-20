@@ -66,7 +66,8 @@ jobs:
           "$ANDROID_HOME/build-tools/36.0.0/aapt" dump xmltree "$APK" AndroidManifest.xml > "$RUNNER_TEMP/manifest.txt"
           grep 'usesCleartextTraffic' "$RUNNER_TEMP/manifest.txt"
           grep -q 'usesCleartextTraffic.*0xffffffff' "$RUNNER_TEMP/manifest.txt"
-          "$ANDROID_HOME/build-tools/36.0.0/aapt" dump badging "$APK" | grep -q "versionName='5.4.0'"
+          "$ANDROID_HOME/build-tools/36.0.0/aapt" dump badging "$APK" | grep -q "versionName='5.6.0'"
           unzip -l "$APK" | grep -q 'assets/public/booksup-53.js'
+          unzip -l "$APK" | grep -q 'assets/public/booksup-56.js'
           unzip -l "$APK" | grep -q 'assets/public/booksup-54-features.css'
           echo 'Compiled Android native modules and verified local LAN manifest policy.'
