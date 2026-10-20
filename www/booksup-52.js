@@ -26,7 +26,7 @@ if(onAndroid()){
 /* Gestures: trackpad pinch is Ctrl/Meta+wheel. Touch pinch commits once after
  * fingers release, rather than remounting the entire PDF on every touchmove. */
 let gesture=null,zoomCommit=null;
-const clampZoom=v=>Math.round(Math.max(.8,Math.min(4,Number(v)||1))*100)/100;
+const clampZoom=v=>Math.round(Math.max(.8,Math.min(3,Number(v)||1))*100)/100;
 function zoomValue(){return clampZoom(S.pdfZoom||1);}
 function targetReader(e){const el=e.target;return view==='reader'&&el?.closest?.('#rdscroll, #rdbody, #rdwrap')&&pdfDoc&&typeof bu44ZoomSet==='function';}
 function previewZoom(value,x,y){
@@ -59,6 +59,7 @@ document.addEventListener('wheel',e=>{
 const gap=e=>Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);
 document.addEventListener('touchstart',e=>{
  if(!targetReader(e)||e.touches.length!==2)return;
+ window.bu52Pinching=true;
  gesture={kind:'touch',start:Math.max(1,gap(e)),base:zoomValue(),value:zoomValue()};
 },{passive:true,capture:true});
 document.addEventListener('touchmove',e=>{
@@ -72,6 +73,7 @@ document.addEventListener('touchmove',e=>{
 function touchFinish(e){
  if(gesture?.kind!=='touch'||e.touches?.length>=2)return;
  finishZoom(gesture.value);gesture=null;
+ queueMicrotask(()=>{window.bu52Pinching=false;});
 }
 document.addEventListener('touchend',touchFinish,{passive:true,capture:true});
 document.addEventListener('touchcancel',touchFinish,{passive:true,capture:true});
