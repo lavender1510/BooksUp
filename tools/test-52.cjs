@@ -12,7 +12,7 @@ assert.match(read('mobile/android-native/BooksUpNetworkPlugin.java'),/searchCata
 assert.match(read('mobile/android-native/BooksUpNetworkPlugin.java'),/void signal/);
 assert.match(read('mobile/android-native/BooksUpUpdaterPlugin.java'),/getApkContentsSigners/);
 assert.match(read('electron/main.cjs'),/download-progress/);
-assert.equal(JSON.parse(read('package.json')).version,'5.2.0');
+assert.equal(JSON.parse(read('package.json')).version,'5.3.0');
 const events={};let changed=0,looked=0;
 const reader={
  style:{setProperty:()=>{},removeProperty:()=>{}},

@@ -12,7 +12,6 @@ on:
       # Android-only changes must never overwrite the existing Windows 4.8 release.
       - '!tools/android-init.cjs'
       - '!tools/test-android-48.cjs'
-      - '!.github/workflows/build-desktop.yml'
 permissions:
   contents: write
 jobs:
@@ -37,17 +36,18 @@ jobs:
             release/latest.yml
             release/*.blockmap
           if-no-files-found: error
-      - name: Publish test EXE
+      - name: Publish stable Windows release
         if: github.ref == 'refs/heads/main'
         shell: pwsh
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          $tag='v5.2.0'
+          $tag='v5.3.0'
           $assets=@(Get-ChildItem release -File | Where-Object { $_.Name -like '*.exe' -or $_.Name -like '*.blockmap' -or $_.Name -eq 'latest.yml' } | Select-Object -ExpandProperty FullName)
           gh release view $tag 2>$null
           if ($LASTEXITCODE -ne 0) {
-            gh release create $tag --target $env:GITHUB_SHA --title 'BooksUp - Windows Test' --notes 'BooksUp 5.2.0 Windows desktop update (installer + portable EXE). Installer supports app-managed updates. Unsigned test application.' --prerelease
+            gh release create $tag --target $env:GITHUB_SHA --title 'BooksUp 5.3.0 – Windows Release' --notes 'BooksUp 5.3.0 Windows installer + portable EXE. The installer supports in-app updates and download progress. Windows executables are not Authenticode-signed until a publisher certificate is configured.'
           }
           gh release upload $tag @assets --clobber
           if ($LASTEXITCODE -ne 0) { throw 'Could not upload Windows EXEs' }
+          gh release edit $tag --title 'BooksUp 5.3.0 – Windows Release' --prerelease=false

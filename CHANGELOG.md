@@ -1,3 +1,24 @@
+## [5.3.0] – 2026-10-20 (Android & Windows)
+
+### Stability and release engineering
+- Android production: replace auto-published debug APKs with **assembleRelease** and a mandatory permanent publisher signing key. The Android release job refuses to publish when GitHub Actions Secrets are missing. See docs/PRODUCTION_RELEASE.md.
+- Windows: stable GitHub Releases and stable automatic-update channel. EXEs are not yet Authenticode-signed.
+- APK update flow: existing signature checks remain, now with genuine byte-based progress, speed and ETA whenever the backend exposes byte counts.
+
+### Reader and highlights
+- PDF reader: pinch and touchpad zoom commit the chosen zoom level to the saved reading settings and redraw at that actual scale, rather than showing only a transient preview.
+- Reader toolbars are horizontally scrollable without shrinking buttons into vertical letter columns. Fullscreen scrolling, zoomed canvas pan and reading settings are contained.
+- Page-area highlighting is exposed for Android and Windows and stored with a book as normalized PDF coordinates; highlights redraw after new page renders or zoom. Text selections also create persistent annotation records.
+
+### Mobile and localization
+- Address Android 9+ error 'Cleartext HTTP traffic to private IP not permitted': generate the correct Manifest usesCleartextTraffic flag, with the native LAN plugin still restricting network targets to RFC1918 IP addresses.
+- Adaptive mobile card/grid widths and reader controls; preserve vertical scrolling while containing horizontal overflow.
+- Selected UI language is re-applied using the combined shipped dictionaries in either direction; reader contents and user-authored titles/notes excluded. Gaps in legacy strings may remain.
+
+### Important migration note
+- Prior debug APKs cannot be updated in-place by a new production certificate. Preserve and verify a full backup of all books and local file content **before uninstalling any older build**.
+- Windows release builds are not a Microsoft Authenticode-signed publisher installer until a separate code-signing certificate is available.
+
 ## [5.2.0] – 2026-10-20 (Android & Windows)
 
 - Reader: Two-finger touch pinch and Ctrl/Meta+wheel trackpad gesture; delayed PDF rendering avoids work on every movement.

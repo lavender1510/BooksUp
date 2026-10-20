@@ -16,7 +16,7 @@ assert.match(main,/booksup-windows-48\.js/);
 assert.match(main,/booksup-metadata:search/);
 assert.match(main,/booksup-metadata:dnb-title/);
 assert.match(preload,/booksupCatalog/);
-assert.doesNotMatch(android.split('paths:')[1].split('jobs:')[0],/package\.json/);
+assert.match(android.split('paths:')[1].split('jobs:')[0],/package\.json/);
 const books=[
  {id:101,title:'Book A',author:'A',type:'physical',added:12},
  {id:102,title:'Book B',author:'B',type:'physical',added:15},
