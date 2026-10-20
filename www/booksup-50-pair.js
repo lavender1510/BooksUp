@@ -141,7 +141,7 @@ async function preview(payload){
  const count=['book','manga'].reduce((n,k)=>n+payload.snapshot[k].books.length,0);
  const files=payload.files||[];
  if(!Array.isArray(files)||files.length>500)throw Error('Zu viele Buchdateien');
- if(!confirm('Direkte BooksUp-Übertragung erhalten: '+count+' eigene Bücher, '+files.length+' digitale Dateien.\n\nNeue Einträge werden hinzugefügt. Bestehende Bücher bleiben unverändert; Konflikte werden übersprungen. Möchtest du die Daten übernehmen?'))return say('Empfang abgelehnt.');
+ if(!confirm('Direkte BooksUp-Übertragung erhalten: '+count+' eigene Bücher, '+files.length+' digitale Dateien.\n\nNeue Einträge werden hinzugefügt. Bestehende Bücher bleiben unverändert; Konflikte werden übersprungen. Möchtest du die Daten übernehmen?'))throw Error('Empfang auf Zielgerät abgelehnt.');
  importBusy=true;say('Übernehme Daten ohne vorhandene Bücher zu überschreiben …');
  try{
   let added=0,skipped=0;
@@ -183,6 +183,7 @@ async function preview(payload){
  finally{importBusy=false;}
 }
 window.bu50PairingView=function(){
+ setTimeout(controls,0);
  return bar('Direkte Geräteverbindung','settings')+
  '<section class="bu50-pair"><span class="next-overline">BOOKSUP DIRECT</span><h1>Direkt verbinden – ohne Server</h1><p>Übertrage Bücher, Leselisten, Lesefortschritte und passende digitale Dateien direkt zwischen Geräten im <b>gleichen WLAN oder Hotspot</b>. Die verschlüsselte WebRTC-Verbindung benötigt weder ein Konto noch einen Cloud-Dienst. Es werden keine Daten im Internet gespeichert.</p>'+
  '<p class="hint">1. Auf Gerät A Angebot erstellen. 2. Text auf Gerät B einfügen und Antwort erstellen. 3. Antwort auf Gerät A einfügen. 4. Den gleichen sechsstelligen Code auf beiden Geräten überprüfen. 5. Daten senden und auf dem Zielgerät bestätigen.</p>'+
@@ -190,6 +191,5 @@ window.bu50PairingView=function(){
  '<div class="bu50-pair-step"><h3>2 · Text von diesem Gerät</h3><textarea id="bu50-local-sdp" readonly placeholder="Hier erscheint dein Verbindungstext"></textarea><button class="chip" onclick="bu50CopyPeer()">Kopieren</button></div>'+
  '<div class="bu50-pair-step"><h3>3 · Text vom anderen Gerät</h3><textarea id="bu50-remote-sdp" placeholder="Angebot oder Antwort vom anderen Gerät hier einfügen"></textarea></div>'+
  '<div class="bu50-pair-step"><h3>4 · Daten übertragen</h3><button class="btn" id="bu50-send-button" onclick="bu50SendPeer()" disabled>Daten sicher senden</button><p id="bu50-peer-identity" class="hint">Kein Gerät verbunden</p><progress id="bu50-transfer-progress" value="0" max="100" style="width:100%"></progress><p id="bu50-transfer-info" class="hint" role="status">Noch keine Übertragung</p><button class="chip" onclick="bu50PeerStop()">Verbindung trennen</button><p class="hint">Bei gleichen Büchern wird nichts automatisch überschrieben. Es gibt keinen dauerhaften Hintergrund-Sync; beide Apps müssen geöffnet bleiben. Größere Dateien über 8 MB werden übersprungen. Hintergrundbilder bleiben immer auf dem jeweiligen Gerät.</p></div></div></section>';
-;setTimeout(controls,0);
 };
 })();
