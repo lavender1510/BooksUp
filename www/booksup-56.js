@@ -10,7 +10,7 @@ const ownBook=id=>[...S.books,...(typeof bu45Extra==='function'?bu45Extra():[])]
 const isoISBN=v=>String(v||'').replace(/[^0-9X]/gi,'').toUpperCase();
 const validISBN=v=>typeof isbnValid==='function'&&isbnValid(isoISBN(v));
 const language=()=>typeof nextLanguage==='function'?nextLanguage():'de';
-const cover=u=>/^https:\/\//i.test(String(u||''))?String(u).replace(/^http:/i,'https:'):'';
+const cover=u=>/^https?:\/\//i.test(String(u||''))?String(u).replace(/^http:/i,'https:'):'';
 const cleanDesc=v=>String(typeof v==='string'?v:v?.value||'').replace(/<[^>]*>/g,' ').replace(/\s+/g,' ').trim().slice(0,6500);
 const scoreMatch=(requested,c)=>{
  const isbn=isoISBN(requested.isbn),ids=(c.isbns||[]).map(isoISBN);
@@ -217,7 +217,7 @@ window.bu44PriceNotificationsView=function(){
 };
 window.bu56RefreshPrices=async function(){
  if(navigator.onLine===false)return toast('Offline – Preisabfrage benötigt Internet.');
- ALL.lastPriceCheck=0;try{await bu44CheckWatches();toast('Preisdatenquelle geprüft. Fehlen Preise, ist kein Anbieterfeed verfügbar.');render();}
+ ALL.lastPriceCheck=0;try{const result=await bu44CheckWatches();toast(result===true?'Preisdatenquelle geprüft. Fehlen Preise, liegen keine gültigen Daten zu dieser ISBN vor.':'Preisquelle nicht erreichbar: '+String(ALL.priceFeedError||'Bitte später erneut versuchen.'));render();}
  catch(e){toast('Preisabfrage fehlgeschlagen: '+String(e.message||e));}
 };
 /* Saved, discardable changes in existing settings cards. The current style remains. */
