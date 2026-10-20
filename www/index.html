@@ -1228,6 +1228,7 @@ const TINY_PDF='JVBERi0xLjMKJZOMi54gUmVwb3J0TGFiIEdlbmVyYXRlZCBQREYgZG9jdW1lbnQg
 /* ---- Speicher mit zweitem Sicherungsort (IndexedDB) ---- */
 let mirT=null,lastSaveWarning=0;
 function store(){
+  if(window.bu56SettingsDraftActive&&!window.bu56SettingsCommit)return true;
   bu43ReconcileLists();ALL._savedAt=Date.now();
   window.BooksUpCloud?.changed?.();const snapshot=JSON.stringify(ALL);
   // Large covers belong in IndexedDB. localStorage is best-effort bootstrap only.
