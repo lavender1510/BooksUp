@@ -66,3 +66,19 @@ body.bu-android .bu53-reader #rdscroll{touch-action:pan-x pan-y}
 /* Preserve wallpaper legibility without replacing original theme colors. */
 .bu50-has-background body:not(.bu50-reader-active) .card,
 .bu50-has-background body:not(.bu50-reader-active) .next-setting-row{background:color-mix(in srgb,var(--card) 96%,transparent);color:var(--ink)}
+
+/* 4.6 visual defaults plus small functional UI introduced after 4.6. */
+.bu48-metadata-actions{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin-top:12px}
+.bu48-metadata-actions p{flex:1 0 100%}
+.bu48-combo{display:flex;align-items:center;flex-wrap:wrap;gap:8px;padding:10px;border:1px solid var(--bd);border-radius:10px;background:var(--card)}
+.bu48-combo b{flex:1 1 auto}
+.bu48-default-page{padding:18px 16px calc(85px + env(safe-area-inset-bottom,0px))}
+.bu48-default-grid{display:grid;gap:10px;margin:15px 0}
+.bu48-default-choice{display:flex;align-items:center;gap:10px;padding:12px;border:1px solid var(--bd);border-radius:10px;background:var(--card)}
+.bu48-default-choice span{flex:1}
+body.bu-android .bu47-highlight-overlay{position:absolute;pointer-events:none;background:#ffd43555;border:1px solid #efb112aa;z-index:3}
+body.bu-android .bu47-annotation-panel{padding:12px;overflow-wrap:anywhere}
+body.bu-android .bu47-note{display:flex;align-items:center;flex-wrap:wrap;gap:9px;border-top:1px solid var(--bd);padding:10px 0}
+body.bu-android .bu47-note p{flex:1;min-width:120px}
+body.bu-android .bu47-reader-tools{display:flex;align-items:center;flex-wrap:wrap;gap:8px;padding:8px;border-bottom:1px solid var(--bd)}
+body.bu-android .bu47-reader-tools>.chip{white-space:nowrap}
