@@ -12,7 +12,9 @@ const androidWorkflow = fs.readFileSync(path.join(root, '.github/workflows/build
 const pkg = require(path.join(root,'package.json'));
 assert.equal(pkg.version,'5.3.0');
 assert.match(desktopWorkflow, /v5\.3\.0/);
-assert.doesNotMatch(androidWorkflow.split('paths:')[1].split('jobs:')[0], /package\.json/);
+// A shared version bump must trigger BOTH production platforms, while Android signing remains gated.
+assert.match(androidWorkflow.split('paths:')[1].split('jobs:')[0], /package\.json/);
+assert.match(androidWorkflow,/BOOKSUP_ANDROID_RELEASE_KEYSTORE_BASE64/);
 assert.match(main,/booksup-windows-47\.js/);
 assert.match(main,/booksup-metadata:dnb/);
 assert.match(layout,/position:fixed!important/);
