@@ -40,7 +40,7 @@ const win={
 };
 const env={
  window:win,ALL:all,S:book,sp:'book',buMulti:false,buSelected:state.selection,
- buNewsArticles:news,NEXT_SETTINGS:[['appearance','Design']],nextSettingCategory:'appearance',
+ buNewsArticles:news,buNewsLastError:'',buNewsLoading:false,NEXT_SETTINGS:[['appearance','Design']],nextSettingCategory:'appearance',
  buGoodreadsHead:headers,buGoodreadsRows:rows,buGoodreadsChoice:new Set(['manga','favorites','to-read','fantasy']),
  buRatingConfig:()=>({4:8,5:10}),
  buNorm:v=>String(v||'').toLowerCase().replace(/[^a-z0-9]/g,''),gqDate:v=>v,iso:()=> '2026-10-19',
