@@ -15,7 +15,7 @@ assert.match(read('.github/workflows/build-android.yml'),/BOOKSUP_ANDROID_RELEAS
 assert.doesNotMatch(read('.github/workflows/build-android.yml'),/build-apk\.cjs|assembleDebug/);
 assert.match(read('tools/build-android-release.cjs'),/assembleRelease/);
 assert.match(read('electron/main.cjs'),/booksup-53\.js/);
-assert.match(read('package.json'),/"version": "5\.5\.1"/);
+assert.match(read('package.json'),/"version": "5\.6\.0"/);
 let count=0,changed=0,saved=0,callbacks={};const textNode={nodeType:3,nodeValue:'Read'};
 const item={closest:()=>null,childNodes:[textNode],hasAttribute:()=>false};
 const scroll={clientWidth:350,clientHeight:560,scrollWidth:800,scrollHeight:1400,isConnected:true,

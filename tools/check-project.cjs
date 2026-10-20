@@ -24,8 +24,11 @@ assert.match(file('electron/main.cjs'), /nodeIntegration: false/);
 assert.match(file('tools/android-init.cjs'), /POST_NOTIFICATIONS/);
 for(const name of ['booksup-44.js','booksup-43.js','booksup-library.js','booksup-polish.js','booksup-next.js']){const src=file('www/'+name);assert.ok(src.length>200,'missing script: '+name);new Function(src)}
 for(const name of ['booksup-46.js','booksup-46-extra.js','booksup-46-i18n.js','booksup-45.js','booksup-desktop.js','booksup-45-i18n.js']){const src=file('www/'+name);assert.ok(src.length>100,'missing script: '+name);new Function(src)}
-assert.equal(pkg.version,'5.5.1');
+assert.equal(pkg.version,'5.6.0');
 new Function(file('www/booksup-55.js'));
+new Function(file('www/booksup-56.js'));
+assert.match(file('electron/main.cjs'),/booksup-56\.js/);
+assert.match(file('tools/android-init.cjs'),/booksup-56\.js/);
 assert.match(file('electron/main.cjs'),/booksup-55\.js/);
 assert.match(file('tools/android-init.cjs'),/booksup-55\.js/);
 for(const name of ['booksup-50.js','booksup-50-pair.js','booksup-50-services.js','booksup-51.js','booksup-52.js','booksup-53.js'])new Function(file('www/'+name));
