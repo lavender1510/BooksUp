@@ -247,14 +247,27 @@ const dictionary={
  'Verbindung anbieten':['Offer connection','Proposer une connexion','Ofrecer conexión','Offri connessione'],
  'Nur Bibliothek':['Library only','Bibliothèque uniquement','Solo biblioteca','Solo biblioteca']
 };
-const canonical=new Map();
-Object.entries(dictionary).forEach(([de,loc])=>{[de,...loc].forEach(v=>canonical.set(v.toLowerCase(),de));});
+const canonical=new Map(),knownTranslations=new Map();
+const register=(de,loc)=>{
+ if(!de||!Array.isArray(loc))return;
+ knownTranslations.set(de,loc);
+ [de,...loc].filter(Boolean).forEach(v=>canonical.set(String(v).trim().toLowerCase(),de));
+};
+// Existing built-in dictionaries are the source of truth for the rest of the UI.
+for(const pack of [
+ typeof BU_WORDS!=='undefined'?BU_WORDS:null,
+ typeof BU43_WORDS!=='undefined'?BU43_WORDS:null,
+ typeof BU44_WORDS!=='undefined'?BU44_WORDS:null,
+ typeof BU45_WORDS!=='undefined'?BU45_WORDS:null,
+ typeof BU46_WORDS!=='undefined'?BU46_WORDS:null
+ ])if(pack)for(const [de,values] of Object.entries(pack))register(de,values);
+Object.entries(dictionary).forEach(([de,loc])=>register(de,loc));
 const localeIndex={de:-1,en:0,fr:1,es:2,it:3};
 function translateLabel(text,lang){
  const trimmed=String(text||'').trim();
  const base=canonical.get(trimmed.toLowerCase());if(!base)return text;
  const idx=localeIndex[lang];if(idx===undefined)return text;
- const target=idx<0?base:dictionary[base][idx];
+ const target=idx<0?base:knownTranslations.get(base)?.[idx];
  return text.replace(trimmed,target||base);
 }
 let localeBusy=false;
@@ -266,6 +279,18 @@ function applyLanguage(){
  localeBusy=true;
  try{
   if(typeof buTranslateUI==='function')buTranslateUI();
+  // Inspect only known UI words, and never arbitrary book or user-authored prose.
+  if(typeof document.createTreeWalker==='function'&&typeof NodeFilter!=='undefined'){
+   const walk=document.createTreeWalker(app,NodeFilter.SHOW_TEXT),nodes=[];
+   while(walk.nextNode()){
+    const node=walk.currentNode,parent=node.parentElement;
+    if(!parent||!node.nodeValue?.trim()||node.nodeValue.length>180)continue;
+    if(parent.closest('.next-book-card,.bu45-cover,.bu45-library-detail,.next-detail,.next-note,.news-article,.bu49-article,.bu49-news-article,.bu47-note,.bu50-note,.next-reader, #rdwrap'))continue;
+    if(['SCRIPT','STYLE','TEXTAREA','INPUT','CODE','PRE','SVG'].includes(parent.tagName))continue;
+    nodes.push(node);
+   }
+   for(const node of nodes){const corrected=translateLabel(node.nodeValue,lang);if(node.nodeValue!==corrected)node.nodeValue=corrected;}
+  }
   const els=app.querySelectorAll('button, h1,h2,h3,nav span,label,.next-setting-row b,.next-setting-row small,.next-nav-item span,.next-overline,.bar');
   els.forEach(el=>{
    if(el.closest('.bu45-cover,.next-book-card,.next-detail-cover,.next-book-information,.bu49-article,.bu49-news-article,.news-article,.book-title,.bu45-library-detail'))return;
