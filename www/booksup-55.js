@@ -95,7 +95,7 @@ window.bu43RefreshList=function(list){
   const manual=(list.items||[]).filter(x=>!x.bookId);
   list.items=[...manual,...[...S.books,...bu45Extra()].filter(b=>(b.status==='abandoned'||b.status==='dnf')&&!excluded.has(String(b.id))).map(b=>{
    const old=previous.get(String(b.id));
-   return {...old,id:old?.id||'auto-'+b.id,bookId:b.id,title:b.title,author:b.author,owned:true,mediaFormat:old?.mediaFormat||fmt(b.mediaFormat||b.type)};
+   return {...old,id:old?.id||'auto-'+b.id,bookId:b.id,title:b.title,author:b.author,owned:bu45IsOwned(b),mediaFormat:old?.mediaFormat||fmt(b.mediaFormat||b.type)};
   })];
   if(list.folderSync!==false)bu43SyncFolder(list);
  }else{
@@ -158,7 +158,7 @@ window.bu45ProgressBar=function(book){
 };
 const originalStats=window.stats;
 window.stats=function(){
- const html=originalStats.apply(this,arguments),n=S.books.filter(b=>b.status==='abandoned'||b.status==='dnf').length;
+ const html=originalStats.apply(this,arguments),n=[...S.books,...bu45Extra()].filter(b=>b.status==='abandoned'||b.status==='dnf').length;
  return html+'<section class="card bu55-stat"><div class="lbl">Abgebrochene Bücher</div><span class="big">'+n+'</span></section>';
 };
 
@@ -566,6 +566,8 @@ function paintPen(){
 }
 window.bu55PenToggle=function(){
  penMode=!penMode;
+ const selected=document.getElementById('bu53-highlight-button');
+ if(penMode&&selected?.getAttribute('aria-pressed')==='true')window.bu53HighlightToggle?.();
  const button=document.getElementById('bu55-pen-button');
  if(button){button.setAttribute('aria-pressed',String(penMode));button.classList.toggle('on',penMode);}
  toast(penMode?'Stift aktiv: Mit S-Pen auf einer Buchseite schreiben.':'Stiftmodus beendet.');

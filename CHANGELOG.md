@@ -1,3 +1,18 @@
+## [5.5.0] – 2026-10-20 (Reading, Collections and Edition Fixes)
+
+**Design preserved:** Windows retains its 5.2.0 layout; Android retains its original 4.6.0 layout. No replacement shell or navigation architecture.
+
+- ISBN-10/13 edition lookup in the owned-book editor and directly for Goodreads-imported library books, with barcode camera where supported and user confirmation before changes.
+- Discover navigation and similar-book recommendations corrected, including network timeouts, retry buttons and empty/error states.
+- New "Abgebrochen" reading status, automatic abandoned-books rule and status cards.
+- Persisted list placement (library, shelf or both), media format on lists and individual entries, and per-record bulk-editable Goodreads import formats.
+- Configurable bottom navigation; profile ordering restored without replacing original components.
+- Reader highlight colors, persistent page-anchored PDF areas, text-mode restoration and pressure-aware S-Pen stroke notes.
+- Signed Android installer download checks APK hash, package name, certificate and version; update is considered installed only after reopening the requested version.
+- Windows installer/restart update status improved. Portable installations still require manual replacement.
+
+**Known constraints:** Android requires permission to install unknown-source APKs and matching production signatures. Camera barcode recognition depends on the device's BarcodeDetector support; manual ISBN input remains available. Text range relocation is best-effort after reflow, and physical-device S-Pen and installer interaction require real-device verification.
+
 ## [5.4.0] – 2026-10-20 (Layout Restoration + New Features)
 
 **Design baseline:** Windows visually retains BooksUp 5.2.0. Android returns to the original BooksUp 4.6.0 profile, reading-list screens, typography and layout. The application version and feature set remain current.

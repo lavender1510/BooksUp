@@ -26,6 +26,7 @@ jobs:
       - run: npm install --no-audit --no-fund
       - run: npm run test:static
       - run: node tools/test-55.cjs
+      - run: node tools/test-55-behavior.cjs
       - run: npm run desktop:windows
         env:
           CSC_IDENTITY_AUTO_DISCOVERY: 'false'

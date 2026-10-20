@@ -55,6 +55,7 @@ jobs:
           node tools/test-53.cjs
           node tools/test-54.cjs
           node tools/test-55.cjs
+          node tools/test-55-behavior.cjs
       - name: Build signed production APK
         env:
           BOOKSUP_RELEASE_STORE_PASSWORD: ${{ secrets.BOOKSUP_ANDROID_RELEASE_STORE_PASSWORD }}
@@ -95,12 +96,14 @@ jobs:
           Signed release build (NOT debug). Existing debug-signed installations
           require a verified complete backup before migration. In-place upgrades
           require the same signing certificate.
-          - Restored original Android 4.6 profile, reading-list and visual styles.
-          - Retained 5.3 features: PDF zoom/annotations, PIN pairing, metadata, signed updates.
-          - Fixed Android LAN manifest restriction from the supplied screenshot.
-          - Persistent PDF zoom and repaired highlight selection.
-          - Responsive mobile controls, independent scrolling and toolbar layout.
-          - Update download progress and signing validation; improved UI translations.
+          - Keeps the original Android 4.6 design and existing book data.
+          - ISBN scanning and confirmed metadata updates for owned and Goodreads books.
+          - Similar books and Discover repairs; abandoned-book status and automatic lists.
+          - Library/shelf list visibility and medium controls; Goodreads per-book choices.
+          - Custom bottom navigation and original profile section ordering.
+          - Nine saved highlight colors, EPUB/PDF text marks and pressure-aware S-Pen strokes.
+          - Signed APK with SHA-256 validation, package/certificate checks and installer handoff.
+          - For compatible prior signatures only: no automatic downgrade or data reset.
           NOTES
           if gh release view "$TAG" >/dev/null 2>&1; then
             gh release upload "$TAG" release/BooksUp-5.5.0.apk --clobber
