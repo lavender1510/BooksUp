@@ -13,7 +13,7 @@ assert.ok(css.includes('.bu48-list-tile'));
 assert.ok(css.includes('body.bu-android'));
 assert.match(init,/copyFileSync\(source,join\(publicDir,name\)\)/);
 assert.match(init,/APP_VERSION/);
-assert.match(androidFlow,/v5\.5\.1-android/);
+assert.match(androidFlow,/v5\.6\.0-android/);
 let nextId=10,saves=0,renders=0,requestLog=[];
 const a={id:'l-1',name:'My list',items:[{id:'a',bookId:1,title:'First'},{id:'b',bookId:2,title:'Second'}],autoRule:'manual'};
 const books=[{id:1,title:'First',author:'One',type:'physical'},{id:2,title:'Second',author:'Two',type:'physical'},{id:3,title:'Matilda',author:'Roald Dahl',type:'physical'}];
