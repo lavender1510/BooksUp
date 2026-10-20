@@ -107,7 +107,7 @@ jobs:
           NOTES
           if gh release view "$TAG" >/dev/null 2>&1; then
             gh release upload "$TAG" release/BooksUp-5.5.0.apk --clobber
-            gh release edit "$TAG" --title 'BooksUp 5.5.0 – Android Production' --notes-file release-notes.md --prerelease=false
+            gh release edit "$TAG" --title 'BooksUp 5.5.0 – Android Production' --notes-file release-notes.md --prerelease=false --latest=false
           else
-            gh release create "$TAG" release/BooksUp-5.5.0.apk --title 'BooksUp 5.5.0 – Android Production' --notes-file release-notes.md --target "$GITHUB_SHA"
+            gh release create "$TAG" release/BooksUp-5.5.0.apk --title 'BooksUp 5.5.0 – Android Production' --notes-file release-notes.md --target "$GITHUB_SHA" --latest=false
           fi
