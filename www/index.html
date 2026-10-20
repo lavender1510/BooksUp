@@ -746,7 +746,7 @@ function bindFlip(){
     else if(rdFull){rdHide=!rdHide;$('rdwrap').classList.toggle('hideui',rdHide)}};
   w.ontouchstart=e=>{if(autoOn)stopAuto();x0=e.touches[0].clientX;y0=e.touches[0].clientY};
   w.onwheel=()=>{if(autoOn)stopAuto()};
-  w.ontouchend=e=>{if(x0==null||rdMode()!=0)return;const dx=e.changedTouches[0].clientX-x0,dy=e.changedTouches[0].clientY-y0;x0=null;
+  w.ontouchend=e=>{if(window.bu52Pinching){x0=null;return;}if(x0==null||rdMode()!=0)return;const dx=e.changedTouches[0].clientX-x0,dy=e.changedTouches[0].clientY-y0;x0=null;
     if(Math.abs(dx)>60&&Math.abs(dx)>Math.abs(dy)*1.5){flip(dx<0?(rtl()?-1:1):(rtl()?1:-1));e.preventDefault()}};
 }
 function setMode(m){S.rdMode=m;persist();mountMode()}
