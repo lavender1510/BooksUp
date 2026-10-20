@@ -1,4 +1,4 @@
-name: BooksUp Android 4.8 checks
+name: BooksUp Android Source and Native QA
 on:
   pull_request:
     paths:
@@ -8,6 +8,8 @@ on:
       - '.github/workflows/build-android.yml'
       - '.github/workflows/check-android-48.yml'
       - 'CHANGELOG.md'
+      - 'www/**'
+      - 'package.json'
   workflow_dispatch:
 permissions:
   contents: read
@@ -24,3 +26,35 @@ jobs:
       - run: node tools/test-android-48.cjs
       - run: node --check mobile/booksup-android-48.js
       - run: node --check tools/android-init.cjs
+
+  verify-compiled-android-manifest:
+    name: Compile Android and inspect LAN policy (CI only, not distributed)
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: android-actions/setup-android@v3
+        with:
+          packages: 'platform-tools'
+      - run: sdkmanager --install 'platforms;android-36' 'build-tools;36.0.0'
+      - run: npm install --no-audit --no-fund
+      - name: Compile APK only for validation (never published)
+        run: npm run android:apk
+      - name: Verify generated manifest permits validated private LAN signaling
+        shell: bash
+        run: |
+          APK='release/BooksUp-debug.apk'
+          test -s "$APK"
+          "$ANDROID_HOME/build-tools/36.0.0/aapt" dump xmltree "$APK" AndroidManifest.xml > "$RUNNER_TEMP/manifest.txt"
+          grep 'usesCleartextTraffic' "$RUNNER_TEMP/manifest.txt"
+          grep -q 'usesCleartextTraffic.*0xffffffff' "$RUNNER_TEMP/manifest.txt"
+          "$ANDROID_HOME/build-tools/36.0.0/aapt" dump badging "$APK" | grep -q "versionName='5.3.0'"
+          unzip -l "$APK" | grep -q 'assets/public/booksup-53.js'
+          echo 'Compiled Android native modules and verified local LAN manifest policy.'
