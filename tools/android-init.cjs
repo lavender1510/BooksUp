@@ -49,6 +49,23 @@ if(existsSync(gradleFile)){
  gradle=gradle.replace(/versionCode\s+\d+/,'versionCode '+versionCode).replace(/versionName\s+"[^"]*"/,'versionName "'+v+'"');
  writeFileSync(gradleFile,gradle);
 }
+
+// A production release requires a long-lived signing certificate held by the
+// publisher in GitHub Actions Secrets (never committed or logged).
+if(process.env.BOOKSUP_RELEASE_KEYSTORE){
+ const keystore=process.env.BOOKSUP_RELEASE_KEYSTORE;
+ if(!existsSync(keystore))throw Error('Production signing key file missing');
+ const required=['BOOKSUP_RELEASE_STORE_PASSWORD','BOOKSUP_RELEASE_KEY_ALIAS','BOOKSUP_RELEASE_KEY_PASSWORD'];
+ for(const name of required)if(!process.env[name])throw Error('Missing production signing environment: '+name);
+ const signingFile=join(ROOT,'android','app','build.gradle');
+ let build=readFileSync(signingFile,'utf8');
+ if(!/android\s*\{/.test(build)||!/buildTypes\s*\{/.test(build)||!/release\s*\{/.test(build))throw Error('Unsupported Android Gradle template for production signing');
+ if(!build.includes('booksupProduction'))build=build.replace(/android\s*\{/,
+   'android {\\n    signingConfigs {\\n        booksupProduction {\\n            storeFile file(System.getenv("BOOKSUP_RELEASE_KEYSTORE"))\\n            storePassword System.getenv("BOOKSUP_RELEASE_STORE_PASSWORD")\\n            keyAlias System.getenv("BOOKSUP_RELEASE_KEY_ALIAS")\\n            keyPassword System.getenv("BOOKSUP_RELEASE_KEY_PASSWORD")\\n        }\\n    }');
+ build=build.replace(/(\brelease\s*\{)/,'$1\n            signingConfig signingConfigs.booksupProduction');
+ writeFileSync(signingFile,build);
+}
+
 const vectorDir=join(ROOT,'android','app','src','main','res','drawable');
 mkdirSync(vectorDir,{recursive:true});
 // Monochrome book/logomark optimized for Android's notification status bar.
