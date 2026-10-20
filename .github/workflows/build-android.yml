@@ -1,159 +1,104 @@
-name: BooksUp Android APK + GitHub Release
-
+name: BooksUp Android Production Release
 on:
   workflow_dispatch:
   push:
     branches: [main]
-    paths:
-      - 'www/**'
-      - 'assets/**'
-      - 'mobile/**'
-      - '.github/workflows/build-android.yml'
-      - 'capacitor.config.json'
-      - 'tools/**'
-
+    paths: ['www/**', 'mobile/**', 'assets/**', 'tools/**', 'package.json', '.github/workflows/build-android.yml']
 permissions:
   contents: write
-
 concurrency:
-  group: booksup-android-${{ github.ref }}
+  group: booksup-android-release-${{ github.ref }}
   cancel-in-progress: true
-
 jobs:
-  build-apk:
-    name: Build and publish test APK
+  production-release:
+    name: Signed Android Release APK
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
-      - name: Checkout BooksUp
-        uses: actions/checkout@v4
-
-      - name: Set up Node.js 22
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: '22'
-
-      - name: Set up Java 21
-        uses: actions/setup-java@v4
+      - uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '21'
-
-      - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
+      - uses: android-actions/setup-android@v3
         with:
-          packages: 'platform-tools'
-
-      - name: Install Android SDK 36
+          packages: platform-tools
+      - name: Install Android 36
         run: sdkmanager --install 'platforms;android-36' 'build-tools;36.0.0'
-
-      - name: Install NPM dependencies
-        run: npm install --no-audit --no-fund
-
-      - name: Configure Google OAuth (optional until Cloud Console is set up)
+      - name: Require permanent production signing key
         env:
-          BOOKSUP_GOOGLE_WEB_CLIENT_ID: ${{ secrets.BOOKSUP_GOOGLE_WEB_CLIENT_ID }}
+          KEYSTORE: ${{ secrets.BOOKSUP_ANDROID_RELEASE_KEYSTORE_BASE64 }}
+          STORE_PASS: ${{ secrets.BOOKSUP_ANDROID_RELEASE_STORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.BOOKSUP_ANDROID_RELEASE_KEY_ALIAS }}
+          KEY_PASS: ${{ secrets.BOOKSUP_ANDROID_RELEASE_KEY_PASSWORD }}
         run: |
-          node -e "const fs=require('fs');fs.writeFileSync('www/cloud-drive-config.js','window.BOOKSUP_GOOGLE_WEB_CLIENT_ID='+JSON.stringify(process.env.BOOKSUP_GOOGLE_WEB_CLIENT_ID||'')+';\\n')"
-      - name: Check BooksUp source
-        run: npm run test:static
-
-      - name: Verify Android mobile compatibility
+          if [ -z "$KEYSTORE" ] || [ -z "$STORE_PASS" ] || [ -z "$KEY_ALIAS" ] || [ -z "$KEY_PASS" ]; then
+            echo "::error::Missing production signing secrets. Refusing to publish a debug APK. Configure BOOKSUP_ANDROID_RELEASE_* in GitHub Actions Secrets."
+            exit 1
+          fi
+          printf '%s' "$KEYSTORE" | base64 --decode > "$RUNNER_TEMP/booksup-release.keystore"
+          chmod 600 "$RUNNER_TEMP/booksup-release.keystore"
+          echo "BOOKSUP_RELEASE_KEYSTORE=$RUNNER_TEMP/booksup-release.keystore" >> "$GITHUB_ENV"
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+      - name: Run regression tests
         run: |
+          npm run test:static
           node tools/test-android-48.cjs
           node tools/test-49.cjs
           node tools/test-50.cjs
           node tools/test-51.cjs
           node tools/test-52.cjs
-
-      - name: Set persistent debug signing key (optional)
+          node tools/test-53.cjs
+      - name: Build signed production APK
         env:
-          BOOKSUP_ANDROID_DEBUG_KEYSTORE_BASE64: ${{ secrets.BOOKSUP_ANDROID_DEBUG_KEYSTORE_BASE64 }}
+          BOOKSUP_RELEASE_STORE_PASSWORD: ${{ secrets.BOOKSUP_ANDROID_RELEASE_STORE_PASSWORD }}
+          BOOKSUP_RELEASE_KEY_ALIAS: ${{ secrets.BOOKSUP_ANDROID_RELEASE_KEY_ALIAS }}
+          BOOKSUP_RELEASE_KEY_PASSWORD: ${{ secrets.BOOKSUP_ANDROID_RELEASE_KEY_PASSWORD }}
+          BOOKSUP_GOOGLE_WEB_CLIENT_ID: ${{ secrets.BOOKSUP_GOOGLE_WEB_CLIENT_ID }}
         run: |
-          if [ -n "$BOOKSUP_ANDROID_DEBUG_KEYSTORE_BASE64" ]; then
-            mkdir -p "$HOME/.android"
-            printf '%s' "$BOOKSUP_ANDROID_DEBUG_KEYSTORE_BASE64" | base64 --decode > "$HOME/.android/debug.keystore"
-            chmod 600 "$HOME/.android/debug.keystore"
-            echo "Persistent Android debug signing enabled"
-          else
-            echo "::warning::No persistent APK signing certificate configured. This APK may not update previous installations; do not uninstall your existing app to install it."
-          fi
-
-      - name: Build Android debug APK
-        run: npm run android:apk
-
-      - name: Verify APK exists
-        run: test -s release/BooksUp-debug.apk
-
-      - name: Verify Android release version and bundled mobile modules
+          node -e "const fs=require('fs');fs.writeFileSync('www/cloud-drive-config.js','window.BOOKSUP_GOOGLE_WEB_CLIENT_ID='+JSON.stringify(process.env.BOOKSUP_GOOGLE_WEB_CLIENT_ID||'')+';\n')"
+          node tools/build-android-release.cjs
+      - name: Verify signed release and LAN policy
+        shell: bash
         run: |
-          unzip -l release/BooksUp-debug.apk | grep 'assets/public/booksup-android-48.js'
-          unzip -l release/BooksUp-debug.apk | grep 'assets/public/booksup-android-48.css'
-          unzip -p release/BooksUp-debug.apk assets/public/index.html > "$RUNNER_TEMP/booksup-android-index.html"
-          grep -q 'const APP_VERSION="5.2.0";' "$RUNNER_TEMP/booksup-android-index.html"
-          grep -q 'booksup-android-48.js' "$RUNNER_TEMP/booksup-android-index.html"
-          grep -q 'booksup-android-48.css' "$RUNNER_TEMP/booksup-android-index.html"
-          grep -q 'booksup-49.js' "$RUNNER_TEMP/booksup-android-index.html"
-          grep -q 'booksup-49.css' "$RUNNER_TEMP/booksup-android-index.html"
-          for f in booksup-50.js booksup-50-pair.js booksup-50-services.js booksup-50.css booksup-51.js booksup-51.css booksup-52.js booksup-52.css; do unzip -l release/BooksUp-debug.apk | grep -q "assets/public/$f"; done
-          "$ANDROID_HOME/build-tools/36.0.0/aapt" dump badging release/BooksUp-debug.apk | grep "versionName='5.2.0'"
-
-      - name: Upload downloadable APK artifact
+          APK="release/BooksUp-5.3.0.apk"
+          test -s "$APK"
+          "$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --verbose --print-certs "$APK"
+          "$ANDROID_HOME/build-tools/36.0.0/aapt" dump badging "$APK" | grep -q "versionName='5.3.0'"
+          "$ANDROID_HOME/build-tools/36.0.0/aapt" dump xmltree "$APK" AndroidManifest.xml | grep -q 'usesCleartextTraffic'
+          unzip -p "$APK" assets/public/index.html | grep -q 'const APP_VERSION="5.3.0";'
+          for f in booksup-53.js booksup-53.css booksup-52.js; do unzip -l "$APK" | grep -q "assets/public/$f"; done
+      - name: Upload signed release artifact
         uses: actions/upload-artifact@v4
         with:
-          name: BooksUp-debug-apk
-          path: release/BooksUp-debug.apk
+          name: BooksUp-5.3.0-Android-Production
+          path: release/BooksUp-5.3.0.apk
           if-no-files-found: error
-          retention-days: 30
-
-      - name: Publish prerelease (main branch only)
+          retention-days: 90
+      - name: Publish stable Android release
         if: github.ref == 'refs/heads/main'
         env:
           GH_TOKEN: ${{ github.token }}
         shell: bash
         run: |
-          TAG="v5.2.0-android.1"
+          TAG='v5.3.0-android'
           cat > release-notes.md <<'NOTES'
-          # BooksUp 5.2.0 – Reader Gesture, Metadata, Device Connection and Accessibility
-
-          **BooksUp-debug.apk** is the Android 5.2.0 test build (versionCode 50200).
-          It is a debug APK, NOT a production-signed Play Store release.
-
-          - Native Android HTTP requests for book metadata and LAN connections (WebView CORS bypass).
-          - PDF pinch zoom and Windows trackpad zoom, with low-jank gesture preview.
-          - Better language application outside the reader, adaptive Android sizing and wallpaper readability.
-          - Fresh catalog-based book recommendations and genre discovery.
-          - APK signature compatibility checked before opening Android's installer, with download progress.
-          - Further small-screen Android profile, grid, book list and settings fixes.
-          - Working font search and reliably saved appearance combinations, plus animated GIF wallpapers.
-          - Discover search rebuilt with Google Books / Open Library fallbacks and explicit errors.
-          - Book metadata and book descriptions retry through the alternative source.
-          - More Books Discover actually rotates and attempts to fetch new recommendations.
-          - Direct PIN pairing: Windows acts as a temporary local LAN host; Android or Windows joins with host address and six-digit PIN.
-          - Android-to-Android PIN hosting is not available in this build.
-          - Translations improved for common navigation and settings terms.
-          - Fixed overflowing Android screens and tall edit dialogs.
-          - Bookshelf now offers direct deletion and visible multi-selection bulk actions.
-          - News previews open inside BooksUp; source buttons open the original in the browser.
-          - News favorites persist locally and in optional cloud snapshots.
-          - Goodreads manga/comics go to the Manga profile; regular books to Books.
-          - In-app changelog lists all recorded Android and Windows updates.
-          - Google Drive device sync is prepared for Android and Windows, but both Google
-            OAuth client IDs MUST first be configured by the publisher (docs/DEVICE_SYNC.md).
-          - Android reading statistics remain compact; the Windows analytics dashboard is omitted.
-
-          **Important: Back up your library before installing.**
-          Updating an installed app requires the SAME Android signing certificate as the previous APK.
-          Without the GitHub secret BOOKSUP_ANDROID_DEBUG_KEYSTORE_BASE64, CI uses an ephemeral
-          debug certificate. In that case an in-place update may fail; do NOT uninstall BooksUp
-          or delete its app data unless your backup is successfully verified.
-          The MediMops price feed also requires a real configured provider; ISBN discovery alone
-          cannot supply genuine prices.
-
+          # BooksUp 5.3.0 – Android Production
+          Signed release build (NOT debug). Existing debug-signed installations
+          require a verified complete backup before migration. In-place upgrades
+          require the same signing certificate.
+          - Fixed Android LAN manifest restriction from the supplied screenshot.
+          - Persistent PDF zoom and repaired highlight selection.
+          - Responsive mobile controls, independent scrolling and toolbar layout.
+          - Update download progress and signing validation; improved UI translations.
           NOTES
           if gh release view "$TAG" >/dev/null 2>&1; then
-            gh release upload "$TAG" release/BooksUp-debug.apk --clobber
-            gh release edit "$TAG" --title 'BooksUp 5.2.0 – Android Update' --notes-file release-notes.md --prerelease
+            gh release upload "$TAG" release/BooksUp-5.3.0.apk --clobber
+            gh release edit "$TAG" --title 'BooksUp 5.3.0 – Android Production' --notes-file release-notes.md --prerelease=false
           else
-            gh release create "$TAG" release/BooksUp-debug.apk --title 'BooksUp 5.2.0 – Android Update' --notes-file release-notes.md --prerelease --target "$GITHUB_SHA"
+            gh release create "$TAG" release/BooksUp-5.3.0.apk --title 'BooksUp 5.3.0 – Android Production' --notes-file release-notes.md --target "$GITHUB_SHA"
           fi
