@@ -401,6 +401,7 @@ function readerTools(){
   const note=document.createElement('button');note.className='chip';note.textContent='Notiz zur Markierung';note.onclick=window.bu55NoteLastHighlight;target.appendChild(note);
  }
  decorateHighlights();
+ mountPen();
 }
 window.bu55NoteLastHighlight=function(){
  const book=S.books.find(b=>String(b.id)===String(cur)),item=[...(book?.annotations||[])].reverse().find(x=>x.rect||x.text||x.type==='ink');
@@ -409,14 +410,106 @@ window.bu55NoteLastHighlight=function(){
  if(note===null)return;
  item.comment=note.slice(0,4000);persist();toast('Notiz gespeichert.');
 };
+
+// Pressure-sensitive pen strokes use normalized page coordinates, so zoom and
+// re-rendering never change their location. Touch continues to scroll normally.
+let penMode=false,penActive=null;
+const penPage=canvas=>canvas.id==='pdfCv2'?Number(pgNow)+1:Number(canvas.closest('[data-n]')?.dataset.n||pgNow||1);
+const penPoint=(canvas,event)=>{
+ const r=canvas.getBoundingClientRect();
+ return {x:Math.max(0,Math.min(1,(event.clientX-r.left)/Math.max(1,r.width))),
+ y:Math.max(0,Math.min(1,(event.clientY-r.top)/Math.max(1,r.height))),
+ pressure:Math.max(.1,Math.min(1,Number(event.pressure)||.5))};
+};
+function paintPen(){
+ const area=document.getElementById('rdscroll'),book=S.books.find(b=>String(b.id)===String(cur));
+ if(!area||!book||view!=='reader')return;
+ area.querySelectorAll('.bu55-pen-overlay').forEach(el=>el.remove());
+ for(const canvas of area.querySelectorAll('canvas')){
+  if(canvas.width<2||canvas.clientWidth<2)continue;
+  const parent=canvas.parentElement;if(!parent)continue;
+  if(getComputedStyle(parent).position==='static')parent.style.position='relative';
+  const root=document.createElementNS('http://www.w3.org/2000/svg','svg');
+  root.classList.add('bu55-pen-overlay');root.setAttribute('viewBox','0 0 1000 1000');
+  root.setAttribute('preserveAspectRatio','none');
+  Object.assign(root.style,{position:'absolute',zIndex:'6',pointerEvents:'none',left:canvas.offsetLeft+'px',
+   top:canvas.offsetTop+'px',width:canvas.clientWidth+'px',height:canvas.clientHeight+'px'});
+  const rows=(book.annotations||[]).filter(a=>a.type==='ink'&&Number(a.page)===penPage(canvas));
+  if(penActive?.canvas===canvas)rows.push(penActive.note);
+  for(const mark of rows){
+   const pts=mark.points||[];if(pts.length<2)continue;
+   for(let j=1;j<pts.length;j++){
+    const a=pts[j-1],b=pts[j],path=document.createElementNS('http://www.w3.org/2000/svg','path');
+    path.setAttribute('d','M'+Math.round(a.x*1000)+' '+Math.round(a.y*1000)+' L'+Math.round(b.x*1000)+' '+Math.round(b.y*1000));
+    path.setAttribute('fill','none');path.setAttribute('stroke',mark.color||'#ffe36a');
+    path.setAttribute('stroke-width',String(1+3*((a.pressure||.5)+(b.pressure||.5))));
+    path.setAttribute('stroke-linecap','round');root.appendChild(path);
+   }
+  }
+  parent.appendChild(root);
+ }
+}
+window.bu55PenToggle=function(){
+ penMode=!penMode;
+ const button=document.getElementById('bu55-pen-button');
+ if(button){button.setAttribute('aria-pressed',String(penMode));button.classList.toggle('on',penMode);}
+ toast(penMode?'Stift aktiv: Mit S-Pen auf einer Buchseite schreiben.':'Stiftmodus beendet.');
+};
+function mountPen(){
+ const area=document.getElementById('rdscroll'),wrap=document.getElementById('rdwrap');
+ if(!area||!wrap)return;
+ const toolbar=wrap.querySelector('.bu55-highlight-colors')?.parentElement;
+ if(toolbar&&!toolbar.querySelector('#bu55-pen-button')){
+  const btn=document.createElement('button');btn.id='bu55-pen-button';btn.type='button';btn.className='chip';
+  btn.textContent='✎ S-Pen';btn.setAttribute('aria-pressed',String(penMode));
+  btn.addEventListener('click',window.bu55PenToggle);toolbar.appendChild(btn);
+ }
+ if(area.dataset.bu55Pen){paintPen();return;}
+ area.dataset.bu55Pen='1';
+ area.addEventListener('pointerdown',event=>{
+  if(!penMode||!event.isPrimary||!['pen','mouse'].includes(event.pointerType))return;
+  const canvas=event.target.closest?.('canvas');
+  if(!canvas||canvas.width<2)return;
+  event.preventDefault();event.stopImmediatePropagation();
+  penActive={pointerId:event.pointerId,canvas,note:{id:crypto.randomUUID(),page:penPage(canvas),
+   type:'ink',color:ALL.bu55HighlightColor||'#ffe36a',points:[penPoint(canvas,event)],created:Date.now()}};
+  try{area.setPointerCapture(event.pointerId);}catch{}
+ },true);
+ area.addEventListener('pointermove',event=>{
+  if(!penActive||event.pointerId!==penActive.pointerId)return;
+  event.preventDefault();event.stopImmediatePropagation();
+  penActive.note.points.push(penPoint(penActive.canvas,event));
+  requestAnimationFrame(paintPen);
+ },true);
+ area.addEventListener('pointerup',event=>{
+  if(!penActive||event.pointerId!==penActive.pointerId)return;
+  event.preventDefault();event.stopImmediatePropagation();
+  const final=penActive;penActive=null;
+  if(final.note.points.length>1){
+   const book=S.books.find(b=>String(b.id)===String(cur));
+   if(book){book.annotations??=[];book.annotations.push(final.note);persist();toast('Handschriftliche Notiz gespeichert.');}
+  }
+  paintPen();
+ },true);
+ area.addEventListener('pointercancel',()=>{penActive=null;paintPen();},true);
+ const observer=new MutationObserver(()=>{if(!area.isConnected){observer.disconnect();return;}requestAnimationFrame(paintPen)});
+ observer.observe(area,{childList:true,subtree:true});
+ paintPen();
+}
+const penShow=window.showPg;
+if(typeof penShow==='function')window.showPg=async function(){const result=await penShow.apply(this,arguments);requestAnimationFrame(paintPen);return result;};
+const penDraw=window.drawPg;
+if(typeof penDraw==='function')window.drawPg=async function(){const result=await penDraw.apply(this,arguments);requestAnimationFrame(paintPen);return result;};
+
 const oldAfter=window.nextAfterRender;
 window.nextAfterRender=function(){
  oldAfter?.apply(this,arguments);
  entryControls();
- if(view==='reader'){setTimeout(readerTools,100);setTimeout(decorateHighlights,450);}
+ if(view==='reader'){setTimeout(readerTools,100);setTimeout(()=>{decorateHighlights();paintPen();},450);}
 };
 const style=document.createElement('style');
 style.textContent='.bu55-book-status,.bu55-list-controls,.bu55-import{margin:12px 0;padding:10px;border:1px solid var(--bd);border-radius:10px}.bu55-list-controls label,.bu55-book-status label,.bu55-medium{display:block;font-size:13px;margin:8px 0}.bu55-import-pages{max-height:40vh;overflow:auto}.bu55-import-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px solid var(--bd)}.bu55-import-row span{min-width:0}.bu55-import-row small{display:block;color:var(--mut)}.bu55-import-row select{flex-shrink:0}.bu55-highlight-colors{display:flex;align-items:center;gap:6px;font-size:12px}#bu55-edition-video{max-width:100%;width:100%;max-height:200px;object-fit:cover;border-radius:10px;background:#111}.bu55-abandoned{color:var(--mut)}#rdwrap.full.bu55-focus .rdtop,#rdwrap.full.bu55-focus .next-reading-tools,#rdwrap.full.bu55-focus .bu47-reader-tools,#rdwrap.full.bu55-focus .bu53-zoom-toolbar{display:none!important}';
+style.textContent+='html.rdlock .next-reading-tools,html.rdlock .next-reading-subtitle,html.rdlock .next-reading-bottom,html.rdlock .next-annotations,html.rdlock .next-chapters,html.rdlock #rdbar{display:none!important}';
 document.head.appendChild(style);
 setTimeout(()=>{const pending=localStorage.getItem('booksup-update-pending');if(pending&&pending===APP_VERSION){localStorage.removeItem('booksup-update-pending');toast('BooksUp '+APP_VERSION+' wurde erfolgreich installiert.');}},2000);
 const oldFull=window.toggleFull;
