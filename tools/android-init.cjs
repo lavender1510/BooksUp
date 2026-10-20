@@ -79,7 +79,16 @@ if(!manifest.includes('.booksup.fileprovider')){
 }
 // Local HTTP is used only for PIN-protected LAN WebRTC signaling (RFC1918 IPs).
 // Digital book files themselves are transferred over encrypted WebRTC/DTLS.
-if(!/android:usesCleartextTraffic=/.test(manifest))manifest=manifest.replace(/<application/, '<application android:usesCleartextTraffic="true"');
+// Android 9+ blocks HTTP LAN by default. The native BooksUpNetwork plugin only
+// accepts validated private RFC1918 addresses; the manifest must explicitly
+// allow cleartext for the local PIN handshake. Never silently skip this setting.
+const appTag=/<application\\b[^>]*>/;
+if(!appTag.test(manifest))throw Error('Android manifest <application> element missing');
+manifest=manifest.replace(appTag,tag=>{
+ if(/android:usesCleartextTraffic\\s*=/.test(tag))return tag.replace(/android:usesCleartextTraffic\\s*=\\s*"[^"]*"/,'android:usesCleartextTraffic="true"');
+ return tag.replace('<application','<application android:usesCleartextTraffic="true"');
+});
+if(!/<application\\b[^>]*android:usesCleartextTraffic="true"/.test(manifest))throw Error('Android LAN HTTP permission not configured');
 writeFileSync(manifestPath,manifest);
 
 // Inject mobile-only BooksUp 4.8 assets AFTER Capacitor sync. Do not alter www/
@@ -104,7 +113,7 @@ if(!androidHtml.includes('</head>')||!androidHtml.includes('</body>'))throw Erro
 if(!androidHtml.includes(cssTag))androidHtml=androidHtml.replace('</head>',cssTag+'</head>');
 if(!androidHtml.includes(jsTag))androidHtml=androidHtml.replace('</body>',jsTag+'</body>');
 // Shared 5.0 scripts are loaded after the Android 4.8 overrides, keeping both platforms aligned.
-for(const name of ['booksup-50.css','booksup-50.js','booksup-50-pair.js','booksup-50-services.js','booksup-51.css','booksup-51.js','booksup-52.css','booksup-52.js']){
+for(const name of ['booksup-50.css','booksup-50.js','booksup-50-pair.js','booksup-50-services.js','booksup-51.css','booksup-51.js','booksup-52.css','booksup-52.js','booksup-53.css','booksup-53.js']){
  const src=join(ROOT,'www',name);if(!existsSync(src))throw Error('Missing 5.0 source: '+name);
  copyFileSync(src,join(publicDir,name));
  if(name.endsWith('.css')){
