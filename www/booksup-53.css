@@ -79,3 +79,5 @@ html,body{max-width:100%;min-height:100%;overflow-x:hidden;overflow-y:auto!impor
  body.bu-android .next-bottom-nav .next-nav-item{font-size:9px}
  .bu53-reader #rdwrap .bu47-reader-tools .chip{flex:1 1 130px;min-width:0!important}
 }
+
+.bu53-pair-buttons{display:flex;flex-wrap:wrap;gap:10px;margin:12px 0}.bu53-pair-buttons .btn,.bu53-pair-buttons .chip{min-height:42px;flex:1 1 130px;max-width:100%}
