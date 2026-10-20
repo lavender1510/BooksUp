@@ -86,8 +86,8 @@ function createWindow() {
       return wc.insertCSS(fsSync.readFileSync(path.join(__dirname, 'booksup-windows-48.css'), 'utf8'));
     }).then(() => wc.executeJavaScript(fsSync.readFileSync(path.join(__dirname, 'booksup-windows-48.js'), 'utf8')))
       .then(async () => {
-        for (const name of ['booksup-50.css','booksup-51.css']) await wc.insertCSS(fsSync.readFileSync(path.join(__dirname, '..', 'www', name), 'utf8'));
-        for (const name of ['booksup-50.js', 'booksup-50-pair.js', 'booksup-50-services.js','booksup-51.js'])
+        for (const name of ['booksup-50.css','booksup-51.css','booksup-52.css']) await wc.insertCSS(fsSync.readFileSync(path.join(__dirname, '..', 'www', name), 'utf8'));
+        for (const name of ['booksup-50.js', 'booksup-50-pair.js', 'booksup-50-services.js','booksup-51.js','booksup-52.js'])
           await wc.executeJavaScript(fsSync.readFileSync(path.join(__dirname, '..', 'www', name), 'utf8'));
       }).catch(console.error);
   });
