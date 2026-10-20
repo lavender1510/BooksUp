@@ -57,14 +57,15 @@ public class BooksUpNetworkPlugin extends Plugin {
         final String title=call.getString("title","").trim();
         final String author=call.getString("author","").trim();
         final String isbn=call.getString("isbn","").replaceAll("[^0-9Xx]","");
-        if(title.length()>180||author.length()>120||(!isbn.isEmpty()&&!isbn.matches("(?:[0-9]{13}|[0-9]{9}[0-9Xx])"))){
+        final String topic=call.getString("topic","").trim();
+        if(title.length()>180||author.length()>120||topic.length()>60||(!topic.isEmpty()&&!topic.matches("[a-zA-Z0-9 -]{1,60}"))||(!isbn.isEmpty()&&!isbn.matches("(?:[0-9]{13}|[0-9]{9}[0-9Xx])"))){
             call.reject("Ungültige Buchsuchdaten");return;
         }
-        if(title.isEmpty()&&isbn.isEmpty()){call.reject("Titel oder ISBN erforderlich");return;}
+        if(title.isEmpty()&&isbn.isEmpty()&&topic.isEmpty()){call.reject("Titel oder ISBN erforderlich");return;}
         new Thread(()->{
             JSONArray google=new JSONArray(),open=new JSONArray(),errors=new JSONArray();
             try {
-                String q=isbn.isEmpty()?title+(author.isEmpty()?"":" "+author):"isbn:"+isbn;
+                String q=!topic.isEmpty()?"subject:"+topic:(isbn.isEmpty()?title+(author.isEmpty()?"":" "+author):"isbn:"+isbn);
                 String g="https://www.googleapis.com/books/v1/volumes?q="+enc(q)+"&maxResults=40&printType=books";
                 try {JSONArray rows=request(g,null).optJSONArray("items");if(rows!=null)for(int i=0;i<rows.length();i++)google.put(rows.opt(i));}
                 catch(Exception e){errors.put("Google Books: "+e.getMessage());}
