@@ -154,15 +154,16 @@ ipcMain.handle('booksup-metadata:search', async (event, request) => {
       !event.senderFrame?.url.startsWith(APP_ORIGIN + '/')) throw Error('Unauthorized metadata lookup');
   const title = String(request?.title || '').trim().slice(0, 180);
   const author = String(request?.author || '').trim().slice(0, 120);
+  const topic=String(request?.topic||'').trim().slice(0,60).replace(/[^a-zA-Z0-9 -]/g,'');
   const isbn = String(request?.isbn || '').replace(/[^0-9X]/gi, '').toUpperCase();
-  if (!title && !/^(?:[0-9]{9}[0-9X]|[0-9]{13})$/.test(isbn)) throw Error('Title or valid ISBN required');
-  const query = isbn ? 'isbn:' + isbn : 'intitle:' + title + (author ? ' inauthor:' + author : '');
+  if (!title && !topic && !/^(?:[0-9]{9}[0-9X]|[0-9]{13})$/.test(isbn)) throw Error('Title or valid ISBN required');
+  const query = topic ? 'subject:' + topic : isbn ? 'isbn:' + isbn : 'intitle:' + title + (author ? ' inauthor:' + author : '');
   const googleUrls = [
     'https://www.googleapis.com/books/v1/volumes?q=' + encodeURIComponent(query) + '&maxResults=35&printType=books',
     'https://www.googleapis.com/books/v1/volumes?q=' + encodeURIComponent(title + ' ' + author) + '&maxResults=20&printType=books'
   ];
   const openUrl = 'https://openlibrary.org/search.json?' +
-    (isbn ? 'isbn=' + encodeURIComponent(isbn) : 'title=' + encodeURIComponent(title) + (author ? '&author=' + encodeURIComponent(author) : '')) +
+    (topic ? 'q=' + encodeURIComponent('subject:' + topic) : isbn ? 'isbn=' + encodeURIComponent(isbn) : 'q=' + encodeURIComponent(title + (author ? ' ' + author : ''))) +
     '&limit=20&lang=de&fields=key,title,author_name,isbn,first_publish_year,cover_i,subject,language,publisher,editions,editions.title,editions.language,editions.isbn_13,editions.isbn_10,editions.publisher,editions.publish_date';
   const urls = [...googleUrls, openUrl];
   async function fetchCatalog(url) {
