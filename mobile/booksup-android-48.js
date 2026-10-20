@@ -332,6 +332,9 @@ window.bu45ListsOverview=function(){
 const previousProfileLists=window.bu45ProfileLists;
 const previousHistory=window.bu46ReadingHistory;
 const previousHome=window.home;
+// Preserve the original 4.6 mobile profile composition. The newer library,
+// metadata and reading-list actions remain installed; only the presentation
+// wrappers from 4.8 are deliberately not applied to Android.
 window.bu45ProfileLists=function(){return view==='profile'?'':previousProfileLists();};
 window.bu46ReadingHistory=function(){return view==='profile'?'':previousHistory();};
 window.home=function(){
@@ -358,6 +361,11 @@ window.home=function(){
 };
 
 // Keep chosen accent independent from base theme. Save reusable local combinations.
+// Restore the pre-4.8 profile layout without reverting newer data or features.
+window.home=previousHome;
+window.bu45ProfileLists=previousProfileLists;
+window.bu46ReadingHistory=previousHistory;
+
 const priorTheme=window.nextApplyTheme,priorAppearance=window.bu43AppearanceView,prior43=window.bu43AfterRender;
 function applyAccent(){
   const draft=view==='settingsDetail' && nextSettingCategory==='appearance' ? bu43AppearanceDraft:null;
