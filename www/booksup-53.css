@@ -1,0 +1,81 @@
+/* BooksUp 5.3 — responsive, scrollable, genuinely reading-focused UI. */
+:root{--bu53-hit:42px;--bu53-gap:clamp(8px,2.4vw,16px)}
+html,body{max-width:100%;min-height:100%;overflow-x:hidden;overflow-y:auto!important}
+#app,.next-layout,.next-content{min-width:0;max-width:100%;box-sizing:border-box}
+.next-content{overflow-x:clip;overflow-y:visible!important}
+.next-content :is(.card,.next-detail,.next-settings-pane,.bu48-profile-section,.bu48-profile-order,.bu48-profile-lists,.bu46-discover-search,.bu50-pair,.bu51-lan-pair,.bu50-manage){min-width:0;box-sizing:border-box}
+.next-content :is(.row,.grid,.kpi,.bu48-detail-grid,.bu45-library-grid){min-width:0;max-width:100%;box-sizing:border-box}
+.next-content .row>*{min-width:0}
+.next-content :is(button,.chip,.btn){overflow-wrap:normal;word-break:normal}
+.next-content .btn,.next-content .chip{line-height:1.3}
+.next-settings-pane,.bu48-profile-order,.bu45-library,.bu50-manage,.bu50-pair{padding-bottom:calc(98px + env(safe-area-inset-bottom,0px))}
+.next-bottom-nav{max-width:100vw;padding-bottom:max(8px,env(safe-area-inset-bottom,0px))}
+.next-bottom-nav .next-nav-item{min-width:0;max-width:100%;font-size:clamp(9px,2.5vw,11px);overflow:hidden}
+.next-bottom-nav .next-nav-item span:last-child{max-width:100%;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.next-book-rail{overflow-x:auto!important;overscroll-behavior-x:contain;min-width:0}
+.next-content :is(.next-settings-pane,.bu48-list-stack,.bu48-profile-order,.bu50-pair,.bu50-manage){overflow-y:visible!important}
+.bu53-reader .next-reading-tools{width:100%;overflow-x:auto!important;overflow-y:hidden;scrollbar-width:thin;flex-wrap:nowrap;padding:10px 12px}
+.bu53-reader .next-reading-tools>.chip{white-space:nowrap!important;overflow-wrap:normal!important;word-break:normal!important;flex:0 0 auto}
+.bu53-reader #rdwrap{min-width:0;width:100%;max-width:100%;box-sizing:border-box}
+.bu53-reader #rdwrap .rdtop{display:flex!important;align-items:center;gap:6px;min-width:0;width:100%;overflow-x:auto!important;overflow-y:hidden;flex-wrap:nowrap!important;scrollbar-width:thin;overscroll-behavior-x:contain;padding:9px 8px}
+.bu53-reader #rdwrap .rdtop>button,.bu53-reader #rdwrap .rdtop>.chip,.bu53-reader #rdwrap .rdtop .bu44-zoom,.bu53-reader #rdwrap .rdtop .bu44-zoom button{max-width:none!important;min-width:max-content!important;flex:0 0 auto!important;white-space:nowrap!important;word-break:keep-all!important;overflow-wrap:normal!important;font-size:clamp(12px,3.3vw,15px)!important;min-height:40px}
+.bu53-reader #rdwrap .rdtop .tt{min-width:92px;flex:1 0 110px;white-space:nowrap!important;overflow:hidden;text-overflow:ellipsis}
+.bu53-reader #rdwrap .rdtop #rdtm{flex:0 0 auto;white-space:nowrap}
+.bu53-reader #rdwrap .rdtop .bu44-zoom{display:flex!important;white-space:nowrap;gap:4px}
+.bu53-reader #rdwrap .rdtop .bu44-zoom b{min-width:36px;white-space:nowrap}
+.bu53-reader #rdwrap .bu47-reader-tools{display:flex!important;gap:7px;flex-wrap:wrap;align-items:center;padding:10px;background:var(--card)}
+.bu53-reader #rdwrap .bu47-reader-tools .chip{width:auto!important;max-width:100%;flex:0 0 auto;min-width:110px;min-height:40px;white-space:nowrap!important;word-break:normal!important;overflow-wrap:normal!important}
+.bu53-reader #rdwrap .bu47-reader-tools .hint{flex:1 1 140px}
+.bu53-reader #rdwrap .bu53-zoom-toolbar{display:flex;flex-wrap:nowrap;align-items:center;gap:8px;padding:8px 10px;background:var(--card);border-bottom:1px solid var(--bd);overflow-x:auto;scrollbar-width:thin;max-width:100%;box-sizing:border-box}
+.bu53-zoom-toolbar>*{flex:0 0 auto;white-space:nowrap!important;overflow-wrap:normal!important;word-break:normal!important}
+.bu53-zoom-toolbar input[type="range"]{width:clamp(80px,26vw,230px);min-width:76px;min-height:32px;max-width:none}
+.bu53-zoom-toolbar .chip{min-height:40px!important;min-width:40px!important}
+.bu53-zoom-toolbar strong{font-variant-numeric:tabular-nums;font-size:13px}
+.bu53-zoom-title{color:var(--mut);font-size:13px;font-weight:600}
+.bu53-reader #rdwrap .rdbody{width:100%;min-width:0;position:relative;flex:1 1 auto;min-height:250px}
+.bu53-reader #rdwrap.m0:not(.full) .rdbody{height:auto;min-height:220px;max-height:76dvh;overflow:auto}
+.bu53-reader #rdwrap.m0:not(.full) .rdscroll{width:100%;height:auto;max-height:74dvh;overflow:auto!important;touch-action:pan-x pan-y;overscroll-behavior:contain}
+.bu53-reader #rdwrap.m0.full .rdscroll{overflow:auto!important;overscroll-behavior:contain;touch-action:pan-x pan-y}
+.bu53-reader #rdwrap.m0 .rdscroll.bu44-zoomed{display:block!important;overflow:auto!important}
+.bu53-reader #rdwrap.m0 .rdscroll.bu44-zoomed>canvas,.bu53-reader #rdwrap.m0 .rdscroll.bu44-zoomed .spread canvas{max-width:none!important;max-height:none!important;object-fit:unset!important}
+.bu53-reader #rdwrap.m1 .rdscroll{overflow-y:auto;overflow-x:auto}
+.bu53-reader #rdwrap.m2 .rdscroll{overflow-y:auto;max-height:78dvh}
+.bu53-reader #rdwrap.full .rdbody{max-height:none;overflow:hidden}
+.bu53-reader #rdwrap.full .rdscroll{max-height:none;height:100%}
+.bu53-reader #rdwrap .rdsheet{max-width:100%;overflow-y:auto}
+.bu53-reader #rdwrap .rdsheet.open{max-height:min(75dvh,650px);overflow-y:auto;-webkit-overflow-scrolling:touch}
+.bu53-reader #rdwrap .bu50-notes,.bu53-reader .bu47-annotation-panel{max-width:100%;overflow-wrap:anywhere}
+.bu53-reader #rdwrap .rdbar{min-width:0;max-width:100%;overflow-x:auto}
+.bu53-reader #rdwrap #rdbody canvas{user-select:none}
+.bu53-reader #rdscroll.bu53-marking canvas{touch-action:none!important;cursor:crosshair}
+.bu53-highlight{pointer-events:none;position:absolute;border-radius:2px;border:1px solid rgba(222,152,0,.83);background:rgba(255,211,56,.35);mix-blend-mode:multiply;z-index:3}
+@media(max-width:680px){
+ body.bu-android .next-content{width:100%;max-width:100%;padding-bottom:calc(90px + env(safe-area-inset-bottom,0px))}
+ body.bu-android .next-content> :is(.card,.pad){max-width:calc(100% - 20px);margin-left:10px;margin-right:10px}
+ body.bu-android .next-content :is(.card,.tile,.next-setting-row,.next-detail-main,.bu50-pair-step,.bu51-lan-pair){padding-inline:clamp(10px,3.5vw,18px)}
+ body.bu-android .next-content h1{font-size:clamp(22px,6vw,34px)!important}
+ body.bu-android .next-content h2{font-size:clamp(18px,5vw,26px)!important}
+ body.bu-android .next-content p{font-size:clamp(13px,3.55vw,16px)!important}
+ body.bu-android .next-content :is(button,.btn,.chip,.next-setting-row){font-size:clamp(12px,3.2vw,15px)}
+ body.bu-android .next-content .bu48-profile-section>.grid{grid-template-columns:repeat(2,minmax(0,1fr));max-width:100%;gap:8px}
+ body.bu-android .next-content .bu48-profile-section>.grid .tile{max-width:100%;min-width:0}
+ body.bu-android .next-content .bu48-profile-section>.grid .tile div{min-width:0;overflow-wrap:anywhere}
+ body.bu-android .next-content .bu48-profile-section>.pad>div{flex-wrap:wrap!important}
+ body.bu-android .next-content .bu48-profile-lists,.bu48-profile-section>.grid{min-width:0;max-width:100%}
+ body.bu-android .next-content .bu48-list-tile{min-width:0;max-width:100%}
+ body.bu-android .next-content .bu46-discover-inline{max-width:calc(100% - 24px)}
+ body.bu-android .next-content .bu46-discover-inline>*{max-width:100%;min-width:0}
+ body.bu-android .next-content .next-setting-row{min-height:66px}
+ body.bu-android .next-content .next-setting-row b{font-size:clamp(13px,3.6vw,17px)}
+ body.bu-android .next-content .next-setting-row small{font-size:clamp(11px,3vw,13px)}
+ body.bu-android .next-content .next-section{width:100%;max-width:100%}
+ body.bu-android .next-content .next-book-rail{width:100%;max-width:100vw}
+ body.bu-android .modal>div{width:min(100%,560px);max-width:100%;max-height:calc(100dvh - 30px);overflow-y:auto!important}
+ body.bu-android .next-bottom-nav{max-width:100vw}
+ body.bu-android .rdwrap .rdtop{padding:8px 6px}
+}
+@media(max-width:350px){
+ body.bu-android .next-content .bu48-profile-section>.grid{grid-template-columns:1fr}
+ body.bu-android .next-bottom-nav .next-nav-item{font-size:9px}
+ .bu53-reader #rdwrap .bu47-reader-tools .chip{flex:1 1 130px;min-width:0!important}
+}
