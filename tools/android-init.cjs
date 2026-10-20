@@ -61,7 +61,7 @@ if(process.env.BOOKSUP_RELEASE_KEYSTORE){
  let build=readFileSync(signingFile,'utf8');
  if(!/android\s*\{/.test(build)||!/buildTypes\s*\{/.test(build)||!/release\s*\{/.test(build))throw Error('Unsupported Android Gradle template for production signing');
  if(!build.includes('booksupProduction'))build=build.replace(/android\s*\{/,
-   'android {\\n    signingConfigs {\\n        booksupProduction {\\n            storeFile file(System.getenv("BOOKSUP_RELEASE_KEYSTORE"))\\n            storePassword System.getenv("BOOKSUP_RELEASE_STORE_PASSWORD")\\n            keyAlias System.getenv("BOOKSUP_RELEASE_KEY_ALIAS")\\n            keyPassword System.getenv("BOOKSUP_RELEASE_KEY_PASSWORD")\\n        }\\n    }');
+   'android {\n    signingConfigs {\n        booksupProduction {\n            storeFile file(System.getenv("BOOKSUP_RELEASE_KEYSTORE"))\n            storePassword System.getenv("BOOKSUP_RELEASE_STORE_PASSWORD")\n            keyAlias System.getenv("BOOKSUP_RELEASE_KEY_ALIAS")\n            keyPassword System.getenv("BOOKSUP_RELEASE_KEY_PASSWORD")\n        }\n    }');
  build=build.replace(/(\brelease\s*\{)/,'$1\n            signingConfig signingConfigs.booksupProduction');
  writeFileSync(signingFile,build);
 }
