@@ -60,7 +60,7 @@ jobs:
       - name: Verify generated manifest permits validated private LAN signaling
         shell: bash
         run: |
-          VERSION="$(node -p \"require('./package.json').version\")"
+          VERSION="$(node -p 'require("./package.json").version')"
           APK="release/BooksUp-${VERSION}.apk"
           test -s "$APK"
           "$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --verbose "$APK"
