@@ -78,7 +78,20 @@ case 'updates':content=`<div class="pad"><p>BooksUp ${APP_VERSION}</p><p class="
 }return `${bar(entry[1],'settings')}<div class="next-settings-pane"><div class="next-settings-title"><span class="next-overline">BOOKSUP / ${nt('settings')}</span><h1>${entry[1]}</h1><p>${entry[3]}</p></div>${content}</div>`}
 function nextThemeChooser(){const id=ALL.nextTheme||'standard';return `<h3>Theme-Vorlagen</h3><p class="pad hint">Farben inspiriert von deinen FanFiktion.de-Vorlagen. Vorschau direkt in der App.</p><div class="next-theme-grid">${NEXT_THEMES.map((t,i)=>`<button class="next-theme-choice ${id===t[1]?'active':''}" onclick="nextSetTheme('${t[1]}')" aria-pressed="${id===t[1]}"><span class="next-theme-preview" style="background:linear-gradient(125deg,${t[2]} 10%,${t[7]} 130%)"><span style="background:${t[3]};color:${t[4]}">Aa</span></span><b>${t[0]}</b></button>`).join('')}</div><h3>Hell / Dunkel</h3><div class="row">${['System','Hell','Dunkel'].map((n,i)=>`<button class="chip ${S.mode===i?'on':''}" onclick="S.mode=${i};save()">${n}</button>`).join('')}</div>`}
 function nextSetTheme(id){ALL.nextTheme=id;persist();render()}
-function nextApplyTheme(){const t=NEXT_THEMES.find(x=>x[1]===(ALL.nextTheme||''));const root=document.documentElement;if(!t){root.removeAttribute('data-next-theme');for(const key of ['--bg','--card','--ink','--mut','--bd'])root.style.removeProperty(key);return}root.dataset.nextTheme=t[1]||'standard';root.style.setProperty('--bg',t[2]);root.style.setProperty('--card',t[3]);root.style.setProperty('--ink',t[4]);root.style.setProperty('--mut',t[5]);root.style.setProperty('--bd',t[6]);root.style.setProperty('--acc',t[7]);}
+function nextApplyTheme(){
+ const t=NEXT_THEMES.find(x=>x[1]===(ALL.nextTheme||'')),root=document.documentElement;
+ const dark=(S.mode===2||(S.mode===0&&matchMedia('(prefers-color-scheme: dark)').matches));
+ root.dataset.theme=dark?'dark':'light';
+ root.dataset.nextTheme=t?.[1]||'standard';
+ // Theme palettes must never override the opposite brightness mode.
+ // CSS' existing :root[data-theme] colors remain authoritative there.
+ const compatible=!!t&&t[1]&&((t[8]==='dark')===dark);
+ for(const key of ['--bg','--card','--ink','--mut','--bd'])root.style.removeProperty(key);
+ if(compatible)for(const [key,value] of Object.entries({'--bg':t[2],'--card':t[3],'--ink':t[4],'--mut':t[5],'--bd':t[6]}))root.style.setProperty(key,value);
+ root.style.setProperty('--acc',t?.[7]||T[S.theme][1]);
+ const meta=document.querySelector('meta[name="theme-color"]');if(meta)meta.content=getComputedStyle(root).getPropertyValue('--bg').trim();
+}
+try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>{if(S.mode===0){nextApplyTheme();if(view==='reader')document.getElementById('rdwrap')?.setAttribute('data-theme',document.documentElement.dataset.theme);}})}catch{}
 function nextLanguageChooser(){const opts=[['system','Automatisch (Systemsprache)'],['de','Deutsch'],['en','English'],['fr','Français'],['es','Español'],['it','Italiano']];return `<div class="pad"><p class="hint">Systemsprache wird automatisch erkannt; andere Sprachen verwenden Englisch als Fallback.</p>${opts.map(([id,name])=>`<label class="next-language-row"><input type="radio" name="next-lang" value="${id}" ${(!ALL.nextLanguage&&id==='system'||ALL.nextLanguage===id)?'checked':''} onchange="ALL.nextLanguage='${id}';persist();render()"> ${name}</label>`).join('')}</div>`}
 function nextAfterRender(){nextApplyTheme();if(view==='catalog')setTimeout(buCatalogEnrich,0);if(view==='home')setTimeout(buLoadRecCovers,0);if(view==='reader'){setTimeout(()=>nextRefreshReader(),450);setTimeout(()=>nextRefreshReader(),1900)};if(view==='home')document.title='BooksUp · '+nt('discover');else document.title='BooksUp';}
 /* GIF banners stay as animated images in IndexedDB instead of being flattened by canvas. */
