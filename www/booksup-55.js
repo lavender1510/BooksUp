@@ -366,34 +366,62 @@ window.bu55RetrySimilar=function(id){
  if(!book||similarKey(book)!==id)return;
  bu46SimilarCache.delete(id);similarErrors.delete(id);void window.bu46SimilarLoad(book);
 };
+// Recommendations are scored against the OPEN book. Never manufacture candidate genres.
+const simWords=value=>new Set(String(value||'').normalize('NFKD').toLowerCase().replace(/[\u0300-\u036f]/g,'').replace(/[^\p{L}\p{N}]+/gu,' ').split(/\s+/).filter(w=>w.length>3&&!['book','novel','fiction','story','series','pages','buch','roman','geschichte','livre','libro','volume','the','with','eine','einer','über','from','their','this','that'].includes(w)));
+const simOverlap=(a,b)=>{const A=simWords(a),B=simWords(b);return [...A].filter(w=>B.has(w)).length;};
+const simField=v=>String(v||'').normalize('NFKD').toLowerCase().replace(/[^\p{L}\p{N}]/gu,'');
+function simScore(seed,item){
+ const series=simField(seed.series),sameSeries=series&&series===simField(item.series);
+ const genreMatch=simOverlap(seed.genre,item.genre),tags=simOverlap(seed.tags,item.tags);
+ const topic=simOverlap(seed.description,item.description),cross=simOverlap([seed.genre,seed.tags].join(' '),[item.genre,item.tags,item.description].join(' '));
+ const sameAuthor=simField(seed.author)&&simField(seed.author)===simField(item.author);
+ const samePublisher=simField(seed.publisher)&&simField(seed.publisher)===simField(item.publisher);
+ // Topic, author or series must independently establish relevance.
+ if(!sameSeries&&!sameAuthor&&!genreMatch&&!tags&&!cross&&topic<2)return -1;
+ let score=(sameSeries?60:0)+(sameAuthor?34:0)+Math.min(genreMatch,3)*23+Math.min(tags,5)*12+Math.min(cross,4)*9+Math.min(topic,5)*5;
+ if(samePublisher)score+=2;
+ const years=[Number.parseInt(seed.year,10),Number.parseInt(item.year,10)];
+ if(years.every(Number.isFinite))score+=Math.max(0,5-Math.floor(Math.abs(years[0]-years[1])/4));
+ const lang=typeof nextLanguage==='function'?nextLanguage():'de';
+ if(item.language===lang)score+=4;
+ return score>=21?score:-1;
+}
 window.bu46SimilarLoad=async function(book){
  if(!book?.title)return;
  const id=similarKey(book);
  if(similarPending.has(id)||bu46SimilarCache.has(id))return;
- similarPending.add(id);
+ similarPending.add(id);similarErrors.delete(id);
  const paint=()=>{const box=[...document.querySelectorAll('[data-similar-key]')].find(el=>el.dataset.similarKey===id);if(box){const node=document.createElement('div');node.innerHTML=window.bu46SimilarHtml(book);const replacement=node.querySelector('[data-similar-key]');if(replacement)box.innerHTML=replacement.innerHTML;bu43LoadCovers();}};
  paint();
- const withTimeout=(promise,ms)=>Promise.race([promise,new Promise((_,reject)=>setTimeout(()=>reject(Error('Timeout nach '+ms/1000+' Sekunden')),ms))]);
- const query=book.genre?'subject:'+book.genre:book.author?'inauthor:'+book.author:book.title;
- const results=await Promise.allSettled([
-  withTimeout(fetchMetaUrl('https://www.googleapis.com/books/v1/volumes?q='+encodeURIComponent(query)+'&maxResults=25'),12000),
-  withTimeout(fetchMetaUrl('https://openlibrary.org/search.json?q='+encodeURIComponent(book.genre||book.author||book.title)+'&limit=25'),12000)
- ]);
- const seen=new Set(),list=[];
- function accept(b){
-  if(!b?.title||buNorm(b.title)===buNorm(book.title)||!bu46Allowed(b))return;
-  const k=String(b.isbn||'')||buNorm(b.title)+'|'+buNorm(b.author);
-  if(seen.has(k))return;seen.add(k);list.push(b);
- }
  try{
-  if(results[0].status==='fulfilled')for(const raw of results[0].value.items||[])accept(bu44ItemToBook(raw));
-  if(results[1].status==='fulfilled')for(const raw of results[1].value.docs||[])accept({
-   title:raw.title,author:raw.author_name?.join(', ')||'',isbn:raw.isbn?.[0]||'',year:raw.first_publish_year||'',
-   cover:raw.cover_i?'https://covers.openlibrary.org/b/id/'+raw.cover_i+'-M.jpg':'',genre:book.genre||''
+  const withTimeout=(p,ms)=>Promise.race([p,new Promise((_,reject)=>setTimeout(()=>reject(Error('Zeitüberschreitung')),ms))]);
+  const topics=[...simWords(book.genre+' '+book.tags)].slice(0,3);
+  const primary=topics.length?'subject:'+topics.join(' '):book.author?'inauthor:'+book.author:'intitle:'+book.title;
+  const raw=await Promise.allSettled([
+   withTimeout(fetchMetaUrl('https://www.googleapis.com/books/v1/volumes?q='+encodeURIComponent(primary)+'&maxResults=40'),12000),
+   withTimeout(fetchMetaUrl('https://openlibrary.org/search.json?q='+encodeURIComponent([book.genre,book.tags,book.author].filter(Boolean).join(' ')||book.title)+'&fields=title,author_name,isbn,first_publish_year,cover_i,subject,language,publisher&limit=40'),12000)
+  ]);
+  const candidates=[];
+  if(raw[0].status==='fulfilled')for(const item of raw[0].value.items||[]){
+   const parsed=bu44ItemToBook(item);if(parsed)candidates.push(parsed);
+  }
+  if(raw[1].status==='fulfilled')for(const item of raw[1].value.docs||[])candidates.push({
+   title:item.title||'',author:(item.author_name||[]).join(', '),isbn:item.isbn?.[0]||'',
+   year:item.first_publish_year||'',language:item.language?.[0]||'',
+   publisher:item.publisher?.[0]||'',genre:item.subject?.[0]||'',tags:(item.subject||[]).slice(0,12).join(', '),
+   cover:item.cover_i?'https://covers.openlibrary.org/b/id/'+Number(item.cover_i)+'-M.jpg':''
   });
-  if(results.every(r=>r.status==='rejected'))similarErrors.set(id,'offline');
-  bu46SimilarCache.set(id,list.slice(0,12));
- }finally{similarPending.delete(id);paint();}
+  const seen=new Set(),scored=candidates.map(b=>({b,score:simScore(book,b)})).filter(({b,score})=>{
+   if(score<0||!b.title||!bu46Allowed(b))return false;
+   if(simField(b.title)===simField(book.title)&&(simField(b.author)===simField(book.author)||!b.author))return false;
+   const key=simField(b.title)+'|'+simField(b.author);
+   if(seen.has(key))return false;seen.add(key);return true;
+  });
+  scored.sort((a,b)=>b.score-a.score||a.b.title.localeCompare(b.b.title));
+  bu46SimilarCache.set(id,scored.slice(0,12).map(x=>x.b));
+  if(raw.every(x=>x.status==='rejected'))similarErrors.set(id,'offline');
+ }catch(error){similarErrors.set(id,String(error?.message||error));bu46SimilarCache.set(id,[]);}
+ finally{similarPending.delete(id);paint();}
 };
 // Discover is an existing screen; clicking its CTA must navigate even if catalog APIs are absent.
 window.bu46MoreBooks=function(){bu46SearchTerm='';bu46SearchResults=[];go('discoverSearch');};
