@@ -57,10 +57,25 @@ function nextToggleChapters(){nextChapterOpen=!nextChapterOpen;const e=document.
 function nextRefreshReader(){if(view!=='reader')return;const b=S.books.find(x=>x.id===cur);if(!b)return;const out=document.getElementById('next-chapters-list'),head=document.getElementById('next-reading-subtitle'),ch=currentChapter();if(head)head.innerHTML=`${esc(b.title)}<small>${esc(ch?.title||('Kapitel '+(b.chapter||1)))}</small>`;const foot=document.getElementById('next-reading-chapter');if(foot){const current=Number(b.page||1);const start=ch?.p||1;const idx=Array.isArray(curChaps)?curChaps.indexOf(ch):-1;const end=idx>=0&&curChaps[idx+1]?curChaps[idx+1].p-1:(b.pages||pdfDoc?.numPages||'?');foot.textContent=`${nt('chapters')}: ${Math.max(1,current-start+1)} / ${typeof end==='number'?Math.max(1,end-start+1):'?'} Seiten`;}if(!out)return;const c=Array.isArray(curChaps)?curChaps:[];out.innerHTML=c.length?c.map((x,i)=>`<button class="next-chapter-link ${x===ch?'active':''}" onclick="goPage(${Number(x.p)||1});nextRefreshReader();nextToggleChapters()"><small>${i+1}</small><span>${esc(x.title||'Kapitel '+(i+1))}</span></button>`).join(''):'<p class="hint">Keine Kapitelinformationen in dieser Datei. Du kannst weiterhin nach Seiten navigieren.</p>'}
 function currentChapter(){const c=typeof curChaps!=='undefined'&&Array.isArray(curChaps)?curChaps:[],n=Number(S.books.find(x=>x.id===cur)?.page||1);return [...c].reverse().find(x=>x.p<=n)||null}
 function nextCaptureHighlight(){const b=S.books.find(x=>x.id===cur);if(!b)return;let selected=window.getSelection?.().toString().trim()||'';selected=selected.slice(0,1200);const message=selected?'Kommentar zu dieser Markierung (optional):':'Deine Notiz zur aktuellen Seite:';const comment=prompt(message,'');if(comment===null)return;if(!selected&&!comment.trim())return;const a={page:Number(b.page)||1,chapter:b.chapter||1,text:selected,comment:comment.trim().slice(0,2000),created:Date.now()};b.annotations??=[];b.annotations.push(a);persist();toast('Markierung / Notiz gespeichert.');if(selected){try{const sel=window.getSelection();if(sel.rangeCount){const range=sel.getRangeAt(0);if(document.getElementById('rdscroll')?.contains(range.commonAncestorContainer)){const mark=document.createElement('mark');mark.className='next-highlight';range.surroundContents(mark);sel.removeAllRanges()}}}catch(e){}}}
-const NEXT_SETTINGS=[['recommendations','Empfehlungen','✦','Empfehlungsquellen, Genres & Tags'],['appearance','Darstellung','◐','Themes, Schriften und Oberfläche'],['reading','Leseeinstellungen','Aa','Lesemodus, Text und Lesetempo'],['currency','Währung','€','Währung und Preise'],['friends','Freunde Einstellungen','♧','Profile, Freunde-Server'],['notifications','Benachrichtigungen','◉','Lese-Erinnerungen'],['backup','Datensicherung','▣','Backup, Google Drive, Goodreads'],['language','Sprache','文','Deutsch, English, Français, Español, Italiano'],['goodreads','Goodreads-Kompatibilität','★','Bewertungen, Import und Shelves'],['privacy','Nutzerdaten & Alter','◈','Privat, Altersfreigaben, 18+ Modus'],['admin','Admin & Redaktion','⌘','Verifizierter GitHub-Herausgeber'],['help','Hilfe','?','Anleitungen und Diagnose'],['updates','Auf Updates prüfen','↻','Aktualisierungen und Version']];
+const NEXT_SETTINGS=[
+ ['friends','Konto / Profil','♧','Profile und Freunde-Server'],
+ ['appearance','Darstellung','◐','Themes, Schriften und Oberfläche'],
+ ['language','Sprache','文','Deutsch, English, Français, Español, Italiano'],
+ ['reading','Leseeinstellungen','Aa','Lesemodus, Text und Lesetempo'],
+ ['recommendations','Empfehlungen','✦','Empfehlungsquellen, Genres & Tags'],
+ ['currency','Währung','€','Währung und Preise'],
+ ['goodreads','Goodreads-Kompatibilität','★','Bewertungen, Import und Shelves'],
+ ['notifications','Benachrichtigungen','◉','Lese-Erinnerungen und Preisalarme'],
+ ['backup','Datensicherung','▣','Backup, Google Drive, Goodreads und Geräte'],
+ ['privacy','Nutzerdaten & Alter','◈','Privat, Altersfreigaben, 18+ Modus'],
+ ['updates','Auf Updates prüfen','↻','Aktualisierungen und Version'],
+ ['admin','Admin & Redaktion','⌘','Verifizierter GitHub-Herausgeber'],
+ ['help','Hilfe','?','Anleitungen und Diagnose']
+];
 let nextSettingCategory='appearance';
+let nextLanguageDraft=null;
 function nextSettings(){return `${bar(nt('settings'),'home')}<div class="next-settings-hub"><div class="next-settings-title"><h1>${nt('settings')}</h1><p>Mach BooksUp zu deinem Leseort.</p></div>${NEXT_SETTINGS.map(([id,name,icon,desc])=>`<button class="next-setting-row" onclick="nextChooseSettings('${id}')"><span class="next-setting-icon">${icon}</span><span><b>${name}</b><small>${desc}</small></span><span class="next-setting-arrow">›</span></button>`).join('')}</div>`}
-function nextChooseSettings(id){if(view==='settingsDetail'&&nextSettingCategory==='appearance'&&bu43AskLeave('settingsDetail',id))return;nextSettingCategory=id;if(id==='appearance')bu43ApOpen();else bu43AppearanceDraft=null;view='settingsDetail';modal=null;render()}
+function nextChooseSettings(id){if(view==='settingsDetail'&&nextSettingCategory==='appearance'&&bu43AskLeave('settingsDetail',id))return;nextSettingCategory=id;if(id==='appearance')bu43ApOpen();else bu43AppearanceDraft=null;if(id==='language')nextLanguageDraft=ALL.nextLanguage||'system';else nextLanguageDraft=null;view='settingsDetail';modal=null;render()}
 function nextSettingsDetail(){const entry=NEXT_SETTINGS.find(x=>x[0]===nextSettingCategory)||NEXT_SETTINGS[0],old=settings();const chunk=(a,b)=>{let start=old.indexOf('<h3>'+a+'</h3>');if(start<0)return '';start+=4+a.length+5;let end=b?old.indexOf('<h3>'+b+'</h3>',start):-1;if(end<0)end=old.length;return old.slice(start,end)};let content='';switch(nextSettingCategory){
 case 'recommendations':content=bu43RecView();break;
 case 'appearance':content=bu43AppearanceView();break;
@@ -92,7 +107,18 @@ function nextApplyTheme(){
  const meta=document.querySelector('meta[name="theme-color"]');if(meta)meta.content=getComputedStyle(root).getPropertyValue('--bg').trim();
 }
 try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>{if(S.mode===0){nextApplyTheme();if(view==='reader')document.getElementById('rdwrap')?.setAttribute('data-theme',document.documentElement.dataset.theme);}})}catch{}
-function nextLanguageChooser(){const opts=[['system','Automatisch (Systemsprache)'],['de','Deutsch'],['en','English'],['fr','Français'],['es','Español'],['it','Italiano']];return `<div class="pad"><p class="hint">Systemsprache wird automatisch erkannt; andere Sprachen verwenden Englisch als Fallback.</p>${opts.map(([id,name])=>`<label class="next-language-row"><input type="radio" name="next-lang" value="${id}" ${(!ALL.nextLanguage&&id==='system'||ALL.nextLanguage===id)?'checked':''} onchange="ALL.nextLanguage='${id}';persist();render()"> ${name}</label>`).join('')}</div>`}
+function nextLanguageChooser(){
+ if(nextLanguageDraft===null)nextLanguageDraft=ALL.nextLanguage||'system';
+ const opts=[['system','Automatisch (Systemsprache)'],['de','Deutsch'],['en','English'],['fr','Français'],['es','Español'],['it','Italiano']];
+ return '<div class="pad"><p class="hint">Wähle die Sprache. Die Änderung wird erst durch Speichern übernommen.</p>'+
+  opts.map(([id,name])=>'<label class="next-language-row"><input type="radio" name="next-lang" value="'+id+'" '+(nextLanguageDraft===id?'checked':'')+' onchange="nextLanguageDraft=\''+id+'\';render()"> '+name+'</label>').join('')+
+  '<div class="row"><button class="btn" onclick="nextSaveLanguage()">Speichern</button><button class="btn o" onclick="nextDiscardLanguage()">Verwerfen</button></div></div>';
+}
+function nextSaveLanguage(){
+ if(!['system','de','en','fr','es','it'].includes(nextLanguageDraft))return;
+ ALL.nextLanguage=nextLanguageDraft;persist();render();
+}
+function nextDiscardLanguage(){nextLanguageDraft=ALL.nextLanguage||'system';render();}
 function nextAfterRender(){nextApplyTheme();if(view==='catalog')setTimeout(buCatalogEnrich,0);if(view==='home')setTimeout(buLoadRecCovers,0);if(view==='reader'){setTimeout(()=>nextRefreshReader(),450);setTimeout(()=>nextRefreshReader(),1900)};if(view==='home')document.title='BooksUp · '+nt('discover');else document.title='BooksUp';}
 /* GIF banners stay as animated images in IndexedDB instead of being flattened by canvas. */
 const nextBannerObjects=new Map();
