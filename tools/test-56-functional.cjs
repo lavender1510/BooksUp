@@ -44,4 +44,14 @@ assert.match(themes,/function nextSaveLanguage\(/);
 assert.match(themes,/function nextDiscardLanguage\(/);
 assert.match(source,/function sessionHud\(/);
 assert.match(source,/recoverAutoSession\(/);
+// Device-transfer ACK must only be emitted after confirmed durable import.
+const peer=read('www/booksup-50-pair.js');
+assert.match(peer,/const connected=\(\)=>ready&&channel\?\.readyState==='open'/);
+assert.match(peer,/const durable=await put\('__state',JSON\.stringify\(ALL\)\)/);
+assert.match(peer,/if\(!durable\)throw Error/);
+assert.match(peer,/const accepted=await preview\(p\)/);
+assert.match(peer,/if\(accepted&&channel\?\.readyState==='open'\)channel\.send/);
+const androidCi=read('.github/workflows/check-android-48.yml');
+assert.doesNotMatch(androidCi,/APK='release\/BooksUp-5\.4\.0\.apk'/);
+assert.match(androidCi,/VERSION="\$\(node -p/);
 console.log('BooksUp 5.6 targeted functional and syntax tests passed.');
