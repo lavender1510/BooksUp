@@ -793,7 +793,7 @@ function recoverAutoSession(){
  S.sess=null;persist();
 }
 setTimeout(recoverAutoSession,300);
-document.addEventListener('visibilitychange',()=>{if(document.hidden&&rdFull){sessionHud();finishAutoSession();}},true);
+document.addEventListener('visibilitychange',()=>{if(document.hidden&&rdFull){sessionHud();finishAutoSession();}else if(!document.hidden&&rdFull&&!S.sess)beginAutoSession();},true);
 window.addEventListener('pagehide',()=>{if(rdFull)finishAutoSession();},true);
 const oldAfter=window.nextAfterRender;
 window.nextAfterRender=function(){
@@ -813,6 +813,6 @@ window.toggleFull=function(){
  if(entering&&wrap?.requestFullscreen)void wrap.requestFullscreen().catch(()=>{});
  else if(!entering&&document.fullscreenElement)void document.exitFullscreen().catch(()=>{});
 };
-document.addEventListener('fullscreenchange',()=>{if(!document.fullscreenElement&&rdFull){const wrap=document.getElementById('rdwrap');wrap?.classList.remove('bu55-focus');}});
+document.addEventListener('fullscreenchange',()=>{if(!document.fullscreenElement&&rdFull){const wrap=document.getElementById('rdwrap');wrap?.classList.remove('bu55-focus');window.toggleFull();}});
 document.addEventListener('dblclick',e=>{if(rdFull&&e.target.closest('#rdwrap'))toggleFull();});
 })();
