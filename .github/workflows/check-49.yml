@@ -23,6 +23,8 @@ jobs:
           node-version: '22'
       - name: Static source validation
         run: npm run test:static
+      - name: BooksUp 5.6 focused regression tests
+        run: node tools/test-56-functional.cjs
       - name: Cross-platform regression tests
         run: |
           node tools/test-49.cjs
