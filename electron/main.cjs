@@ -176,7 +176,7 @@ ipcMain.handle('booksup-metadata:search', async (event, request) => {
   ];
   const openUrl = 'https://openlibrary.org/search.json?' +
     (topic ? 'q=' + encodeURIComponent('subject:' + topic) : isbn ? 'isbn=' + encodeURIComponent(isbn) : 'q=' + encodeURIComponent(title + (author ? ' ' + author : ''))) +
-    '&limit=20&lang=de&fields=key,title,author_name,isbn,first_publish_year,cover_i,subject,language,publisher,editions,editions.title,editions.language,editions.isbn_13,editions.isbn_10,editions.publisher,editions.publish_date';
+    '&limit=20&lang=de&fields=key,title,author_name,isbn,first_publish_year,cover_i,subject,language,publisher,editions,editions.title,editions.language,editions.isbn_13,editions.isbn_10,editions.publisher,editions.publish_date,series';
   const urls = [...googleUrls, openUrl];
   async function fetchCatalog(url) {
     const resp = await fetch(url, {signal: AbortSignal.timeout(11000), headers:{Accept:'application/json'}});
