@@ -423,6 +423,30 @@ window.bu46SimilarLoad=async function(book){
  }catch(error){similarErrors.set(id,String(error?.message||error));bu46SimilarCache.set(id,[]);}
  finally{similarPending.delete(id);paint();}
 };
+// Price alarms accept a verified owned edition directly; no shelf-only prerequisite.
+const previousWatch=window.bu44WatchPrompt;
+window.bu44WatchPrompt=function(input){
+ const book=input||{};
+ const raw=isbnClean(book.isbn||'');
+ const editions=(book.editions||[]).map(x=>isbnClean(x.isbn||'')).filter(isbnValid);
+ const chosen=isbnValid(raw)?raw:(new Set(editions).size===1?editions[0]:'');
+ if(chosen)return previousWatch({...book,isbn:chosen});
+ if(book.id==null){
+  alert('Für diesen Preisalarm fehlt die genaue ISBN-Ausgabe. Öffne das Buch in deiner Bibliothek, um eine ISBN einzutragen oder eine Ausgabe auszuwählen.');
+  return;
+ }
+ const match=currentBook(book.id);
+ if(!match){alert('Buch nicht gefunden. Bitte die gewünschte Ausgabe zuerst in der Bibliothek öffnen.');return;}
+ const manual=confirm('Dieses Buch hat noch keine eindeutige, gültige ISBN.\n\nOK: ISBN manuell ergänzen.\nAbbrechen: passende Ausgaben online suchen.');
+ if(manual){
+  const value=prompt('ISBN-10 oder ISBN-13 der gewünschten Ausgabe:','');
+  if(value===null)return;
+  const clean=isbnClean(value);
+  if(!isbnValid(clean)){alert('Die ISBN ist ungültig. Bitte die ISBN inklusive Prüfziffer kontrollieren.');return;}
+  match.isbn=clean;persist();return previousWatch({...match,isbn:clean});
+ }
+ return window.bu48IsbnChooser?.(match.id,true);
+};
 // Discover is an existing screen; clicking its CTA must navigate even if catalog APIs are absent.
 window.bu46MoreBooks=function(){bu46SearchTerm='';bu46SearchResults=[];go('discoverSearch');};
 
