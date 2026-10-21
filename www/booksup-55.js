@@ -447,6 +447,84 @@ window.bu44WatchPrompt=function(input){
  }
  return window.bu48IsbnChooser?.(match.id,true);
 };
+// Complement the existing Google Books, Open Library and DNB enrichment chain.
+// Enrich only from strongly identified works; never guess ISBN or series numbers.
+const metaNorm=v=>String(v||'').normalize('NFKD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^\p{L}\p{N}]+/gu,' ').trim();
+const metaText=v=>String(v||'').replace(/<[^>]+>/g,' ').replace(/&amp;/g,'&').replace(/\s+/g,' ').trim();
+function metaSeries(value){
+ const s=Array.isArray(value)?value[0]:value;
+ const text=String(s||'').trim();
+ const m=text.match(/^(.+?)[\s,]*(?:#|band\s*|volume\s*|vol\.?\s*|book\s*)(\d+(?:\.\d+)?)$/i);
+ return text?{series:m?m[1].trim():text,seriesNumber:m?Number(m[2]):null}:{series:'',seriesNumber:null};
+}
+function metaCandidate(raw,kind){
+ if(kind==='google'){
+  const v=raw?.volumeInfo||{},series=metaSeries(v.seriesInfo?.volumeSeries?.[0]?.seriesId||v.series||'');
+  const order=Number(v.seriesInfo?.volumeSeries?.[0]?.orderNumber);
+  return {title:v.title||'',author:(v.authors||[]).join(', '),isbn:v.industryIdentifiers?.find(x=>x.type==='ISBN_13')?.identifier||'',
+   genre:(v.categories||[])[0]||'',tags:(v.categories||[]).join(', '),publisher:v.publisher||'',description:metaText(v.description),language:v.language||'',
+   cover:v.imageLinks?.thumbnail?.replace(/^http:/,'https:')||'',year:v.publishedDate||'',series:series.series,seriesNumber:Number.isFinite(order)&&order>0?order:series.seriesNumber,source:'Google Books'};
+ }
+ const series=metaSeries(raw?.series||[]);
+ return {title:raw?.title||'',author:(raw?.author_name||[]).join(', '),isbn:'',genre:(raw?.subject||[])[0]||'',tags:(raw?.subject||[]).slice(0,12).join(', '),
+  publisher:(raw?.publisher||[])[0]||'',language:(raw?.language||[])[0]||'',cover:raw?.cover_i?'https://covers.openlibrary.org/b/id/'+Number(raw.cover_i)+'-L.jpg':'',
+  year:raw?.first_publish_year||'',series:series.series,seriesNumber:series.seriesNumber,source:'Open Library'};
+}
+function metaConfidence(book,candidate){
+ const a=metaNorm(book.title),b=metaNorm(candidate.title),author=metaNorm(book.author),by=metaNorm(candidate.author);
+ const isbn=isbnClean(book.isbn||''),matchIsbn=isbnValid(isbn)&&isbn===isbnClean(candidate.isbn||'');
+ let score=matchIsbn?200:a&&a===b?92:a.length>=8&&b.length>=8&&(a.includes(b)||b.includes(a))?57:0;
+ if(!score)return 0;
+ if(author&&by){if(author===by)score+=25;else if(author.includes(by)||by.includes(author))score+=14;else if(!matchIsbn)score-=70;}
+ if(!matchIsbn&&score<80)return 0;
+ const lang=typeof nextLanguage==='function'?nextLanguage():'de';
+ if(candidate.language===lang)score+=8;else if(['de','en'].includes(candidate.language))score+=3;
+ return score;
+}
+const lookupBefore56=window.bu48Lookup;
+const metaRunning=new Map();
+window.bu48Lookup=async function(id,options={}){
+ const book=currentBook(id);if(!book)return null;
+ const token=String(id);if(metaRunning.has(token))return metaRunning.get(token);
+ const task=(async()=>{
+  const original=await lookupBefore56.call(this,id,options);
+  if(!(book.title||book.isbn)||!window.booksupCatalog?.search||navigator.onLine===false)return original;
+  if(book.description&&book.publisher&&book.genre&&book.tags&&book.covers?.length&&book.series)return original;
+  const terms=[{title:book.title||'',author:book.author||'',isbn:book.isbn||''}];
+  if(book.originalTitle&&metaNorm(book.originalTitle)!==metaNorm(book.title))terms.push({title:book.originalTitle,author:book.author||''});
+  if(book.alternativeTitle&&metaNorm(book.alternativeTitle)!==metaNorm(book.title))terms.push({title:book.alternativeTitle,author:book.author||''});
+  if(book.title&&book.author)terms.push({title:book.title});
+  const unique=[...new Map(terms.filter(x=>x.title||x.isbn).map(x=>[JSON.stringify(x),x])).values()].slice(0,4);
+  const calls=await Promise.allSettled(unique.map(async x=>window.booksupCatalog.search(x)));
+  const rows=[];
+  for(const call of calls)if(call.status==='fulfilled'){
+   for(const x of call.value.google||[])rows.push(metaCandidate(x,'google'));
+   for(const x of call.value.open||[])rows.push(metaCandidate(x,'open'));
+  }
+  const ranked=rows.map(x=>({...x,confidence:metaConfidence(book,x)})).filter(x=>x.confidence>=80).sort((a,b)=>b.confidence-a.confidence);
+  const dedup=new Map();
+  for(const x of ranked){
+   const key=metaNorm(x.title)+'|'+metaNorm(x.author)+'|'+isbnClean(x.isbn);
+   if(!dedup.has(key))dedup.set(key,x);
+  }
+  let changed=false;
+  // Merge complementary fields from the same verified title/author, ordered by confidence.
+  for(const x of dedup.values()){
+   for(const f of ['description','genre','tags','publisher','year','language','series','seriesNumber']){
+    if((book[f]==null||book[f]==='')&&x[f]!=null&&x[f]!==''){
+     book[f]=x[f];changed=true;
+    }
+   }
+   if(!book.cover&&!book.covers?.length&&/^https:\/\//.test(x.cover||'')){book.covers=[x.cover];changed=true;}
+  }
+  const editions=[...new Set([...dedup.values()].filter(x=>x.confidence>=110&&isbnValid(isbnClean(x.isbn))).map(x=>isbnClean(x.isbn)))];
+  if(!book.isbn&&editions.length===1){book.isbn=editions[0];changed=true;}
+  if(changed){persist();if(['detail','libraryDetail'].includes(view)&&String(cur)===token)render();}
+  const candidates=[...(original?.candidates||[]),...dedup.values()];
+  return {...(original||{}),candidates,errors:[...(original?.errors||[]),...calls.filter(x=>x.status==='rejected').map(x=>'Buchdaten: '+String(x.reason?.message||x.reason))]};
+ })().finally(()=>metaRunning.delete(token));
+ metaRunning.set(token,task);return task;
+};
 // Discover is an existing screen; clicking its CTA must navigate even if catalog APIs are absent.
 window.bu46MoreBooks=function(){bu46SearchTerm='';bu46SearchResults=[];go('discoverSearch');};
 
