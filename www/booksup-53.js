@@ -293,13 +293,13 @@ function translateLabel(text,lang){
 }
 let localeBusy=false;
 function applyLanguage(){
- if(view==='reader'||localeBusy)return;
+ if(localeBusy)return;
  const app=document.getElementById('app');if(!app)return;
  const lang=typeof nextLanguage==='function'?nextLanguage():'de';
  document.documentElement.lang=lang;
  localeBusy=true;
  try{
-  if(typeof buTranslateUI==='function')buTranslateUI();
+  if(view!=='reader'&&typeof buTranslateUI==='function')buTranslateUI();
   // Inspect only known UI words, and never arbitrary book or user-authored prose.
   if(typeof document.createTreeWalker==='function'&&typeof NodeFilter!=='undefined'){
    const walk=document.createTreeWalker(app,NodeFilter.SHOW_TEXT),nodes=[];
@@ -340,7 +340,7 @@ const after=window.nextAfterRender;
 window.nextAfterRender=function(){
  after?.apply(this,arguments);
  document.body.classList.toggle('bu53-reader',view==='reader');
- if(view==='reader'){setTimeout(improveReader,0);setTimeout(renderHighlights,180);}
+ if(view==='reader'){setTimeout(improveReader,0);setTimeout(renderHighlights,180);setTimeout(applyLanguage,200);}
  else{applyLanguage();observeLanguage();}
 };
 window.bu53ApplyLanguage=applyLanguage;
