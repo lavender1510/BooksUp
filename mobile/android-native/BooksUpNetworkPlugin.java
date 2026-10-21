@@ -71,7 +71,7 @@ public class BooksUpNetworkPlugin extends Plugin {
                 catch(Exception e){errors.put("Google Books: "+e.getMessage());}
                 String endpoint="https://openlibrary.org/search.json?"
                     +(isbn.isEmpty()?"q="+enc(q):"isbn="+enc(isbn))
-                    +"&limit=40&fields=key,title,author_name,isbn,first_publish_year,cover_i,subject,language,publisher";
+                    +"&limit=40&fields=key,title,author_name,isbn,first_publish_year,cover_i,subject,language,publisher,series";
                 try {JSONArray rows=request(endpoint,null).optJSONArray("docs");if(rows!=null)for(int i=0;i<rows.length();i++)open.put(rows.opt(i));}
                 catch(Exception e){errors.put("Open Library: "+e.getMessage());}
                 JSObject result=new JSObject();
