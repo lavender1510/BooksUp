@@ -459,7 +459,7 @@ function metaSeries(value){
 }
 function metaCandidate(raw,kind){
  if(kind==='google'){
-  const v=raw?.volumeInfo||{},series=metaSeries(v.seriesInfo?.volumeSeries?.[0]?.seriesId||v.series||'');
+  const v=raw?.volumeInfo||{},series=metaSeries(v.series||'');
   const order=Number(v.seriesInfo?.volumeSeries?.[0]?.orderNumber);
   return {title:v.title||'',author:(v.authors||[]).join(', '),isbn:v.industryIdentifiers?.find(x=>x.type==='ISBN_13')?.identifier||'',
    genre:(v.categories||[])[0]||'',tags:(v.categories||[]).join(', '),publisher:v.publisher||'',description:metaText(v.description),language:v.language||'',
@@ -782,6 +782,7 @@ function sessionHud(){
  if(S.sess?.automatic&&S.sess.bid==b.id)S.sess.lastAlive=Date.now();
 }
 setInterval(()=>{if(view==='reader'&&rdFull)sessionHud();},1200);
+setInterval(()=>{if(view==='reader'&&rdFull&&S.sess?.automatic)persist();},15000);
 function recoverAutoSession(){
  const x=S.sess;if(!x?.automatic||view==='reader')return;
  const book=S.books.find(b=>String(b.id)===String(x.bid));
