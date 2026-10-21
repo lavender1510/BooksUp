@@ -251,6 +251,23 @@ const dictionary={
  'Verbindung anbieten':['Offer connection','Proposer une connexion','Ofrecer conexión','Offri connessione'],
  'Nur Bibliothek':['Library only','Bibliothèque uniquement','Solo biblioteca','Solo biblioteca']
 };
+Object.assign(dictionary,{
+ 'Verwerfen':['Discard','Annuler les modifications','Descartar','Annulla modifiche'],
+ 'Bearbeiten':['Edit','Modifier','Editar','Modifica'],
+ 'Entfernen':['Remove','Supprimer','Eliminar','Rimuovi'],
+ 'Nicht verfügbar':['Not available','Non disponible','No disponible','Non disponibile'],
+ 'Hell':['Light','Clair','Claro','Chiaro'],
+ 'Dunkel':['Dark','Sombre','Oscuro','Scuro'],
+ 'System':['System','Système','Sistema','Sistema'],
+ 'Ähnliche Bücher':['Similar books','Livres similaires','Libros similares','Libri simili'],
+ 'Erneut suchen':['Search again','Rechercher à nouveau','Buscar de nuevo','Cerca di nuovo'],
+ 'Verlag':['Publisher','Éditeur','Editorial','Editore'],
+ 'Band':['Volume','Tome','Tomo','Volume'],
+ 'Lesesitzung':['Reading session','Session de lecture','Sesión de lectura','Sessione di lettura'],
+ 'Daten sicher senden':['Send data securely','Envoyer les données en sécurité','Enviar datos de forma segura','Invia dati in sicurezza'],
+ 'Verbindung trennen':['Disconnect','Déconnecter','Desconectar','Disconnetti'],
+ 'Kein Gerät verbunden':['No device connected','Aucun appareil connecté','Ningún dispositivo conectado','Nessun dispositivo connesso']
+});
 const canonical=new Map(),knownTranslations=new Map();
 const register=(de,loc)=>{
  if(!de||!Array.isArray(loc))return;
