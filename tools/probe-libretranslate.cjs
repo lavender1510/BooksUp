@@ -20,3 +20,18 @@
   }catch(error){console.log('LibreTranslate de '+mode+': network error ('+String(error?.name||'unavailable')+').');}
  }
 })().catch(()=>{console.log('LibreTranslate de: probe inconclusive.');});
+(async()=>{
+ const hosts=['https://translate.argosopentech.com/translate','https://libretranslate.de/translate'];
+ await Promise.all(hosts.map(async endpoint=>{
+  const hostname=new URL(endpoint).hostname;
+  try{
+   const response=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},
+    body:JSON.stringify({q:['Guten Morgen'],source:'de',target:'en',format:'text'}),signal:AbortSignal.timeout(10000)});
+   if(!response.ok){console.log('LibreTranslate '+hostname+': HTTP '+response.status);return;}
+   const result=await response.json(),text=result?.translatedText;
+   if(Array.isArray(text)&&text[0]&&text[0]!=='Guten Morgen')console.log('LibreTranslate '+hostname+': anonymous batch supported');
+   else console.log('LibreTranslate '+hostname+': response not compatible with batch');
+  }catch(error){console.log('LibreTranslate '+hostname+': unavailable ('+String(error?.name||'network')+').');}
+ }));
+})().catch(()=>{});
+
