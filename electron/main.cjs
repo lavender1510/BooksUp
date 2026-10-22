@@ -161,6 +161,27 @@ ipcMain.handle('booksup-update:check',()=>checkBooksUpUpdates(true));
 
 // Restrict DNB metadata lookups to a known SRU endpoint and the active BooksUp window.
 // Fetch public catalog data from a fixed set of providers in Electron's main process.
+// LibreTranslate is called from Electron's trusted process; secrets are never sent to the renderer.
+const TRANSLATION_LANGS=new Set(['de','en','fr','es','it']);
+ipcMain.handle('booksup-translate:batch',async (event,request)=>{
+ if(!mainWindow||event.sender!==mainWindow.webContents||!event.senderFrame?.url.startsWith(APP_ORIGIN+'/'))throw Error('Unauthorized translation request');
+ const texts=request?.texts,source=String(request?.source||'de'),target=String(request?.target||'');
+ if(!TRANSLATION_LANGS.has(source)||!TRANSLATION_LANGS.has(target)||!Array.isArray(texts)||!texts.length||texts.length>16||
+   texts.some(x=>typeof x!=='string'||!x.trim()||x.length>180))throw Error('Invalid translation request');
+ const raw=process.env.BOOKSUP_LIBRETRANSLATE_URL||'https://de.libretranslate.com/translate';
+ const endpoint=new URL(raw);
+ if(endpoint.protocol!=='https:'||endpoint.username||endpoint.password||endpoint.port||!/^([a-z0-9-]+\.)+[a-z]{2,}$/i.test(endpoint.hostname)||endpoint.pathname!=='/translate')throw Error('Unsafe translation endpoint');
+ const key=process.env.BOOKSUP_LIBRETRANSLATE_API_KEY||'';
+ const body={q:texts,source,target,format:'text'};
+ if(key)body.api_key=key;
+ const response=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},
+  body:JSON.stringify(body),signal:AbortSignal.timeout(12000)});
+ if(!response.ok)throw Error(response.status===429?'Translation rate limit':response.status===403||response.status===401?'Translation API key required':'Translation API HTTP '+response.status);
+ const out=await response.json(),translated=out?.translatedText;
+ if(!Array.isArray(translated)||translated.length!==texts.length||translated.some(x=>typeof x!=='string'))throw Error('Invalid translation response');
+ return {translatedText:translated};
+});
+
 ipcMain.handle('booksup-metadata:search', async (event, request) => {
   if (!mainWindow || event.sender !== mainWindow.webContents ||
       !event.senderFrame?.url.startsWith(APP_ORIGIN + '/')) throw Error('Unauthorized metadata lookup');
