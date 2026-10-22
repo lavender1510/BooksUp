@@ -365,7 +365,9 @@ function ltRemember(key,value){
 }
 async function ltRequest(texts,source,target){
  if(!(source==='auto'||LT_LANGS.has(source))||!LT_LANGS.has(target)||texts.length>12||texts.some(x=>!ltSafeText(x)))throw Error('Invalid UI translation');
- const endpoint=String(window.BOOKSUP_LIBRETRANSLATE_URL||'https://de.libretranslate.com/translate');
+ const configured=String(window.BOOKSUP_LIBRETRANSLATE_URL||'');
+ if(!configured&&!window.booksupTranslation?.translateMany)throw Error('LibreTranslate must be configured for Android/browser');
+ const endpoint=configured||'https://de.libretranslate.com/translate';
  let url;try{url=new URL(endpoint);}catch{throw Error('Invalid translation URL');}
  if(url.protocol!=='https:'||url.username||url.password||url.pathname!=='/translate')throw Error('Invalid translation URL');
  if(window.booksupTranslation?.translateMany)return window.booksupTranslation.translateMany({texts,source,target});
