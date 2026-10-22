@@ -1,15 +1,22 @@
 'use strict';
-// Diagnostic only: sends a fixed public test word, never BooksUp user data.
+// Public, fixed probe only. Sends no BooksUp user data and no credentials.
 (async()=>{
  const url='https://de.libretranslate.com/translate';
- try{
-  const res=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},
-   body:JSON.stringify({q:['Guten Morgen'],source:'de',target:'en',format:'text'}),
-   signal:AbortSignal.timeout(12000)});
-  if(!res.ok){console.log('LibreTranslate de instance: HTTP '+res.status+' (anonymous translation NOT verified)');return;}
-  const result=await res.json(),words=result?.translatedText;
-  if(Array.isArray(words)&&typeof words[0]==='string'&&words[0].trim()&&words[0]!=='Guten Morgen'){
-   console.log('LibreTranslate de instance: anonymous batch endpoint responded with translation (one-off probe; no SLA).');
-  }else console.log('LibreTranslate de instance: HTTP 200 but translation response is unexpected.');
- }catch(error){console.log('LibreTranslate de instance: unreachable from CI ('+String(error?.name||'network error')+'); fallback required.');}
-})().catch(()=>{console.log('LibreTranslate de instance: diagnostic inconclusive.');});
+ for(const [mode,payload] of [
+  ['batch',{q:['Guten Morgen'],source:'de',target:'en',format:'text'}],
+  ['single',{q:'Guten Morgen',source:'de',target:'en',format:'text'}]
+ ]){
+  try{
+   const res=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},
+    body:JSON.stringify(payload),signal:AbortSignal.timeout(10000)});
+   const body=await res.text();
+   let json;try{json=JSON.parse(body);}catch{}
+   const detail=json?.error||json?.message||'';
+   if(!res.ok){console.log('LibreTranslate de '+mode+': HTTP '+res.status+' '+String(detail).slice(0,120));continue;}
+   const text=json?.translatedText;
+   const result=Array.isArray(text)?text[0]:text;
+   if(typeof result==='string'&&result&&result!=='Guten Morgen')console.log('LibreTranslate de '+mode+': live translation confirmed');
+   else console.log('LibreTranslate de '+mode+': response received, translation unverified');
+  }catch(error){console.log('LibreTranslate de '+mode+': network error ('+String(error?.name||'unavailable')+').');}
+ }
+})().catch(()=>{console.log('LibreTranslate de: probe inconclusive.');});
