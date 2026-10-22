@@ -71,48 +71,108 @@ function bu44Watches(){if(!Array.isArray(ALL.medimopsWatches))ALL.medimopsWatche
 function bu44WatchState(b){
  const key=bu44EditionIsbn(b.isbn);return key&&bu44Watches().some(x=>x.isbn===key);
 }
+function bu44ValidIsbn(value){
+ const s=bu44EditionIsbn(value);
+ if(/^\d{13}$/.test(s)){let sum=0;for(let i=0;i<13;i++)sum+=Number(s[i])*(i%2?3:1);return sum%10===0;}
+ if(/^\d{9}[\dX]$/i.test(s)){let sum=0;for(let i=0;i<10;i++)sum+=(s[i].toUpperCase()==='X'?10:Number(s[i]))*(10-i);return sum%11===0;}
+ return false;
+}
 function bu44WatchPrompt(b){
- const isbn=bu44EditionIsbn(b.isbn);
- if(!isbn)return alert('Für einen Preisalarm wird die ISBN dieser Ausgabe benötigt.');
- const watching=bu44WatchState(b);
- const detail='BooksUp kann einmal täglich den Preis dieser ISBN vergleichen, sofern der Publisher eine MediMops-Datenquelle aktiviert hat. Preisänderungen werden mit Quelle und Datum angezeigt. Ohne API-Verbindung werden keine erfundenen Preise oder Alarme erzeugt.';
- if(!confirm((watching?'Preisalarm deaktivieren?':'Preisalarm für '+b.title+' aktivieren?')+'\n\n'+detail))return;
+ const isbn=bu44EditionIsbn(b?.isbn);
+ if(!bu44ValidIsbn(isbn))return alert('Für einen Preisalarm wird die gültige ISBN-10 oder ISBN-13 der gewünschten Ausgabe benötigt. Ergänze sie in den Buchdetails.');
+ const watching=bu44WatchState({isbn});
+ const detail='Der Preisalarm nutzt ausschließlich verifizierte MediMops-Verkaufspreise. Die momox-Ankaufspreise sind andere Daten und lösen keinen MediMops-Preisalarm aus. Ohne eingerichteten Preisanbieter werden keine Preise erfunden.';
+ if(!confirm((watching?'Preisalarm deaktivieren?':'Preisalarm für '+(b.title||'dieses Buch')+' aktivieren?')+'\n\n'+detail))return;
  if(watching)ALL.medimopsWatches=bu44Watches().filter(x=>x.isbn!==isbn);
- else bu44Watches().push({isbn,title:b.title,author:b.author,lastPrice:null,lastChecked:null,alerts:[]});
- persist();toast(watching?'Preisalarm deaktiviert':'Preisalarm vorgemerkt – Datenquelle erforderlich.');render();
+ else bu44Watches().push({isbn,title:b.title||'Buch',author:b.author||'',lastPrice:null,lastChecked:null,targetPrice:null,history:[],alerts:[]});
+ persist();toast(watching?'Preisalarm deaktiviert':'Preisalarm gespeichert. Preisabfrage nur bei verfügbarer MediMops-Datenquelle.');render();
+ if(!watching)void bu44CheckWatches(true);
 }
 function bu44WatchCatalog(index){const b=buRecs().list[Number(index)];if(b)bu44WatchPrompt(b)}
-async function bu44CheckWatches(){
- if(bu44PriceBusy||navigator.onLine===false||!bu44Watches().length)return;
- if(Date.now()-Number(ALL.lastPriceCheck||0)<86400000)return;
+function bu44TargetPrompt(isbn){
+ const w=bu44Watches().find(x=>x.isbn===isbn);if(!w)return;
+ const input=prompt('Gewünschter MediMops-Verkaufspreis in EUR (leer = Zielpreis entfernen):',w.targetPrice==null?'':String(w.targetPrice).replace('.',','));
+ if(input===null)return;
+ if(!input.trim()){w.targetPrice=null;w.targetHit=false;persist();render();return;}
+ const value=Number(input.trim().replace(',','.'));
+ if(!Number.isFinite(value)||value<=0||value>5000)return alert('Bitte einen gültigen Zielpreis zwischen 0,01 € und 5.000 € eingeben.');
+ w.targetPrice=Math.round(value*100)/100;w.targetHit=false;persist();render();
+}
+async function bu44NotifyPrice(w,oldPrice,amount,targetHit){
+ const detail=targetHit?'Zielpreis erreicht':'Preis geändert';
+ const message=w.title+': '+(oldPrice===null?'':oldPrice.toFixed(2)+' € → ')+amount.toFixed(2)+' €';
+ toast('MediMops · '+detail+' · '+message);
+ const ln=window.Capacitor?.Plugins?.LocalNotifications;
+ try{
+  if(ln&&(await ln.checkPermissions()).display==='granted')
+   await ln.schedule({notifications:[{id:Math.floor(Math.random()*2147000000)+1,title:'BooksUp · '+detail,body:message,smallIcon:'ic_stat_booksup',schedule:{at:new Date(Date.now()+2500)}}]});
+ }catch(error){console.debug('Price notification unavailable',error);}
+}
+async function bu44CheckWatches(force=false){
+ if(bu44PriceBusy||!bu44Watches().length)return;
+ if(navigator.onLine===false){ALL.medimopsLastError='Offline: Letzter bekannter MediMops-Preis bleibt erhalten.';if(force){persist();render();}return;}
+ const now=Date.now();
+ if(!force&&now-Number(ALL.lastPriceCheck||0)<86400000)return;
+ if(force&&now-Number(ALL.lastPriceManualCheck||0)<60000){
+  toast('Die letzte Preisabfrage ist noch keine Minute her.');return;
+ }
  const endpoint=String(window.BOOKSUP_PRICE_FEED_URL||'https://raw.githubusercontent.com/lavender1510/BooksUp/main/www/medimops-prices.json').trim();
  if(!/^https:\/\/[^\s]+$/.test(endpoint))return;
  bu44PriceBusy=true;
+ if(force)ALL.lastPriceManualCheck=now;
  try{
-  const res=await fetch(endpoint,{cache:'no-store'});
-  if(!res.ok)throw Error('Price feed '+res.status);
-  const doc=await res.json();
-  if(!Array.isArray(doc.prices))throw Error('Missing price records');
-  const now=Date.now();
+  const controller=new AbortController(),timeout=setTimeout(()=>controller.abort(),12000);
+  let response;try{response=await fetch(endpoint,{cache:'no-store',signal:controller.signal});}finally{clearTimeout(timeout);}
+  if(!response.ok)throw Error(response.status===429?'Preisquelle hat zu viele Anfragen erhalten':'Preisquelle HTTP '+response.status);
+  const data=await response.json();
+  if(!Array.isArray(data?.prices))throw Error('Ungültige Preisdaten');
+  const refreshed=Date.parse(data.updatedAt||'');
+  if(!Number.isFinite(refreshed)||now-refreshed>14*86400000)throw Error('Noch kein aktueller MediMops-Verkaufspreisfeed konfiguriert');
+  let found=0;
   for(const w of bu44Watches()){
-   const item=doc.prices.find(p=>bu44EditionIsbn(p.isbn)===w.isbn&&p.provider==='medimops'&&Number.isFinite(Number(p.price))&&p.currency==='EUR');
-   if(!item)continue;
-   const amount=Number(item.price);if(w.lastPrice!==null&&w.lastPrice!==amount){
-    w.alerts??=[];w.alerts.unshift({at:now,before:w.lastPrice,after:amount,source:item.source||'MediMops',url:item.url||''});
-    toast('MediMops: Preis geändert · '+w.title+': '+amount.toFixed(2)+' €');
-    const ln=window.Capacitor?.Plugins?.LocalNotifications;
-    try{if(ln&&(await ln.checkPermissions()).display==='granted')await ln.schedule({notifications:[{id:Math.floor(Math.random()*2147000000)+1,title:'BooksUp · Preisänderung',body:w.title+': '+w.lastPrice.toFixed(2)+' € → '+amount.toFixed(2)+' €',smallIcon:'ic_stat_booksup',schedule:{at:new Date(Date.now()+2500)}}]})}catch(e){console.debug('Price notification skipped',e)}
+   if(!bu44ValidIsbn(w.isbn))continue;
+   const record=data.prices.find(p=>bu44EditionIsbn(p.isbn)===w.isbn&&p.provider==='medimops'&&String(p.currency).toUpperCase()==='EUR'&&
+    p.price!==null&&p.price!==undefined&&Number.isFinite(Number(p.price))&&Number(p.price)>=0);
+   if(!record)continue;
+   const amount=Math.round(Number(record.price)*100)/100;if(amount>5000)continue;
+   found++;
+   const oldPrice=Number.isFinite(Number(w.lastPrice))&&w.lastPrice!==null?Number(w.lastPrice):null;
+   const changed=oldPrice!==null&&oldPrice!==amount;
+   const hit=w.targetPrice!=null&&amount<=Number(w.targetPrice)&&!w.targetHit;
+   w.targetHit=w.targetPrice!=null&&amount<=Number(w.targetPrice);
+   if(changed||hit){
+    w.alerts??=[];w.alerts.unshift({at:now,before:oldPrice,after:amount,source:'MediMops · Verkaufspreis',targetHit:!!hit,url:record.url||''});
+    w.alerts=w.alerts.slice(0,40);
+    await bu44NotifyPrice(w,oldPrice,amount,hit);
    }
+   w.history??=[];if(!w.history.length||w.history[0].price!==amount)w.history.unshift({at:now,price:amount});
+   w.history=w.history.slice(0,40);
    w.lastPrice=amount;w.lastChecked=now;
   }
-  ALL.lastPriceCheck=now;persist();
- }catch(e){console.debug('MediMops price monitor inactive:',e)}
- finally{bu44PriceBusy=false}
+  ALL.lastPriceCheck=now;
+  ALL.medimopsLastError=found?null:'Für die beobachteten ISBN-Ausgaben liegen momentan keine MediMops-Verkaufspreise vor.';
+  persist();if(force)render();
+ }catch(error){
+  ALL.medimopsLastError=String(error?.message||error);
+  console.debug('MediMops price check unavailable:',ALL.medimopsLastError);
+  persist();if(force)render();
+ }finally{bu44PriceBusy=false;}
 }
+window.bu44CheckWatchesNow=()=>bu44CheckWatches(true);
 function bu44PriceNotificationsView(){
- return '<div class="bu44-price-watch"><h3>MediMops-Preisalarm (Beta)</h3><p class="hint">Nur für Bücher, bei denen du den Preisalarm ausdrücklich aktiviert hast. Der Preis wird nur bei verfügbarer MediMops-Datenquelle geprüft; ohne Anbieteranbindung werden keine Preiswerte angezeigt.</p>'+
- bu44Watches().map(w=>'<div class="li"><b>'+esc(w.title)+'</b><small>'+esc(w.isbn)+' · '+(w.lastPrice===null?'Noch kein geprüfter Preis':w.lastPrice.toFixed(2)+' €')+'</small></div>').join('')+
- '<p class="hint">Eine tägliche Hintergrundbenachrichtigung bei geschlossener App erfordert einen angeschlossenen Preis-Dienst und Push-Infrastruktur. GitHub allein stellt keine MediMops-Preis-API bereit.</p></div>';
+ const error=ALL.medimopsLastError;
+ const items=bu44Watches().map(w=>{
+  const last=w.lastChecked?new Date(w.lastChecked).toLocaleString():null;
+  const price=w.lastPrice===null?'Noch kein geprüfter MediMops-Verkaufspreis':Number(w.lastPrice).toFixed(2)+' € · zuletzt geprüft: '+last;
+  return '<div class="li"><b>'+esc(w.title)+'</b><small>'+esc(w.isbn)+' · '+esc(price)+'</small>'+
+   (w.targetPrice!=null?'<small>Zielpreis: '+Number(w.targetPrice).toFixed(2)+' €</small>':'')+
+   '<button class="chip" onclick="bu44TargetPrompt('+JSON.stringify(w.isbn).replace(/"/g,'&quot;')+')">Zielpreis</button></div>';
+ }).join('');
+ return '<div class="bu44-price-watch"><h3>MediMops-Preisalarm (Beta)</h3>'+
+  '<p class="hint">Für ISBN-Ausgaben mit verifizierten MediMops-Verkaufspreisen. momox-Ankaufspreise werden ausdrücklich nicht als Verkaufspreis verwendet.</p>'+
+  items+'<button class="chip" onclick="bu44CheckWatchesNow()">Preis jetzt prüfen</button>'+
+  (error?'<p class="hint" role="status">'+esc(error)+'</p>':'')+
+  '<p class="hint">Ohne konfigurierten MediMops-Verkaufspreis-Anbieter stehen keine Livepreise bereit. Hintergrundbenachrichtigungen bei geschlossener App erfordern zusätzlich einen Server-/Pushdienst.</p></div>';
 }
 /* Actual PDF zoom factor, not an illusion that crops the document. */
 function bu44ZoomValue(){return Math.max(.8,Math.min(3,Number(S.pdfZoom)||1))}
