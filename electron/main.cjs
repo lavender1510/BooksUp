@@ -168,10 +168,11 @@ ipcMain.handle('booksup-translate:batch',async (event,request)=>{
  const texts=request?.texts,source=String(request?.source||'de'),target=String(request?.target||'');
  if(!TRANSLATION_LANGS.has(source)||target==='auto'||!TRANSLATION_LANGS.has(target)||!Array.isArray(texts)||!texts.length||texts.length>16||
    texts.some(x=>typeof x!=='string'||!x.trim()||x.length>180))throw Error('Invalid translation request');
+ const key=process.env.BOOKSUP_LIBRETRANSLATE_API_KEY||'';
+ if(!key&&!process.env.BOOKSUP_LIBRETRANSLATE_URL)throw Error('LibreTranslate requires a configured endpoint or API key');
  const raw=process.env.BOOKSUP_LIBRETRANSLATE_URL||'https://de.libretranslate.com/translate';
  const endpoint=new URL(raw);
  if(endpoint.protocol!=='https:'||endpoint.username||endpoint.password||endpoint.port||!/^([a-z0-9-]+\.)+[a-z]{2,}$/i.test(endpoint.hostname)||endpoint.pathname!=='/translate')throw Error('Unsafe translation endpoint');
- const key=process.env.BOOKSUP_LIBRETRANSLATE_API_KEY||'';
  const body={q:texts,source,target,format:'text'};
  if(key)body.api_key=key;
  const response=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},
