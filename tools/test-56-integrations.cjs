@@ -1,8 +1,8 @@
 'use strict';
 const assert=require('node:assert/strict'),fs=require('node:fs'),os=require('node:os'),path=require('node:path'),vm=require('node:vm');
-const {validIsbn,validateRetail,momoxOffers,main}=require('./refresh-medimops.cjs');
+const {validIsbn,canonicalIsbn,validateRetail,momoxOffers,main}=require('./refresh-medimops.cjs');
 const good='9783527507993',other='9783864906114';
-assert.ok(validIsbn(good));assert.ok(validIsbn(other));assert.equal(validIsbn('9783527507994'),false);
+assert.ok(validIsbn(good));assert.ok(validIsbn(other));assert.equal(canonicalIsbn('352750799X'),good);assert.equal(validIsbn('9783527507994'),false);
 assert.deepEqual(validateRetail([{isbn:good,provider:'momox',price:'4.12',currency:'EUR'}]),[],'Buyback is never retail');
 assert.equal(validateRetail([{isbn:good,provider:'medimops',price:'12.45',currency:'EUR'}])[0].price,12.45);
 const calls=[];
