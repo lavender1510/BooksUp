@@ -162,11 +162,11 @@ ipcMain.handle('booksup-update:check',()=>checkBooksUpUpdates(true));
 // Restrict DNB metadata lookups to a known SRU endpoint and the active BooksUp window.
 // Fetch public catalog data from a fixed set of providers in Electron's main process.
 // LibreTranslate is called from Electron's trusted process; secrets are never sent to the renderer.
-const TRANSLATION_LANGS=new Set(['de','en','fr','es','it']);
+const TRANSLATION_LANGS=new Set(['de','en','fr','es','it','auto']);
 ipcMain.handle('booksup-translate:batch',async (event,request)=>{
  if(!mainWindow||event.sender!==mainWindow.webContents||!event.senderFrame?.url.startsWith(APP_ORIGIN+'/'))throw Error('Unauthorized translation request');
  const texts=request?.texts,source=String(request?.source||'de'),target=String(request?.target||'');
- if(!TRANSLATION_LANGS.has(source)||!TRANSLATION_LANGS.has(target)||!Array.isArray(texts)||!texts.length||texts.length>16||
+ if(!TRANSLATION_LANGS.has(source)||target==='auto'||!TRANSLATION_LANGS.has(target)||!Array.isArray(texts)||!texts.length||texts.length>16||
    texts.some(x=>typeof x!=='string'||!x.trim()||x.length>180))throw Error('Invalid translation request');
  const raw=process.env.BOOKSUP_LIBRETRANSLATE_URL||'https://de.libretranslate.com/translate';
  const endpoint=new URL(raw);
