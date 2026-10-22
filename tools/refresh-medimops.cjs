@@ -10,11 +10,19 @@ function validIsbn(value){
  if(/^\d{9}[\dX]$/.test(s)){let sum=0;for(let i=0;i<10;i++)sum+=(s[i]==='X'?10:Number(s[i]))*(10-i);return sum%11===0;}
  return false;
 }
+function canonicalIsbn(value){
+ const isbn=clean(value);
+ if(!validIsbn(isbn))return '';
+ if(isbn.length===13)return isbn;
+ const base='978'+isbn.slice(0,9);let sum=0;
+ for(let i=0;i<12;i++)sum+=Number(base[i])*(i%2?3:1);
+ return base+String((10-sum%10)%10);
+}
 function validateRetail(items){
  if(!Array.isArray(items))throw Error('Retail provider must return a prices array');
  const prices=[],seen=new Set();
  for(const item of items.slice(0,2500)){
-  const isbn=clean(item.isbn||item.ean);
+  const isbn=canonicalIsbn(item.isbn||item.ean);
   if(!validIsbn(isbn)||String(item.provider||'').toLowerCase()!=='medimops'||seen.has(isbn))continue;
   const price=Number(item.price),url=String(item.url||'');
   if(!Number.isFinite(price)||price<0||price>5000||String(item.currency||'').toUpperCase()!=='EUR')continue;
@@ -37,7 +45,7 @@ async function retailPrices(fetcher,env){
 }
 async function momoxOffers(fetcher,env){
  const token=env.BOOKSUP_MOMOX_API_TOKEN||'';
- const codes=[...new Set(String(env.BOOKSUP_MOMOX_EANS||'').split(/[\s,;]+/).map(clean).filter(Boolean))];
+ const codes=[...new Set(String(env.BOOKSUP_MOMOX_EANS||'').split(/[\s,;]+/).map(canonicalIsbn).filter(Boolean))];
  if(!token||!codes.length)return null;
  if(codes.length>40||codes.some(x=>!validIsbn(x)))throw Error('Publisher configured invalid or excessive momox EAN list');
  const marketplace=env.BOOKSUP_MOMOX_MARKETPLACE_ID||'momox_de';
@@ -50,7 +58,7 @@ async function momoxOffers(fetcher,env){
   if(response.status===401||response.status===403)throw Error('momox API authorization failed: configure valid publisher credentials');
   if(!response.ok){console.warn('momox offer not available for configured EAN:',isbn,'HTTP',response.status);continue;}
   const data=await response.json();
-  if(clean(data?.product?.ean)!==isbn||data?.status!=='offer')continue;
+  if(canonicalIsbn(data?.product?.ean)!==isbn||data?.status!=='offer')continue;
   const price=Number(data.price);
   if(!Number.isFinite(price)||price<0||price>5000||String(data.currency||'').toLowerCase()!=='eur')continue;
   rows.push({isbn,provider:'momox',price:Math.round(price*100)/100,currency:'EUR',
@@ -72,5 +80,5 @@ async function main({fetcher=fetch,env=process.env,file=FEED}={}){
  console.log('Published',out.prices.length,'verified retail prices and',out.momoxOffers.length,'separately labeled momox buyback offers.');
  return out;
 }
-module.exports={clean,validIsbn,validateRetail,retailPrices,momoxOffers,main};
+module.exports={clean,validIsbn,canonicalIsbn,validateRetail,retailPrices,momoxOffers,main};
 if(require.main===module)main().catch(error=>{console.error(String(error?.message||error));process.exitCode=1;});
