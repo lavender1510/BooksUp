@@ -243,7 +243,7 @@ Object.assign(BU44_WORDS,{
  'MediMops-Preisalarm (Beta)':['MediMops price alert (beta)','Alerte prix MediMops (bêta)','Alerta de precio MediMops (beta)','Avviso prezzi MediMops (beta)'],
  'momox Ankauf':['momox buyback','Rachat momox','Recompra momox','Riaccquisto momox'],
  'kein MediMops-Verkaufspreis':['not a MediMops sale price','pas un prix de vente MediMops','no es un precio de venta de MediMops','non è un prezzo di vendita MediMops'],
- 'Für ISBN-Ausgaben mit verifizierten MediMops-Verkaufspreisen. momox-Ankaufspreise werden ausdrücklich nicht als Verkaufspreise verwendet.':[
+ 'Für ISBN-Ausgaben mit verifizierten MediMops-Verkaufspreisen. momox-Ankaufspreise werden ausdrücklich nicht als Verkaufspreis verwendet.':[
   'Only for ISBN editions with verified MediMops sale prices. momox buyback offers are never treated as sale prices.',
   'Uniquement pour les éditions ISBN avec un prix de vente MediMops vérifié. Les offres de rachat momox ne sont pas des prix de vente.',
   'Solo para ediciones ISBN con precios de venta de MediMops verificados. Las ofertas de recompra de momox no son precios de venta.',
