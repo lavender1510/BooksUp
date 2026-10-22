@@ -17,6 +17,9 @@ jobs:
         env:
           BOOKSUP_MEDIMOPS_PROVIDER_URL: ${{ secrets.BOOKSUP_MEDIMOPS_PROVIDER_URL }}
           BOOKSUP_MEDIMOPS_PROVIDER_TOKEN: ${{ secrets.BOOKSUP_MEDIMOPS_PROVIDER_TOKEN }}
+          BOOKSUP_MOMOX_API_TOKEN: ${{ secrets.BOOKSUP_MOMOX_API_TOKEN }}
+          BOOKSUP_MOMOX_EANS: ${{ vars.BOOKSUP_MOMOX_EANS }}
+          BOOKSUP_MOMOX_MARKETPLACE_ID: momox_de
         run: node tools/refresh-medimops.cjs
       - name: Commit verified public prices
         run: |
