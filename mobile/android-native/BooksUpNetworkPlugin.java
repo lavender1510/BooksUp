@@ -85,7 +85,7 @@ public class BooksUpNetworkPlugin extends Plugin {
     public void translateText(PluginCall call) {
         final JSONArray texts=call.getArray("texts");
         final String source=call.getString("source","de"),target=call.getString("target","de");
-        final String endpoint=call.getString("url","https://de.libretranslate.com/translate");
+        final String endpoint=call.getString("url","");
         if(texts==null||texts.length()==0||texts.length()>16||
            !source.matches("auto|de|en|fr|es|it")||!target.matches("de|en|fr|es|it")){
             call.reject("Ungültige Übersetzungsanfrage");return;
