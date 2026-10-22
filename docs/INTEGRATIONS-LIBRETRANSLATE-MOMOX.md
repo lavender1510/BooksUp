@@ -1,17 +1,18 @@
 # BooksUp – LibreTranslate und momox/Medimops (Integrationsstatus)
 
-**Noch kein Produktionsrelease:** Externe Instanzverfügbarkeit, Schlüsselberechtigungen und ein echter Medimops-Verkaufspreisdienst müssen vom Herausgeber geprüft werden. Stabile Version auf `main` bleibt 5.5.1.
+**Noch kein Produktionsrelease:** Ein eigener LibreTranslate-Server muss real betrieben und mit den Apps geprüft werden. Auch ein echter Medimops-Verkaufspreisdienst fehlt noch. Stabile Version auf `main` bleibt 5.5.1.
 
 ## 1. LibreTranslate
 
 - Der bestehende Sprachcode liegt in `www/booksup-53.js`. `window.BooksUpTranslationService` ist eine zentrale, additive Übersetzungsschicht.
-- `POST https://de.libretranslate.com/translate` mit JSON `{q: string[], source: "auto", target: "de|en|fr|es|it", format: "text"}`. Der Dienst akzeptiert laut API-Spezifikation ein Array für `q`, seine Antwort enthält ein gleich langes `translatedText`-Array.
+- `POST https://<eigene-domain>/translate` mit JSON `{q: string[], source: "auto", target: "de|en|fr|es|it", format: "text"}`. Der Dienst akzeptiert laut API-Spezifikation ein Array für `q`, seine Antwort enthält ein gleich langes `translatedText`-Array.
 - Verfügbare Sprachen: **de, en, fr, es, it**. Statische Einträge in `BU44_WORDS` und den bisherigen Dictionaries haben Vorrang.
 - Nur ausdrücklich markierte, von Entwicklern verfasste UI-Textbereiche (`data-bu-ui-translate`) dürfen an den Dienst. Bücher, Nutzernamen, Notizen, Reader-Text, ISBNs und beliebige Eingaben werden nicht automatisch übertragen. Weitere UI-Texte dürfen nur nach einer Datenschutzprüfung markiert werden.
 - Caching: `localStorage`, maximal 400 Übersetzungspaare, getrennt nach Zielsprache. Deduplizierung, Debounce 450 ms, Bündel bis 12 Texte. Eine fehlgeschlagene Anfrage führt zu 60 Sekunden Cooldown. Bei API-Key-Fehler, Timeout, Offline oder ungültiger Antwort bleibt die lokale/statische Beschriftung erhalten; die App stürzt nicht ab.
 - Windows: `electron/preload.cjs` → `booksup-translate:batch` in `electron/main.cjs`, ohne API-Key im Renderer. Konfiguration durch die **System-Umgebungsvariablen** `BOOKSUP_LIBRETRANSLATE_URL` (HTTPS-URL mit Pfad `/translate`) und optional `BOOKSUP_LIBRETRANSLATE_API_KEY`. Diese Variablen dürfen nicht im Repository stehen.
-- Android: Die native Capacitor-Methode `BooksUpNetwork.translateText` führt HTTPS-Aufrufe ohne eingebettete Secrets aus. Standard `https://de.libretranslate.com/translate`. Für eine API-Key-pflichtige Instanz einen **vom Herausgeber kontrollierten HTTPS-Proxy** betreiben, der den geheimen Key serverseitig ergänzt. Ausschließlich dessen öffentliche URL darf über `window.BOOKSUP_LIBRETRANSLATE_URL` konfiguriert werden. Niemals einen privaten Key in `www/`, Capacitor-Assets oder APK-Umgebungswerte schreiben.
-- **Liveprobe am 22.10.2026:** Anonyme Einzel- und Batch-POSTs an `https://de.libretranslate.com/translate` antworteten beide mit HTTP 400 und der Aufforderung, einen API-Schlüssel zu beziehen. Andere öffentliche Community-Instanzen waren ebenfalls nicht als funktionsfähig zu verifizieren. Ohne einen eingestellten HTTPS-Proxy/eine explizite Instanz oder (unter Windows) einen Backend-API-Key versucht BooksUp deshalb keine Übersetzung über das Netz. Bereits gespeicherte und statische Übersetzungen bleiben verfügbar.
+- Android: `BooksUpNetwork.translateText` nutzt natives HTTPS zum vom Betreiber freigegebenen Übersetzungsserver. Dessen öffentliche Adresse wird beim Android-Build per `BOOKSUP_PUBLIC_TRANSLATION_URL` injiziert; kein API-Key befindet sich in der APK. Ohne konfigurierte URL bleibt die App beim Offline-/Cache-Fallback.
+- **Eigene kostenfreie Instanz statt Public-Key:** Offizielles Docker-Image, Caddy-HTTPS, fünf Sprachmodelle, Request-Limits, GitHub-Variable und reale Prüfung sind in [`deploy/libretranslate/README.md`](../deploy/libretranslate/README.md) dokumentiert. LibreTranslate hat laut upstream `LT_API_KEYS=false` als Standard. Ein Server/VPS oder dauerhaft laufender Computer wird benötigt; GitHub allein hostet ihn nicht.
+- **Liveprobe am 22.10.2026:** `de.libretranslate.com` antwortete anonym mit HTTP 400 (Key verlangt); die eigene Docker-Installation kann ohne Key laufen. Ohne eigene URL versucht BooksUp keinen öffentlichen schlüsselpflichtigen Endpunkt.
 
 ## 2. momox und Medimops sind unterschiedliche Preisquellen
 
