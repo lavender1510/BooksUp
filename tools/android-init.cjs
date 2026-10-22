@@ -1,5 +1,5 @@
 'use strict';
-const { existsSync, readFileSync, writeFileSync, mkdirSync, copyFileSync } = require('node:fs');
+const { existsSync, readFileSync, writeFileSync, mkdirSync, copyFileSync, appendFileSync } = require('node:fs');
 const { join } = require('node:path');
 const { spawnSync } = require('node:child_process');
 const ROOT = join(__dirname, '..');
@@ -119,6 +119,13 @@ for(const name of ['booksup-android-48.js','booksup-android-48.css']){
  const source=join(mobileDir,name);
  if(!existsSync(source))throw Error('Mobile source not found: '+source);
  copyFileSync(source,join(publicDir,name));
+}
+// Append a PUBLIC translation URL to the generated Android-only JS, never a secret.
+const {resolvePublicEndpoint}=require('./configure-public-translation.cjs');
+const translationUrl=resolvePublicEndpoint();
+if(translationUrl){
+ appendFileSync(join(publicDir,'booksup-android-48.js'),
+  '\nwindow.BOOKSUP_LIBRETRANSLATE_URL='+JSON.stringify(translationUrl)+';\n');
 }
 let androidHtml=readFileSync(indexPath,'utf8');
 const versionPattern=/const APP_VERSION='[^']+';/g;
