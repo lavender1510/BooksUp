@@ -45,7 +45,9 @@ async function retailPrices(fetcher,env){
 }
 async function momoxOffers(fetcher,env){
  const token=env.BOOKSUP_MOMOX_API_TOKEN||'';
- const codes=[...new Set(String(env.BOOKSUP_MOMOX_EANS||'').split(/[\s,;]+/).map(canonicalIsbn).filter(Boolean))];
+ const rawCodes=String(env.BOOKSUP_MOMOX_EANS||'').split(/[\s,;]+/).map(clean).filter(Boolean);
+ if(token&&rawCodes.some(x=>!validIsbn(x)))throw Error('Publisher configured invalid momox EAN');
+ const codes=[...new Set(rawCodes.map(canonicalIsbn))];
  if(!token||!codes.length)return null;
  if(codes.length>40||codes.some(x=>!validIsbn(x)))throw Error('Publisher configured invalid or excessive momox EAN list');
  const marketplace=env.BOOKSUP_MOMOX_MARKETPLACE_ID||'momox_de';
