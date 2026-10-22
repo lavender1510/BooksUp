@@ -170,6 +170,7 @@ ipcMain.handle('booksup-translate:batch',async (event,request)=>{
    texts.some(x=>typeof x!=='string'||!x.trim()||x.length>180))throw Error('Invalid translation request');
  const key=process.env.BOOKSUP_LIBRETRANSLATE_API_KEY||'';
  if(!key&&!process.env.BOOKSUP_LIBRETRANSLATE_URL)throw Error('LibreTranslate requires a configured endpoint or API key');
+ if(!process.env.BOOKSUP_LIBRETRANSLATE_API_KEY&&!process.env.BOOKSUP_LIBRETRANSLATE_URL)throw Error('LibreTranslate provider not configured');
  const raw=process.env.BOOKSUP_LIBRETRANSLATE_URL||'https://de.libretranslate.com/translate';
  const endpoint=new URL(raw);
  if(endpoint.protocol!=='https:'||endpoint.username||endpoint.password||endpoint.port||!/^([a-z0-9-]+\.)+[a-z]{2,}$/i.test(endpoint.hostname)||endpoint.pathname!=='/translate')throw Error('Unsafe translation endpoint');
