@@ -364,7 +364,7 @@ function ltRemember(key,value){
  try{localStorage.setItem(LT_STORAGE,JSON.stringify(ltCache));}catch{}
 }
 async function ltRequest(texts,source,target){
- if(!LT_LANGS.has(source)||!LT_LANGS.has(target)||texts.length>12||texts.some(x=>!ltSafeText(x)))throw Error('Invalid UI translation');
+ if(!(source==='auto'||LT_LANGS.has(source))||!LT_LANGS.has(target)||texts.length>12||texts.some(x=>!ltSafeText(x)))throw Error('Invalid UI translation');
  const endpoint=String(window.BOOKSUP_LIBRETRANSLATE_URL||'https://de.libretranslate.com/translate');
  let url;try{url=new URL(endpoint);}catch{throw Error('Invalid translation URL');}
  if(url.protocol!=='https:'||url.username||url.password||url.pathname!=='/translate')throw Error('Invalid translation URL');
