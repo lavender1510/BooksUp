@@ -27,6 +27,8 @@ jobs:
         run: node tools/test-56-functional.cjs
       - name: BooksUp 5.6 external integrations (mocked)
         run: node tools/test-56-integrations.cjs
+      - name: Probe public LibreTranslate instance (informational, no user data)
+        run: node tools/probe-libretranslate.cjs
       - name: Cross-platform regression tests
         run: |
           node tools/test-49.cjs
