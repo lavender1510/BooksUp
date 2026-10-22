@@ -68,5 +68,42 @@ async function mockFetch(url,init){
  assert.ok(!JSON.stringify(scope.window).includes('test-secret-not-real'),'No publisher tokens in renderer');
  assert.match(fs.readFileSync('electron/main.cjs','utf8'),/BOOKSUP_LIBRETRANSLATE_API_KEY/);
  assert.doesNotMatch(fs.readFileSync('www/booksup-53.js','utf8'),/X-API-TOKEN/);
+
+ // Exercise the actual UI price-watch functions with simulated retailer, momox and offline responses.
+ const priceSource=fs.readFileSync('www/booksup-44.js','utf8');
+ const pa=priceSource.indexOf('function bu44ValidIsbn('),pb=priceSource.indexOf('/* Actual PDF zoom',pa);
+ assert.ok(pa>0&&pb>pa);
+ const saved={isbn:good,title:'Verified book',lastPrice:null,lastChecked:null,targetPrice:12,history:[],alerts:[]};
+ const current={updatedAt:new Date().toISOString(),prices:[{isbn:good,provider:'medimops',currency:'EUR',price:13.45}],
+  momoxOffers:[{isbn:good,provider:'momox',kind:'buyback',price:3.25,currency:'EUR'}]};
+ let notices=0,alerted=0,priceHttp=200;
+ const state={ALL:{medimopsWatches:[saved]},window:{BOOKSUP_PRICE_FEED_URL:'https://prices.example.org/feed'},
+  navigator:{onLine:true},Date,Number,Math,JSON,Promise,Array,Set,AbortController,console,
+  setTimeout,clearTimeout,esc:String,toast:()=>{notices++;},alert:()=>{alerted++;},
+  confirm:()=>true,prompt:()=>null,persist:()=>{},render:()=>{},
+  fetch:async()=>({ok:priceHttp===200,status:priceHttp,json:async()=>current})};
+ vm.createContext(state);
+ const prelude=`let bu44PriceBusy=false;
+ function bu44EditionIsbn(v){return String(v||'').replace(/[^0-9X]/gi,'').slice(0,13)}
+ function bu44Watches(){return ALL.medimopsWatches}`;
+ vm.runInContext(prelude+priceSource.slice(pa,pb)+';globalThis.priceApi={check:bu44CheckWatches,prompt:bu44WatchPrompt,ui:bu44PriceNotificationsView}',state);
+ await state.priceApi.check(true);
+ assert.equal(saved.lastPrice,13.45,'First Retail quote must be saved');
+ assert.equal(saved.alerts.length,0,'First higher-than-target quote causes no alarm');
+ assert.match(state.priceApi.ui(),/momox Ankauf: 3\.25/,'Buyback must be labeled separately');
+ assert.match(state.priceApi.ui(),/kein MediMops-Verkaufspreis/);
+ current.prices[0].price=11.85;state.ALL.lastPriceManualCheck=0;
+ await state.priceApi.check(true);
+ assert.equal(saved.lastPrice,11.85);
+ assert.equal(saved.alerts.length,1,'Threshold reached and change should emit a single alert');
+ assert.ok(saved.alerts[0].targetHit);
+ assert.equal(saved.history.length,2);
+ state.navigator.onLine=false;await state.priceApi.check(true);
+ assert.equal(saved.lastPrice,11.85,'Offline must retain the last price');
+ state.navigator.onLine=true;state.ALL.lastPriceManualCheck=0;priceHttp=429;
+ await state.priceApi.check(true);
+ assert.equal(saved.lastPrice,11.85,'HTTP 429 must not destroy cached prices');
+ assert.match(state.ALL.medimopsLastError,/zu viele Anfragen/);
+ state.priceApi.prompt({title:'Missing ISBN'});assert.equal(alerted,1,'Missing ISBN requires explanatory message');
  console.log('BooksUp 5.6 integrations: batch translation, privacy cache/offline fallback, ISBN checks and momox/retail separation passed.');
 })().catch(error=>{console.error(error);process.exitCode=1;});
