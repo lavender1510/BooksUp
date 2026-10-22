@@ -356,10 +356,8 @@ const ltPrivate=el=>!!el?.closest?.(
  '.next-annotations .next-note,.next-profile,.bu43-profile,.profile,.rdscroll,.txt,.book-title,'+
  '[contenteditable],[data-user-content],input,textarea,pre,code'
 );
-const ltAllowed=el=>!ltPrivate(el)&&!!el?.closest?.(
- 'button,label,.hint,.next-setting-row,.next-overline,.bar,.next-settings-title,'+
- '.bu44-price-watch,.bu50-peer-status,.rdtop,.rdsheet,.next-reading-tools'
-);
+// Translation is opt-in for developer-authored UI fragments. Never scan user content.
+const ltAllowed=el=>!ltPrivate(el)&&!!el?.closest?.('[data-bu-ui-translate]');
 function ltRemember(key,value){
  ltCache[key]=value;
  const keys=Object.keys(ltCache);for(const old of keys.slice(0,Math.max(0,keys.length-LT_CAP)))delete ltCache[old];
@@ -400,7 +398,7 @@ async function ltFlush(){
  records.forEach(([key])=>ltPending.delete(key));
  ltBusy=true;
  try{
-  const result=await ltRequest(records.map(([,x])=>x.source),'de',first.lang),values=result?.translatedText;
+  const result=await ltRequest(records.map(([,x])=>x.source),'auto',first.lang),values=result?.translatedText;
   if(!Array.isArray(values)||values.length!==records.length||values.some(v=>typeof v!=='string'||!v.trim()))throw Error('Invalid LibreTranslate response');
   records.forEach(([key,x],i)=>{const output=values[i].trim().slice(0,220);
    ltRemember(key,output);x.apply.forEach(callback=>{try{callback(output);}catch{}});
@@ -417,6 +415,7 @@ async function ltFlush(){
 }
 function ltTranslateUI(root,lang){
  if(!root||!LT_LANGS.has(lang)||lang==='de')return;
+ if(typeof NodeFilter==='undefined'||typeof document.createTreeWalker!=='function')return;
  const walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);
  const nodes=[];
  while(walker.nextNode()){
@@ -434,7 +433,7 @@ function ltTranslateUI(root,lang){
  }
  const targets=root.querySelectorAll('button[aria-label],input[placeholder],textarea[placeholder]');
  for(const element of targets){
-  if(ltPrivate(element)||!ltAllowed(element))continue;
+  if(ltPrivate(element.parentElement)||!element.hasAttribute('data-bu-ui-translate'))continue;
   for(const attr of ['aria-label','placeholder']){
    const original=element.getAttribute(attr);if(!ltSafeText(original))continue;
    ltQueue(original.trim(),lang,translated=>{
@@ -447,7 +446,7 @@ window.BooksUpTranslationService=Object.freeze({
  translateUI:ltTranslateUI,
  translateMany:async(texts,lang)=>{if(!Array.isArray(texts)||!LT_LANGS.has(lang))throw Error('Invalid translation');
   const safe=texts.filter(ltSafeText).slice(0,12);
-  return (await ltRequest(safe,'de',lang)).translatedText;
+  return (await ltRequest(safe,'auto',lang)).translatedText;
  },
  cacheSize:()=>Object.keys(ltCache).length
 });
