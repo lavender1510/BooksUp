@@ -169,8 +169,8 @@ function bu44PriceNotificationsView(){
    '<button class="chip" onclick="bu44TargetPrompt('+JSON.stringify(w.isbn).replace(/"/g,'&quot;')+')">Zielpreis</button></div>';
  }).join('');
  return '<div class="bu44-price-watch"><h3>MediMops-Preisalarm (Beta)</h3>'+
-  '<p class="hint">Für ISBN-Ausgaben mit verifizierten MediMops-Verkaufspreisen. momox-Ankaufspreise werden ausdrücklich nicht als Verkaufspreis verwendet.</p>'+
-  items+'<button class="chip" onclick="bu44CheckWatchesNow()">Preis jetzt prüfen</button>'+
+  '<p class="hint" data-bu-ui-translate>Für ISBN-Ausgaben mit verifizierten MediMops-Verkaufspreisen. momox-Ankaufspreise werden ausdrücklich nicht als Verkaufspreis verwendet.</p>'+
+  items+'<button class="chip" data-bu-ui-translate onclick="bu44CheckWatchesNow()">Preis jetzt prüfen</button>'+
   (error?'<p class="hint" role="status">'+esc(error)+'</p>':'')+
   '<p class="hint">Ohne konfigurierten MediMops-Verkaufspreis-Anbieter stehen keine Livepreise bereit. Hintergrundbenachrichtigungen bei geschlossener App erfordern zusätzlich einen Server-/Pushdienst.</p></div>';
 }
