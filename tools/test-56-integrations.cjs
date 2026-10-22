@@ -66,6 +66,7 @@ async function mockFetch(url,init){
  await vm.runInContext('ltFlush()',scope);
  assert.equal(publicNode.nodeValue,'Eine neue Beschriftung','API errors must preserve existing UI');
  assert.ok(!JSON.stringify(scope.window).includes('test-secret-not-real'),'No publisher tokens in renderer');
+ offline=false;
  for(const lang of ['de','en','fr','es','it']){
   const values=await scope.window.BooksUpTranslationService.translateMany(['Weitere Optionen'],lang);
   assert.equal(values[0],'Choose the language');
