@@ -7,7 +7,18 @@ function bu44RetrieveCache(){
 }
 bu44RetrieveCache();
 function bu44ExtraRecommendations(){return bu44Remote}
-function bu44EditionIsbn(v){return String(v||'').replace(/[^\dX]/gi,'').slice(0,13)}
+function bu44EditionIsbn(v){
+ const s=String(v||'').replace(/[^0-9X]/gi,'').toUpperCase().slice(0,13);
+ if(/^\d{9}[\dX]$/.test(s)){
+  let sum=0;for(let i=0;i<10;i++)sum+=(s[i]==='X'?10:Number(s[i]))*(10-i);
+  if(sum%11===0){
+   const base='978'+s.slice(0,9);let check=0;
+   for(let i=0;i<12;i++)check+=Number(base[i])*(i%2?3:1);
+   return base+String((10-check%10)%10);
+  }
+ }
+ return s;
+}
 function bu44PoolSubjects(){
  const r=S.rec||{},from=[...(r.includeGenres||[]),...S.books.filter(b=>b.rating>=7||b.finished).map(b=>b.genre)].filter(Boolean);
  const m={fantasy:'fantasy',sciencefiction:'science fiction',scifi:'science fiction',romance:'romance',liebe:'romance',manga:'manga',thriller:'thriller',krimi:'mystery',history:'history',historisch:'history',sachbuch:'nonfiction',biografie:'biography',graphicnovel:'graphic novel'};
