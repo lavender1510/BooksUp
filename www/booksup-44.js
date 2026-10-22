@@ -126,6 +126,12 @@ async function bu44CheckWatches(force=false){
   if(!response.ok)throw Error(response.status===429?'Preisquelle hat zu viele Anfragen erhalten':'Preisquelle HTTP '+response.status);
   const data=await response.json();
   if(!Array.isArray(data?.prices))throw Error('Ungültige Preisdaten');
+  // Distinct data stream: the momox API quotes what it pays sellers, not a retail price.
+  ALL.momoxBuybackOffers=Array.isArray(data.momoxOffers)?data.momoxOffers.filter(p=>
+   p?.provider==='momox'&&p.kind==='buyback'&&bu44ValidIsbn(p.isbn)&&
+   String(p.currency).toUpperCase()==='EUR'&&p.price!=null&&Number.isFinite(Number(p.price))&&Number(p.price)>=0
+  ).slice(0,250):[];
+  ALL.momoxBuybackCheckedAt=data.momoxUpdatedAt||null;
   const refreshed=Date.parse(data.updatedAt||'');
   if(!Number.isFinite(refreshed)||now-refreshed>14*86400000)throw Error('Noch kein aktueller MediMops-Verkaufspreisfeed konfiguriert');
   let found=0;
@@ -164,7 +170,9 @@ function bu44PriceNotificationsView(){
  const items=bu44Watches().map(w=>{
   const last=w.lastChecked?new Date(w.lastChecked).toLocaleString():null;
   const price=w.lastPrice===null?'Noch kein geprüfter MediMops-Verkaufspreis':Number(w.lastPrice).toFixed(2)+' € · zuletzt geprüft: '+last;
-  return '<div class="li"><b>'+esc(w.title)+'</b><small>'+esc(w.isbn)+' · '+esc(price)+'</small>'+
+  const momox=(ALL.momoxBuybackOffers||[]).find(x=>bu44EditionIsbn(x.isbn)===w.isbn);
+  const buyback=momox?'<small>momox Ankauf: '+Number(momox.price).toFixed(2)+' € · kein MediMops-Verkaufspreis</small>':'';
+  return '<div class="li"><b>'+esc(w.title)+'</b><small>'+esc(w.isbn)+' · '+esc(price)+'</small>'+buyback+
    (w.targetPrice!=null?'<small>Zielpreis: '+Number(w.targetPrice).toFixed(2)+' €</small>':'')+
    '<button class="chip" onclick="bu44TargetPrompt('+JSON.stringify(w.isbn).replace(/"/g,'&quot;')+')">Zielpreis</button></div>';
  }).join('');
