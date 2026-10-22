@@ -66,6 +66,11 @@ async function mockFetch(url,init){
  await vm.runInContext('ltFlush()',scope);
  assert.equal(publicNode.nodeValue,'Eine neue Beschriftung','API errors must preserve existing UI');
  assert.ok(!JSON.stringify(scope.window).includes('test-secret-not-real'),'No publisher tokens in renderer');
+ for(const lang of ['de','en','fr','es','it']){
+  const values=await scope.window.BooksUpTranslationService.translateMany(['Weitere Optionen'],lang);
+  assert.equal(values[0],'Choose the language');
+  assert.equal(requestCalls.at(-1).target,lang,'All five target language codes must reach the bridge');
+ }
  assert.match(fs.readFileSync('electron/main.cjs','utf8'),/BOOKSUP_LIBRETRANSLATE_API_KEY/);
  assert.doesNotMatch(fs.readFileSync('www/booksup-53.js','utf8'),/X-API-TOKEN/);
 
