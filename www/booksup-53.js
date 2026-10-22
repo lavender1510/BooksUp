@@ -325,6 +325,7 @@ function applyLanguage(){
    }
   });
  }finally{localeBusy=false;}
+ if(lang!=='de')window.BooksUpTranslationService?.translateUI(app,lang);
 }
 let languageObservation;
 function observeLanguage(){
@@ -336,6 +337,121 @@ function observeLanguage(){
  });
  languageObservation.observe(root,{childList:true,subtree:true});
 }
+// Central privacy-filtered fallback for UI strings not present in the five static dictionaries.
+// User-entered notes, profile data, book titles, reader content and identifiers stay local.
+const LT_LANGS=new Set(['de','en','fr','es','it']);
+const LT_STORAGE='booksup.libretranslate.ui.v1',LT_CAP=400;
+let ltCache={};try{const parsed=JSON.parse(localStorage.getItem(LT_STORAGE)||'{}');if(parsed&&typeof parsed==='object'&&!Array.isArray(parsed))ltCache=parsed;}catch{}
+const ltPending=new Map(),ltRejected=new Map();
+let ltDebounce=null,ltBusy=false,ltCooldown=0;
+const ltCacheKey=(lang,source)=>lang+'|'+source;
+const ltSafeText=text=>{
+ const s=String(text||'').trim();
+ return s.length>=4&&s.length<=160&&/[a-zäöüàèéêñìòù]/i.test(s)&&
+  !/\d|@|https?:|www\.|\.(?:com|de|net|org)\b|[{}<>]|\b(?:ISBN|EAN|E-?Mail|PDF-Datei)\b/i.test(s);
+};
+const ltPrivate=el=>!!el?.closest?.(
+ '.next-detail,.next-book-information,.next-book-card,.next-note,.next-cover,.bu45-cover,.bu45-library-detail,'+
+ '.bu49-article,.bu49-news-article,.news-article,.bu47-note,.bu50-note,.bu45-list-items,'+
+ '.next-annotations .next-note,.next-profile,.bu43-profile,.profile,.rdscroll,.txt,.book-title,'+
+ '[contenteditable],[data-user-content],input,textarea,pre,code'
+);
+const ltAllowed=el=>!ltPrivate(el)&&!!el?.closest?.(
+ 'button,label,.hint,.next-setting-row,.next-overline,.bar,.next-settings-title,'+
+ '.bu44-price-watch,.bu50-peer-status,.rdtop,.rdsheet,.next-reading-tools'
+);
+function ltRemember(key,value){
+ ltCache[key]=value;
+ const keys=Object.keys(ltCache);for(const old of keys.slice(0,Math.max(0,keys.length-LT_CAP)))delete ltCache[old];
+ try{localStorage.setItem(LT_STORAGE,JSON.stringify(ltCache));}catch{}
+}
+async function ltRequest(texts,source,target){
+ if(!LT_LANGS.has(source)||!LT_LANGS.has(target)||texts.length>12||texts.some(x=>!ltSafeText(x)))throw Error('Invalid UI translation');
+ const endpoint=String(window.BOOKSUP_LIBRETRANSLATE_URL||'https://de.libretranslate.com/translate');
+ let url;try{url=new URL(endpoint);}catch{throw Error('Invalid translation URL');}
+ if(url.protocol!=='https:'||url.username||url.password||url.pathname!=='/translate')throw Error('Invalid translation URL');
+ if(window.booksupTranslation?.translateMany)return window.booksupTranslation.translateMany({texts,source,target});
+ const native=window.Capacitor?.Plugins?.BooksUpNetwork;
+ if(native?.translateText)return native.translateText({texts,source,target,url:endpoint});
+ // Browser-only development uses public no-key instances; CORS and key restrictions may apply.
+ const controller=new AbortController(),timeout=setTimeout(()=>controller.abort(),12000);
+ try{
+  const response=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},
+   body:JSON.stringify({q:texts,source,target,format:'text'}),signal:controller.signal});
+  if(!response.ok)throw Error('LibreTranslate HTTP '+response.status);
+  return await response.json();
+ }finally{clearTimeout(timeout);}
+}
+function ltQueue(source,lang,apply){
+ if(!ltSafeText(source)||lang==='de'||!LT_LANGS.has(lang))return;
+ const canonicalTerm=canonical.get(source.toLowerCase());
+ if(canonicalTerm&&knownTranslations.get(canonicalTerm)?.[localeIndex[lang]])return;
+ const key=ltCacheKey(lang,source);
+ if(typeof ltCache[key]==='string'&&ltCache[key])return apply(ltCache[key]);
+ if(Date.now()<(ltRejected.get(key)||0)||navigator.onLine===false)return;
+ if(!ltPending.has(key))ltPending.set(key,{source,lang,apply:[]});
+ ltPending.get(key).apply.push(apply);
+ clearTimeout(ltDebounce);ltDebounce=setTimeout(ltFlush,450);
+}
+async function ltFlush(){
+ if(ltBusy||Date.now()<ltCooldown||navigator.onLine===false)return;
+ const first=ltPending.values().next().value;if(!first)return;
+ const records=[...ltPending.entries()].filter(([,x])=>x.lang===first.lang).slice(0,12);
+ records.forEach(([key])=>ltPending.delete(key));
+ ltBusy=true;
+ try{
+  const result=await ltRequest(records.map(([,x])=>x.source),'de',first.lang),values=result?.translatedText;
+  if(!Array.isArray(values)||values.length!==records.length||values.some(v=>typeof v!=='string'||!v.trim()))throw Error('Invalid LibreTranslate response');
+  records.forEach(([key,x],i)=>{const output=values[i].trim().slice(0,220);
+   ltRemember(key,output);x.apply.forEach(callback=>{try{callback(output);}catch{}});
+  });
+ }catch(error){
+  // Keep the static translation or last known text. Avoid hammering a key-restricted/offline instance.
+  ltCooldown=Date.now()+60000;
+  records.forEach(([key])=>ltRejected.set(key,Date.now()+5*60000));
+  console.debug('LibreTranslate unavailable; static UI text retained:',String(error?.message||error));
+ }finally{
+  ltBusy=false;
+  if(ltPending.size&&Date.now()>=ltCooldown){clearTimeout(ltDebounce);ltDebounce=setTimeout(ltFlush,900);}
+ }
+}
+function ltTranslateUI(root,lang){
+ if(!root||!LT_LANGS.has(lang)||lang==='de')return;
+ const walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);
+ const nodes=[];
+ while(walker.nextNode()){
+  const n=walker.currentNode,p=n.parentElement;
+  if(!p||!ltAllowed(p)||['SCRIPT','STYLE','OPTION','TEXTAREA','INPUT','CODE','PRE'].includes(p.tagName))continue;
+  if(!ltSafeText(n.nodeValue))continue;
+  nodes.push(n);if(nodes.length>=120)break;
+ }
+ for(const node of nodes){
+  const original=node.nodeValue,trimmed=original.trim(),at=original.indexOf(trimmed);
+  ltQueue(trimmed,lang,translated=>{
+   if(!node.isConnected||node.nodeValue!==original||typeof nextLanguage==='function'&&nextLanguage()!==lang)return;
+   node.nodeValue=original.slice(0,at)+translated+original.slice(at+trimmed.length);
+  });
+ }
+ const targets=root.querySelectorAll('button[aria-label],input[placeholder],textarea[placeholder]');
+ for(const element of targets){
+  if(ltPrivate(element)||!ltAllowed(element))continue;
+  for(const attr of ['aria-label','placeholder']){
+   const original=element.getAttribute(attr);if(!ltSafeText(original))continue;
+   ltQueue(original.trim(),lang,translated=>{
+    if(element.isConnected&&element.getAttribute(attr)===original&&nextLanguage()===lang)element.setAttribute(attr,translated);
+   });
+  }
+ }
+}
+window.BooksUpTranslationService=Object.freeze({
+ translateUI:ltTranslateUI,
+ translateMany:async(texts,lang)=>{if(!Array.isArray(texts)||!LT_LANGS.has(lang))throw Error('Invalid translation');
+  const safe=texts.filter(ltSafeText).slice(0,12);
+  return (await ltRequest(safe,'de',lang)).translatedText;
+ },
+ cacheSize:()=>Object.keys(ltCache).length
+});
+
 const after=window.nextAfterRender;
 window.nextAfterRender=function(){
  after?.apply(this,arguments);
