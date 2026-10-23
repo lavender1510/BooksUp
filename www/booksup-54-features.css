@@ -92,14 +92,14 @@ html,body,#app{max-width:100%;min-width:0}
 .bu46-discover-search,.bu46-result-grid,.bu51-lan-pair{min-width:0;max-width:100%;box-sizing:border-box}
 .next-content,.next-settings-pane,.next-detail,.next-book-information,
 .next-setting-row,.next-book-card,.next-book-card>small,
-.next-book-card>strong,.next-detail-intro,.next-hero-copy,
+.next-book-card>strong,.next-detail-intro,.next-detail-intro,
 .bu45-list-page,.bu45-library-detail,.bu46-result,.card,.li{
  overflow-wrap:anywhere
 }
-.next-setting-row>span,.next-detail-intro,.next-hero-copy,
+.next-setting-row>span,.next-detail-intro,.next-detail-intro,
 .next-section header>*{min-width:0}
 .next-book-card>strong,.next-book-card>small{display:block;max-width:100%;text-overflow:ellipsis;overflow:hidden}
-.next-detail h1,.next-hero h2,.next-settings-pane h1,.bu46-result b,
+.next-detail h1,.next-settings-pane h1,.bu46-result b,
 .next-setting-row b,.next-setting-row small{hyphens:auto;overflow-wrap:anywhere}
 .modal{max-width:100vw;max-height:100dvh}
 .modal>div{box-sizing:border-box;max-width:min(620px,calc(100vw - 24px));
@@ -113,7 +113,7 @@ html,body,#app{max-width:100%;min-width:0}
 .next-settings-pane textarea,.next-settings-pane select{min-width:0;max-width:100%;box-sizing:border-box}
 @media(max-width:360px){
  .next-content,.next-settings-pane,.next-detail,.bu46-discover-search{min-width:0}
- .next-section header,.next-detail-intro,.next-hero-copy{min-width:0}
+ .next-section header,.next-detail-intro,.next-detail-intro{min-width:0}
  .modal>div{max-width:calc(100vw - 16px);max-height:calc(100dvh - 16px)}
  .next-bottom-nav{overflow-x:auto;overscroll-behavior-x:contain}
 }
