@@ -6,6 +6,9 @@ contextBridge.exposeInMainWorld('booksupBackupFile',Object.freeze({init:()=>ipcR
 
 contextBridge.exposeInMainWorld('booksupDnb',Object.freeze({isbn:(value)=>ipcRenderer.invoke('booksup-metadata:dnb',value)}));
 
+// Renderer never receives publisher-owned API keys.
+contextBridge.exposeInMainWorld('booksupTranslation',Object.freeze({translateMany:args=>ipcRenderer.invoke('booksup-translate:batch',args)}));
+
 contextBridge.exposeInMainWorld('booksupCatalog',Object.freeze({search:(criteria)=>ipcRenderer.invoke('booksup-metadata:search',criteria)}));
 
 contextBridge.exposeInMainWorld('booksupDnbTitle',Object.freeze({search:(title)=>ipcRenderer.invoke('booksup-metadata:dnb-title',title)}));

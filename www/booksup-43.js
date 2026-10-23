@@ -120,15 +120,20 @@ function bu43ApChoose(key,value){
  bu43AppearanceDraft[key]=value;
  const root=document.documentElement;
  if(key==='fs')root.style.setProperty('--fz',[14,16,19,22][value]+'px');
- if(key==='nextTheme')bu43ApPreviewTheme();
  render();
+ bu43ApPreviewTheme();
 }
 function bu43ApPreviewTheme(){
  if(!bu43AppearanceDraft)return;
- document.documentElement.setAttribute('data-theme',bu43AppearanceDraft.mode===2?'dark':bu43AppearanceDraft.mode===1?'light':(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light'));
- document.documentElement.dataset.paper=String(bu43AppearanceDraft.paper);
- const t=NEXT_THEMES.find(t=>t[1]===bu43AppearanceDraft.nextTheme);
- if(t){const r=document.documentElement;for(const [key,val] of Object.entries({'--bg':t[2],'--card':t[3],'--ink':t[4],'--mut':t[5],'--bd':t[6],'--acc':t[7]}))r.style.setProperty(key,val)}
+ const d=bu43AppearanceDraft,r=document.documentElement;
+ const dark=d.mode===2||(d.mode===0&&matchMedia('(prefers-color-scheme:dark)').matches);
+ r.dataset.theme=dark?'dark':'light';r.dataset.paper=String(d.paper);
+ r.style.setProperty('--fz',[14,16,19,22][d.fs]+'px');
+ const theme=NEXT_THEMES.find(t=>t[1]===d.nextTheme);
+ const compatible=!!theme&&!!theme[1]&&((theme[8]==='dark')===dark);
+ for(const key of ['--bg','--card','--ink','--mut','--bd'])r.style.removeProperty(key);
+ if(compatible)for(const [key,value] of Object.entries({'--bg':theme[2],'--card':theme[3],'--ink':theme[4],'--mut':theme[5],'--bd':theme[6]}))r.style.setProperty(key,value);
+ r.style.setProperty('--acc',theme?.[7]||T[d.theme][1]);
 }
 function bu43ApSave(){
  if(!bu43AppearanceDraft)return;

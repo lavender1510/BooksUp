@@ -71,7 +71,7 @@ public class BooksUpNetworkPlugin extends Plugin {
                 catch(Exception e){errors.put("Google Books: "+e.getMessage());}
                 String endpoint="https://openlibrary.org/search.json?"
                     +(isbn.isEmpty()?"q="+enc(q):"isbn="+enc(isbn))
-                    +"&limit=40&fields=key,title,author_name,isbn,first_publish_year,cover_i,subject,language,publisher";
+                    +"&limit=40&fields=key,title,author_name,isbn,first_publish_year,cover_i,subject,language,publisher,series";
                 try {JSONArray rows=request(endpoint,null).optJSONArray("docs");if(rows!=null)for(int i=0;i<rows.length();i++)open.put(rows.opt(i));}
                 catch(Exception e){errors.put("Open Library: "+e.getMessage());}
                 JSObject result=new JSObject();
@@ -79,6 +79,42 @@ public class BooksUpNetworkPlugin extends Plugin {
                 call.resolve(result);
             }catch(Exception e){call.reject("Buchkatalog: "+e.getMessage());}
         },"BooksUpNativeBookCatalog").start();
+    }
+    // Native translation avoids WebView CORS; no API keys are bundled into Android.
+    @PluginMethod
+    public void translateText(PluginCall call) {
+        final JSONArray texts=call.getArray("texts");
+        final String source=call.getString("source","de"),target=call.getString("target","de");
+        final String endpoint=call.getString("url","");
+        if(texts==null||texts.length()==0||texts.length()>16||
+           !source.matches("auto|de|en|fr|es|it")||!target.matches("de|en|fr|es|it")){
+            call.reject("Ungültige Übersetzungsanfrage");return;
+        }
+        try {
+            URL url=new URL(endpoint);
+            final String host=url.getHost().toLowerCase(java.util.Locale.ROOT);
+            if(!url.getProtocol().equals("https")||url.getPort()!=-1||
+               !url.getPath().equals("/translate")||url.getUserInfo()!=null||
+               !host.matches("(?:[a-z0-9-]+\\.)+[a-z]{2,}")||
+               host.equals("localhost")||host.endsWith(".local")){
+                call.reject("Unsicherer Übersetzungsserver");return;
+            }
+            for(int i=0;i<texts.length();i++){
+                if(!(texts.opt(i) instanceof String)||texts.optString(i).trim().isEmpty()||texts.optString(i).length()>180){
+                    call.reject("Ungültiger Übersetzungstext");return;
+                }
+            }
+        }catch(Exception e){call.reject("Ungültige Übersetzungs-URL");return;}
+        new Thread(()->{
+            try{
+                JSONObject body=new JSONObject().put("q",texts).put("source",source).put("target",target).put("format","text");
+                JSONObject result=request(endpoint,body);
+                JSONArray translated=result.optJSONArray("translatedText");
+                if(translated==null||translated.length()!=texts.length())throw new Exception("Ungültige Übersetzungsantwort");
+                JSObject response=new JSObject();response.put("translatedText",translated);
+                call.resolve(response);
+            }catch(Exception e){call.reject("LibreTranslate: "+e.getMessage());}
+        },"BooksUpLibreTranslate").start();
     }
     @PluginMethod
     public void signal(PluginCall call){
