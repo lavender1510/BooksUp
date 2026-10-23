@@ -74,7 +74,6 @@ const NEXT_SETTINGS=[
  ['notifications','Benachrichtigungen','◉','Lokale Lese-Erinnerungen'],
  ['backup','Datensicherung','▣','Lokale Backups, Goodreads und Geräte'],
  ['privacy','Nutzerdaten & Alter','◈','Privat, Altersfreigaben, 18+ Modus'],
- ['updates','Auf Updates prüfen','↻','Aktualisierungen und Version'],
  ['help','Hilfe','?','Anleitungen und Diagnose']
 ];
 let nextSettingCategory='appearance';
@@ -92,7 +91,6 @@ case 'goodreads':content=bu43GoodreadsView();break;
 case 'language':content=nextLanguageChooser();break;
 case 'privacy':content=bu46AccountSettings();break;
 case 'help':content=chunk('Hilfe','');break;
-case 'updates':content=`<div class="pad"><p>BooksUp ${APP_VERSION}</p><p class="hint">Windows-Updates werden im Installer installiert. Android benötigt eine kompatible Signatur und die Bestätigung des Betriebssystems.</p><button class="btn" onclick="booksupCheckUpdate(false)">Nach Updates suchen</button></div>`;break;
 }return `${bar(entry[1],'settings')}<div class="next-settings-pane"><div class="next-settings-title"><span class="next-overline">BOOKSUP / ${nt('settings')}</span><h1 data-bu-ui-translate>${entry[1]}</h1><p data-bu-ui-translate>${entry[3]}</p></div>${content}</div>`}
 function nextThemeChooser(){const id=ALL.nextTheme||'standard';return `<h3>Theme-Vorlagen</h3><p class="pad hint">Farben inspiriert von deinen FanFiktion.de-Vorlagen. Vorschau direkt in der App.</p><div class="next-theme-grid">${NEXT_THEMES.map((t,i)=>`<button class="next-theme-choice ${id===t[1]?'active':''}" onclick="nextSetTheme('${t[1]}')" aria-pressed="${id===t[1]}"><span class="next-theme-preview" style="background:linear-gradient(125deg,${t[2]} 10%,${t[7]} 130%)"><span style="background:${t[3]};color:${t[4]}">Aa</span></span><b>${t[0]}</b></button>`).join('')}</div><h3>Hell / Dunkel</h3><div class="row">${['System','Hell','Dunkel'].map((n,i)=>`<button class="chip ${S.mode===i?'on':''}" onclick="S.mode=${i};save()">${n}</button>`).join('')}</div>`}
 function nextSetTheme(id){ALL.nextTheme=id;persist();render()}
