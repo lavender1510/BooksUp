@@ -137,17 +137,6 @@ window.buTranslate=function(text,lang){
  if(list&&ix!==undefined)return list[ix];
  return previousTranslate(text,lang);
 };
-function updateSection(){
- const current=m()?'Android':'Windows';
- const hasNative=!!(window.Capacitor?.Plugins?.BooksUpUpdater||window.Capacitor?.nativePromise);
- return '<section class="bu50-update"><h3>App-Updates · '+current+'</h3>'+
- '<p>Installierte Version: <strong>BooksUp '+APP_VERSION+'</strong></p>'+
- (m?'<p class="hint">Eine neue APK kann in der App heruntergeladen und dem Android-System zur Installation übergeben werden. Android muss die Installation bestätigen und prüft die App-Signatur. Fehlende passende Signaturen können nicht umgangen werden.</p>':
- '<p class="hint">Die installierte Windows-Version prüft und lädt Updates über den Windows-Updater. Die portable EXE muss manuell ausgetauscht werden.</p>')+
- '<div class="row"><button class="btn" onclick="bu50CheckAppUpdate()">Jetzt nach Updates suchen</button><button class="btn o" onclick="bu50OpenReleases()">Alle Releases ansehen</button></div>'+
- (m&&!hasNative?'<p class="hint">Der native Android-Updater ist in dieser Build-Variante nicht verfügbar. Release-Seite als Alternative.</p>':'')+
- '<p class="hint" id="bu50-update-status" role="status">Automatische Installation ohne Rückfrage wird nicht unterstützt.</p></section>';
-}
 const previousChangelog=window.bu49ChangelogView;
 window.bu49ChangelogView=function(){
  const existing=previousChangelog.apply(this,arguments);
@@ -158,34 +147,5 @@ const prevShell=window.nextShell;
 window.nextShell=function(html){
  const original=prevShell.apply(this,arguments);
  return original.replace('onclick="go(\'transfer\')"','onclick="nextChooseSettings(\'devices\')"');
-};
-const oldDetail=window.nextSettingsDetail;
-window.nextSettingsDetail=function(){
- if(nextSettingCategory!=='updates')return oldDetail.apply(this,arguments);
- return bar('App-Updates','settings')+'<div class="next-settings-pane">'+updateSection()+'</div>';
-};
-window.bu50OpenReleases=()=>{const url='https://github.com/lavender1510/BooksUp/releases';if(typeof booksupOpenRelease==='function')return booksupOpenRelease(url);return window.open(url,'_blank','noopener,noreferrer');};
-window.bu50CheckAppUpdate=async function(){
- const label=document.getElementById('bu50-update-status');const show=s=>{if(label)label.textContent=s;toast(s);};
- if(!m()){
-  if(window.booksupDesktopUpdate?.check){show('Prüfe Windows-Update …');try{const r=await window.booksupDesktopUpdate.check();show(r?.message||'Updateprüfung gestartet.');}catch(e){show('Update fehlgeschlagen: '+e.message);}return;}
-  return show('Windows-Updater nur im installierten Electron-Build verfügbar.');
- }
- show('Suche Android-Releases …');
- try{
-  const r=await fetch('https://api.github.com/repos/lavender1510/BooksUp/releases?per_page=20',{cache:'no-store'});
-  if(!r.ok)throw Error('GitHub HTTP '+r.status);
-  const releases=await r.json(),current=APP_VERSION.split('.').map(Number);
-  const rank=v=>v.split('.').map(Number).reduce((n,x,i)=>n+x*[10000,100,1][i],0);
-  const newer=releases.filter(x=>!x.draft&&x.assets?.some(a=>a.name.endsWith('.apk'))).map(x=>({...x,v:x.tag_name.match(/^v(\d+\.\d+\.\d+)/)?.[1]})).filter(x=>x.v&&rank(x.v)>rank(APP_VERSION)).sort((a,b)=>rank(b.v)-rank(a.v))[0];
-  if(!newer)return show('BooksUp '+APP_VERSION+' ist aktuell.');
-  const asset=newer.assets.find(a=>a.name.endsWith('.apk'));
-  if(!confirm('BooksUp '+newer.v+' herunterladen und installieren? Android wird eine Systembestätigung verlangen.'))return show('Update abgebrochen.');
-  const native=window.Capacitor?.Plugins?.BooksUpUpdater;
-  if(native?.installGithubApk){
-   show('Lade APK in die App …');const result=await native.installGithubApk({url:asset.browser_download_url,sha256:String(asset.digest||'').replace(/^sha256:/,'')});
-   localStorage.setItem('booksup-update-pending',newer.v);show(result.message||'APK geprüft. Android-Installationsdialog geöffnet. Bitte Installation bestätigen.');
-  }else{window.bu50OpenReleases();show('In-App-APK-Installation auf diesem Gerät nicht verfügbar.');}
- }catch(e){show('Updateprüfung fehlgeschlagen: '+(e.message||e));}
 };
 })();
