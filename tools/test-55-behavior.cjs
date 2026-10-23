@@ -14,7 +14,7 @@ const state={
   addEventListener(){},querySelectorAll(){return[]},getElementById(){return null}},
  localStorage:{getItem:()=>null,setItem(){},removeItem(){}},
  navigator:{onLine:true},crypto:{randomUUID:()=>String(Math.random())},
- setTimeout(){},clearTimeout(){},requestAnimationFrame(){},
+ setTimeout(){},clearTimeout(){},setInterval(){},clearInterval(){},requestAnimationFrame(){},
  getComputedStyle:()=>({position:'relative'}),
  APP_VERSION:'5.5.1',rdFull:false,pgNow:1,editDraft:null,
  bu45AllLists:()=>state.S.readingLists,bu45Extra:()=>state.S.libraryBooks,
