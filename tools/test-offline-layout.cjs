@@ -24,8 +24,8 @@ async function run(){
    await page.waitForTimeout(250);
    for(const lang of ['de','en','fr','es','it']){
     const change=await page.evaluate(lang=>{
-     if(!window.ALL||typeof window.go!=='function')return {error:'App initialization missing'};
-     window.ALL.nextLanguage=lang;
+     if(typeof ALL==='undefined'||typeof go!=='function')return {error:'App initialization missing'};
+     ALL.nextLanguage=lang;
      window.go('home');
      return {code:window.nextLanguage?.(),page:window.view};
     },lang);
@@ -46,7 +46,7 @@ async function run(){
    }
    for(const mode of [0,1,2]){
     const result=await page.evaluate(mode=>{
-     window.S.mode=mode;window.go('settings');
+     S.mode=mode;window.go('settings');
      return document.documentElement.dataset.theme;
     },mode);
     if(result!==(mode===2?'dark':'light'))failures.push(JSON.stringify({size,mode,theme:result}));
