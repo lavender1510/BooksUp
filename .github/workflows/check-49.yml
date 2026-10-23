@@ -1,6 +1,7 @@
 name: BooksUp 5.0 Cross-Platform Verification
 on:
   pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
     paths:
       - 'www/**'
       - 'mobile/**'
@@ -27,18 +28,14 @@ jobs:
         run: node tools/test-56-functional.cjs
       - name: Verify server-free BooksUp release behavior
         run: node tools/test-offline.cjs
-      - name: Cross-platform regression tests
+      - name: Offline reader, settings, navigation and original design regressions
         run: |
-          node tools/test-49.cjs
-          node tools/test-50.cjs
-          node tools/test-51.cjs
-          node tools/test-52.cjs
           node tools/test-53.cjs
           node tools/test-54.cjs
-          node tools/test-50.cjs
-          node tools/test-windows-47.cjs
-          node tools/test-windows-48.cjs
-          node tools/test-android-48.cjs
+          node tools/test-55.cjs
+          node tools/test-55-behavior.cjs
+          node tools/test-56-functional.cjs
+          node tools/test-offline.cjs
       - name: Check native and shared JavaScript
         run: |
           node --check electron/main.cjs
