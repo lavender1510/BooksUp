@@ -59,38 +59,34 @@ function bu46BookInfo(){
  return bar('Buch entdecken','discoverSearch')+'<section class="bu45-library-detail"><div class="bu45-cover bu45-cover-large">'+bu43CoverHtml(b)+'</div><div><h1>'+esc(b.title||'')+'</h1><p>'+esc(b.author||'')+'</p><p class="hint">'+esc([b.year,b.genre,b.publisher].filter(Boolean).join(' · '))+'</p><p>'+esc(b.description||'Für dieses Buch ist keine Inhaltsbeschreibung verfügbar.')+'</p><button class="btn" onclick="bu46ChooseList('+bu46SearchResults.indexOf(b)+')">＋ Zur Leseliste</button></div></section>';
 }
 async function bu46Search(term,reset=true){
- term=String(term||'').trim();if(term.length<2)return toast('Bitte mindestens 2 Zeichen eingeben.');
- if(reset){bu46SearchTerm=term;bu46SearchResults=[]} const token=++bu46SearchSeq;
- const status=$('bu46-search-status'),input=$('bu46-search-input');if(input)input.value=term;if(status)status.textContent='Suche in zwei Buchdatenbanken …';
- bu46SearchBusy=true;
+ term=String(term||'').trim();
+ if(term.length<2)return toast('Bitte mindestens zwei Zeichen eingeben.');
+ const token=++bu46SearchSeq;
+ if(reset)bu46SearchResults=[];
+ bu46SearchTerm=term;bu46SearchBusy=true;
  try{
-  const isbn=term.replace(/[^0-9X]/gi,'');
-  const q=/^\d{10}$|^\d{13}$/.test(isbn)?'isbn:'+isbn:term;
-  const [g,o]=await Promise.allSettled([
-   fetchMetaUrl('https://www.googleapis.com/books/v1/volumes?q='+encodeURIComponent(q)+'&maxResults=40&startIndex=0'),
-   fetchMetaUrl('https://openlibrary.org/search.json?'+(q.startsWith('isbn:')?'isbn='+encodeURIComponent(isbn):'q='+encodeURIComponent(term))+'&limit=40&fields=key,title,author_name,isbn,first_publish_year,cover_i,subject,language')
-  ]);
-  if(token!==bu46SearchSeq)return;
-  const found=[];
-  if(g.status==='fulfilled')for(const x of g.value.items||[]){const v=bu44ItemToBook(x);if(v)found.push(v)}
-  if(o.status==='fulfilled')for(const x of o.value.docs||[]){
-    if(!x.title)continue;
-    const cover=Number(x.cover_i)>0?'https://covers.openlibrary.org/b/id/'+x.cover_i+'-L.jpg':'';
-    found.push({id:x.key,title:x.title,author:(x.author_name||[]).join(', '),isbn:x.isbn?.[0]||'',cover,genre:x.subject?.[0]||'',tags:(x.subject||[]).slice(0,5).join(', '),year:x.first_publish_year||'',audience:bu46YouthTags.test((x.subject||[]).join(' '))?'young adult':null});
-  }
-  const seen=new Set();
-  bu46SearchResults=found.filter(b=>{
-   if(!bu46Allowed(b))return false;
-   const k=buNorm(b.title)+'|'+buNorm(b.author);
-   if(!k||seen.has(k))return false;seen.add(k);return true;
-  });
-  if(view==='discoverSearch'){
-   $('bu46-search-items').innerHTML=bu46SearchResults.map(bu46SearchCard).join('');
-   $('bu46-search-status').textContent=bu46SearchResults.length+' Ergebnisse';
-   bu43LoadCovers();buTranslateUI();
-  }
- }catch(e){if(status)status.textContent='Online-Suche fehlgeschlagen: '+String(e.message||e)}
- finally{if(token===bu46SearchSeq)bu46SearchBusy=false}
+  const query=buNorm(term),records=[
+   ...CATB,...CATM,
+   ...ALL.book.books,...ALL.manga.books,
+   ...(ALL.book.libraryBooks||[]),...(ALL.manga.libraryBooks||[])
+  ];
+  const found=new Set();
+  bu46SearchResults=records.filter(b=>{
+   if(!b?.title||!bu46Allowed(b))return false;
+   const match=[b.title,b.author,b.isbn,b.series,b.genre,b.tags,b.en]
+      .some(v=>buNorm(v||'').includes(query));
+   if(!match)return false;
+   const id=buNorm(b.title)+'|'+buNorm(b.author);
+   if(found.has(id))return false;found.add(id);return true;
+  }).slice(0,100);
+  if(token!==bu46SearchSeq||view!=='discoverSearch')return;
+  const list=document.getElementById('bu46-search-items');
+  if(list)list.innerHTML=bu46SearchResults.map(bu46SearchCard).join('');
+  const status=document.getElementById('bu46-search-status');
+  if(status)status.textContent=bu46SearchResults.length
+    ?bu46SearchResults.length+' lokale Treffer'
+    :'Keine lokalen Treffer. Du kannst Bücher manuell hinzufügen.';
+ }finally{if(token===bu46SearchSeq)bu46SearchBusy=false;}
 }
 function bu46ChooseList(index){
  const b=bu46SearchResults[Number(index)];if(!b)return;
@@ -117,17 +113,26 @@ function bu46SimilarHtml(book){
 }
 function bu46SimilarOpen(key,i){bu46FocusBook=(bu46SimilarCache.get(key)||[])[i];if(!bu46FocusBook)return;bu46SearchResults=[bu46FocusBook,...bu46SearchResults];go('searchDetail')}
 async function bu46SimilarLoad(book){
- if(!book?.title||navigator.onLine===false)return;
- const key=buNorm(book.title+' '+book.author);if(bu46SimilarCache.has(key))return;
- bu46SimilarCache.set(key,[]);
- try{
-  const search=book.genre?'subject:'+book.genre:book.author?'inauthor:'+book.author:book.title;
-  const j=await fetchMetaUrl('https://www.googleapis.com/books/v1/volumes?q='+encodeURIComponent(search)+'&maxResults=20');
-  const list=(j.items||[]).map(bu44ItemToBook).filter(Boolean).filter(x=>buNorm(x.title)!==buNorm(book.title)&&bu46Allowed(x)).slice(0,9);
-  bu46SimilarCache.set(key,list);
-  const box=[...document.querySelectorAll('[data-similar-key]')].find(n=>n.dataset.similarKey===key);
-  if(box){box.innerHTML=list.length?list.map((b,i)=>'<button class="bu46-similar-card" onclick="bu46SimilarOpen('+JSON.stringify(key)+','+i+')"><span class="bu45-cover">'+bu43CoverHtml(b)+'</span><b>'+esc(b.title)+'</b><small>'+esc(b.author||'')+'</small></button>').join(''):'<p class="hint">Noch keine ähnlichen Titel gefunden.</p>';bu43LoadCovers()}
- }catch(e){bu46SimilarCache.delete(key)}
+ if(!book?.title)return;
+ const key=buNorm(book.title+' '+book.author);
+ if(bu46SimilarCache.has(key))return;
+ const pool=[...CATB,...CATM,...ALL.book.books,...ALL.manga.books,
+  ...(ALL.book.libraryBooks||[]),...(ALL.manga.libraryBooks||[])];
+ const seen=new Set();
+ const genre=buNorm(book.genre),author=buNorm(book.author),series=buNorm(book.series);
+ const matched=pool.map(b=>({b,score:
+   (series&&buNorm(b.series)===series?30:0)+
+   (author&&buNorm(b.author)===author?20:0)+
+   (genre&&buNorm(b.genre)===genre?12:0)
+ })).filter(x=>x.score>0&&buNorm(x.b.title)!==buNorm(book.title)&&
+   (!bu46Allowed||bu46Allowed(x.b))&&!seen.has(buNorm(x.b.title)+'|'+buNorm(x.b.author))&&
+   !!seen.add(buNorm(x.b.title)+'|'+buNorm(x.b.author)))
+   .sort((a,b)=>b.score-a.score).slice(0,9).map(x=>x.b);
+ bu46SimilarCache.set(key,matched);
+ const node=[...document.querySelectorAll('[data-similar-key]')].find(x=>x.dataset.similarKey===key);
+ if(node)node.innerHTML=matched.length
+  ?matched.map((b,i)=>'<button class="bu46-similar-card" onclick="bu46SimilarOpen('+JSON.stringify(key)+','+i+')"><span class="bu45-cover">'+bu43CoverHtml(b)+'</span><b>'+esc(b.title)+'</b><small>'+esc(b.author||'')+'</small></button>').join('')
+  :'<p class="hint">Keine weiteren ähnlichen lokalen Bücher gefunden.</p>';
 }
 function bu46ActiveDetailBook(){
  if(view==='libraryDetail')return [...bu45Extra(),...bu45AllLibraryBooks().map(x=>x.book)].find(x=>String(x.id)===String(cur));
