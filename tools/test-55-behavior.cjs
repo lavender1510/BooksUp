@@ -10,7 +10,7 @@ const state={
  ALL:{book:profile,manga},S:profile,sp:'book',cur:42,view:'detail',
  NEXT_SETTINGS:[],CATB:[{title:'Other',author:'Writer',genre:'Fantasy'}],CATM:[],nextSettingCategory:'appearance',bu45ListId:7,bu45ListSettingsId:7,
  bu46SimilarCache:new Map(),bu46SearchTerm:'',bu46SearchResults:[],
- document:{createElement:()=>({textContent:'',style:{}}),head:{appendChild(){}},
+ addEventListener(){},removeEventListener(){},document:{createElement:()=>({textContent:'',style:{}}),head:{appendChild(){}},
   addEventListener(){},querySelectorAll(){return[]},getElementById(){return null}},
  localStorage:{getItem:()=>null,setItem(){},removeItem(){}},
  navigator:{onLine:true},crypto:{randomUUID:()=>String(Math.random())},
