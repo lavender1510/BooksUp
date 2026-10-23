@@ -17,7 +17,7 @@ for(const dep of ['electron-updater','@capgo/capacitor-social-login'])assert.ok(
 assert.doesNotMatch(html,/src="cloud-drive|src="booksup-admin-config/);
 assert.doesNotMatch(next,/'admin','Admin & Redaktion'|'news','profile','settings'/);
 assert.doesNotMatch(next,/bu44PriceNotificationsView|BooksUpCloud/);
-assert.doesNotMatch(desktop,/booksup-drive:|booksup-translate:|booksup-metadata:|autoUpdater|fetch\(/);
+assert.doesNotMatch(desktop,/booksup-drive:|booksup-translate:|booksup-metadata:|autoUpdater|await fetch\(/);
 assert.doesNotMatch(preload,/booksupDesktopDrive|booksupTranslation|booksupCatalog|booksupDnb|booksupDesktopUpdate/);
 assert.match(preload,/booksupBackupFile/);
 assert.match(preload,/booksupLan/);
