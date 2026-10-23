@@ -71,11 +71,10 @@ const NEXT_SETTINGS=[
  ['recommendations','Empfehlungen','✦','Empfehlungsquellen, Genres & Tags'],
  ['currency','Währung','€','Währung und Preise'],
  ['goodreads','Goodreads-Kompatibilität','★','Bewertungen, Import und Shelves'],
- ['notifications','Benachrichtigungen','◉','Lese-Erinnerungen und Preisalarme'],
- ['backup','Datensicherung','▣','Backup, Google Drive, Goodreads und Geräte'],
+ ['notifications','Benachrichtigungen','◉','Lokale Lese-Erinnerungen'],
+ ['backup','Datensicherung','▣','Lokale Backups, Goodreads und Geräte'],
  ['privacy','Nutzerdaten & Alter','◈','Privat, Altersfreigaben, 18+ Modus'],
  ['updates','Auf Updates prüfen','↻','Aktualisierungen und Version'],
- ['admin','Admin & Redaktion','⌘','Verifizierter GitHub-Herausgeber'],
  ['help','Hilfe','?','Anleitungen und Diagnose']
 ];
 let nextSettingCategory='appearance';
@@ -87,13 +86,11 @@ case 'recommendations':content=bu43RecView();break;
 case 'appearance':content=bu43AppearanceView();break;
 case 'reading':content=bu43ReadingSettings();break;
 case 'currency':content=bu43CurrencyView();break;
-case 'friends':content=chunk('Profile angleichen','Empfehlungen steuern')+chunk('Freunde-Server','Erinnerung');break;
-case 'notifications':content=chunk('Erinnerung','Import')+bu44PriceNotificationsView();break;
-case 'backup':content=(window.BooksUpCloud?.ui?.()||'')+bu45BackupSettingsUi()+'<div class="pad"><button class="btn o" onclick="go(\'transfer\')">Geräte verbinden / Daten übertragen</button></div>'+chunk('Import','Hilfe');break;
+case 'notifications':content=chunk('Erinnerung','Import');break;
+case 'backup':content=bu45BackupSettingsUi()+'<div class="pad"><button class="btn o" onclick="go(\'transfer\')">Geräte verbinden / Daten übertragen</button></div>'+chunk('Import','Hilfe');break;
 case 'goodreads':content=bu43GoodreadsView();break;
 case 'language':content=nextLanguageChooser();break;
 case 'privacy':content=bu46AccountSettings();break;
-case 'admin':content=bu46AdminView();break;
 case 'help':content=chunk('Hilfe','');break;
 case 'updates':content=`<div class="pad"><p>BooksUp ${APP_VERSION}</p><p class="hint">Windows-Updates werden im Installer installiert. Android benötigt eine kompatible Signatur und die Bestätigung des Betriebssystems.</p><button class="btn" onclick="booksupCheckUpdate(false)">Nach Updates suchen</button></div>`;break;
 }return `${bar(entry[1],'settings')}<div class="next-settings-pane"><div class="next-settings-title"><span class="next-overline">BOOKSUP / ${nt('settings')}</span><h1 data-bu-ui-translate>${entry[1]}</h1><p data-bu-ui-translate>${entry[3]}</p></div>${content}</div>`}
