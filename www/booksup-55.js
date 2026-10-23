@@ -180,7 +180,7 @@ window.bu45ProfileLists=function(){return view==='profile'?'':previousProfileLis
 window.bu46ReadingHistory=function(){return view==='profile'?'':previousHistory.apply(this,arguments);};
 
 // Bottom navigation only: keep the entire desktop sidebar and profile links.
-const navDefault=['home','library','shelf','news','profile','settings'];
+const navDefault=['home','library','shelf','profile','settings'];
 function visibleNav(){
  const candidate=Array.isArray(ALL.bu55BottomNav)?ALL.bu55BottomNav:navDefault;
  const visible=navDefault.filter(x=>candidate.includes(x));
@@ -203,7 +203,7 @@ const oldSettingsDetail=window.nextSettingsDetail;
 window.nextSettingsDetail=function(){
  if(nextSettingCategory!=='navigation')return oldSettingsDetail.apply(this,arguments);
  return bar('Untere Navigation','settings')+'<div class="next-settings-pane"><h1>Untere Navigation</h1><p class="hint">Wähle die sichtbaren Bereiche. Alle Seiten bleiben über Profil und Einstellungen erreichbar.</p>'+
- [['home','Entdecken'],['library','Bibliothek'],['shelf','Bücherregal'],['news','News'],['profile','Profil'],['settings','Einstellungen']].map(([id,name])=>
+ [['home','Entdecken'],['library','Bibliothek'],['shelf','Bücherregal'],['profile','Profil'],['settings','Einstellungen']].map(([id,name])=>
  '<label class="next-language-row"><input type="checkbox" '+(visibleNav().includes(id)?'checked':'')+' onchange="bu55SetNav('+JSON.stringify(id)+',this.checked)"> '+name+'</label>').join('')+
  '<div class="row"><button class="chip" onclick="ALL.bu55BottomNav=null;persist();render()">Standard wiederherstellen</button><button class="chip" onclick="go(\'profile\')">Zum Profil</button></div></div>';
 };
@@ -212,7 +212,7 @@ const oldProfileHome=window.home;
 window.home=function(){
  let html=oldProfileHome.apply(this,arguments);
  if(view!=='profile')return html;
- const extras=[['library','Bibliothek'],['news','News'],['settings','Einstellungen']].filter(([id])=>!visibleNav().includes(id));
+ const extras=[['library','Bibliothek'],['settings','Einstellungen']].filter(([id])=>!visibleNav().includes(id));
  if(!extras.length)return html;
  const tiles=extras.map(([id,name])=>'<button class="tile" onclick="go('+JSON.stringify(id)+')"><div><b>'+name+'</b><br><small>Bereich öffnen</small></div></button>').join('');
  return html.replace(/(<div class="grid">)/,'$1'+tiles);
@@ -422,30 +422,6 @@ window.bu46SimilarLoad=async function(book){
   if(raw.every(x=>x.status==='rejected'))similarErrors.set(id,'offline');
  }catch(error){similarErrors.set(id,String(error?.message||error));bu46SimilarCache.set(id,[]);}
  finally{similarPending.delete(id);paint();}
-};
-// Price alarms accept a verified owned edition directly; no shelf-only prerequisite.
-const previousWatch=window.bu44WatchPrompt;
-window.bu44WatchPrompt=function(input){
- const book=input||{};
- const raw=isbnClean(book.isbn||'');
- const editions=(book.editions||[]).map(x=>isbnClean(x.isbn||'')).filter(isbnValid);
- const chosen=isbnValid(raw)?raw:(new Set(editions).size===1?editions[0]:'');
- if(chosen)return previousWatch({...book,isbn:chosen});
- if(book.id==null){
-  alert('Für diesen Preisalarm fehlt die genaue ISBN-Ausgabe. Öffne das Buch in deiner Bibliothek, um eine ISBN einzutragen oder eine Ausgabe auszuwählen.');
-  return;
- }
- const match=currentBook(book.id);
- if(!match){alert('Buch nicht gefunden. Bitte die gewünschte Ausgabe zuerst in der Bibliothek öffnen.');return;}
- const manual=confirm('Dieses Buch hat noch keine eindeutige, gültige ISBN.\n\nOK: ISBN manuell ergänzen.\nAbbrechen: passende Ausgaben online suchen.');
- if(manual){
-  const value=prompt('ISBN-10 oder ISBN-13 der gewünschten Ausgabe:','');
-  if(value===null)return;
-  const clean=isbnClean(value);
-  if(!isbnValid(clean)){alert('Die ISBN ist ungültig. Bitte die ISBN inklusive Prüfziffer kontrollieren.');return;}
-  match.isbn=clean;persist();return previousWatch({...match,isbn:clean});
- }
- return window.bu48IsbnChooser?.(match.id,true);
 };
 // Complement the existing Google Books, Open Library and DNB enrichment chain.
 // Enrich only from strongly identified works; never guess ISBN or series numbers.
