@@ -136,7 +136,7 @@ mark{background:#ffe27a;color:#000;border-radius:3px;padding:0 1px}
 .book .detail-btn{display:block;font-size:12px;margin:6px 0 0;padding:5px 7px;border:1px solid var(--bd);border-radius:8px;background:var(--card);color:var(--ink)}
 .choices-scroll{max-height:22vh;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}.book-form .btn{margin:3px 4px 8px 0}.cover-choice{background:transparent;border:0;padding:3px;cursor:pointer}.cover-choice img{width:64px;height:90px;object-fit:cover;border-radius:7px}.search-results .li{cursor:pointer}.edition-row{padding:12px;border:1px solid var(--bd);border-radius:14px;margin:10px 0}.edition-row .cset{overflow-x:auto}.book-actions{display:flex;gap:8px;flex-wrap:wrap}.info-details{border:1px solid var(--bd);border-radius:12px;padding:10px;margin-bottom:14px}.info-details summary{cursor:pointer;font-weight:600}.isbn-queue{max-height:26vh;overflow-y:auto}.crop-help{font-size:12px;color:var(--mut)}.search-results small{color:var(--mut)}
 </style><link rel="stylesheet" href="booksup-next.css"><link rel="stylesheet" href="booksup-49.css"></head><body><div id="app"></div>
-<script src="booksup-admin-config.js"></script><script src="booksup-46.js"></script><script src="booksup-46-extra.js"></script><script src="booksup-46-i18n.js"></script><script src="booksup-45.js"></script><script src="booksup-desktop.js"></script><script src="booksup-45-i18n.js"></script><script src="booksup-44.js"></script><script src="booksup-43.js"></script><script src="booksup-polish.js"></script><script src="booksup-library.js"></script><script src="booksup-next.js"></script><script src="cloud-drive-config.js"></script><script src="cloud-drive.js"></script>
+<script src="booksup-46.js"></script><script src="booksup-46-extra.js"></script><script src="booksup-46-i18n.js"></script><script src="booksup-45.js"></script><script src="booksup-desktop.js"></script><script src="booksup-45-i18n.js"></script><script src="booksup-44.js"></script><script src="booksup-43.js"></script><script src="booksup-polish.js"></script><script src="booksup-library.js"></script><script src="booksup-next.js"></script>
 <script>
 const T=[['Pastell Rosa','#f0a4bd','Pastell'],['Pastell Blau','#96bfea','Pastell'],['Pastell Mint','#93d9bb','Pastell'],['Neon Pink','#ff2e93','Neon'],['Neon Grün','#39ff14','Neon'],['Neon Blau','#00e5ff','Neon'],['Pastell Lavendel','#c3b1e8','Pastell'],['Pastell Pfirsich','#f7b98f','Pastell'],['Pastell Zitrone','#efe08a','Pastell'],['Neon Violett','#b026ff','Neon'],['Neon Orange','#ff7a00','Neon'],['Neon Gelb','#f4ff00','Neon'],['Bordeaux','#8c2f39','Klassisch'],['Tannengrün','#2f6b4f','Klassisch'],['Marine','#2d4a7a','Klassisch'],['Graphit','#4a4f57','Klassisch'],['Kupfer','#b4693c','Klassisch'],['Gold','#c9a227','Klassisch']],PAP=[['Creme','#f5f0e8'],['Weiß · AMOLED','#ffffff'],['Kühl · Mitternacht','#dfe7f3'],['Salbei · Wald','#dbe7d6']];
 const IC={shelf:'M4 4v16M9 4v16M14 6l4 14M3 20h18',plus:'M12 5v14M5 12h14',target:'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8z',cog:'M4 8h10M18 8h2M4 16h2M10 16h10M14 6v4M6 14v4',back:'M15 5l-7 7 7 7',user:'M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM4 21c1-4 4-6 8-6s7 2 8 6',chart:'M5 20V10M12 20V4M19 20v-7',arrow:'M9 5l7 7-7 7',users:'M9 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM3 20c.5-3 3-5 6-5s5.5 2 6 5M17 8a2.5 2.5 0 1 1 0 5M17 15c2 0 3.5 1.5 4 4',swap:'M7 7h12l-3-3M17 17H5l3 3'};
@@ -267,10 +267,10 @@ function render(){
   try{
     const r=document.documentElement;r.style.setProperty('--acc',T[S.theme][1]);
     const dk=S.mode==2||(S.mode==0&&matchMedia('(prefers-color-scheme:dark)').matches);r.setAttribute('data-theme',dk?'dark':'light');r.dataset.paper=S.paper||0;r.style.setProperty('--fz',[14,16,19,22][S.fs==null?1:S.fs]+'px');const mt=document.querySelector('meta[name=theme-color]');if(mt)mt.content=getComputedStyle(r).getPropertyValue('--bg').trim();
-    const V={home:nextHome,library:bu45Library,libraryDetail:bu45LibraryDetail,discoverSearch:bu46SearchView,searchDetail:bu46BookInfo,listDetail:bu45ListDetails,listSettings:bu45ListSettings,insights:bu45DesktopInsights,transfer:bu45TransferHub,news:buNewsView,profile:()=>home()+bu45ProfileLists()+bu46ReadingHistory(),shelf:()=>shelf()+bu45ShelfImports(),lists:bu45ListsOverview,catalog:buCatalogView,add,goals,pedit,settings:nextSettings,settingsDetail:nextSettingsDetail,detail:nextBookDetails,readOptions:nextReadOptions,stats,reader:nextReader,friends,chat};
+    const V={home:nextHome,library:bu45Library,libraryDetail:bu45LibraryDetail,discoverSearch:bu46SearchView,searchDetail:bu46BookInfo,listDetail:bu45ListDetails,listSettings:bu45ListSettings,insights:bu45DesktopInsights,transfer:bu45TransferHub,profile:()=>home()+bu45ProfileLists()+bu46ReadingHistory(),shelf:()=>shelf()+bu45ShelfImports(),lists:bu45ListsOverview,catalog:buCatalogView,add,goals,pedit,settings:nextSettings,settingsDetail:nextSettingsDetail,detail:nextBookDetails,readOptions:nextReadOptions,stats,reader:nextReader};
     let h=V[view]();
     if(modal)h+=`<div class="modal" role="dialog" aria-modal="true" onclick="modal=null;render()"><div onclick="event.stopPropagation()">${modal}</div></div>`;
-    $('app').innerHTML=nextShell(h);if(!modal)camStop();nextAfterRender();buPolishAfterRender();bu43AfterRender();bu44AfterRender();bu46AfterRender();if(view==='friends'||view==='chat')post();
+    $('app').innerHTML=nextShell(h);if(!modal)camStop();nextAfterRender();buPolishAfterRender();bu43AfterRender();bu44AfterRender();bu46AfterRender();
   }catch(err){
     document.documentElement.removeAttribute('data-theme');
     $('app').innerHTML=`<div style="padding:24px;font-family:system-ui,sans-serif;color:#22201c;background:#faf7fb;min-height:100vh"><h2 style="font-family:Newsreader,Georgia,serif">Etwas ist schiefgelaufen</h2><p>${(err&&err.message)||err}</p><button style="padding:10px 16px;border-radius:8px;border:1px solid #ccc;background:#fff" onclick="view='home';render()">Zur Startseite</button></div>`;
@@ -887,7 +887,7 @@ function add(){
    ${addType==='physical'?f('qty','Anzahl Exemplare','type="number" min="1"'):''}
    <details class="info-details" ${draft.detailsOpen?'open':''} ontoggle="draft.detailsOpen=this.open"><summary>Erweiterte Details</summary>${f('language','Sprache (z. B. de, en)')}${f('isbn','ISBN-10 / ISBN-13')}${f('pages','Seitenzahl')}${f('edition','Edition / Ausgabebezeichnung')}<label>Einband</label>${formatSelect(draft.format||'Unbekannt','f_format')}</details>
    ${covers.length?`<div class="cset">${covers.map(c=>`<img src="${esc(c)}" alt="Buchcover" loading="lazy">`).join('')}</div>`:''}
-   <div class="book-actions"><button class="btn o" onclick="pickCover()">Cover selbst auswählen</button><button class="btn o" onclick="coverGallery()">Andere Cover online</button></div>
+   <div class="book-actions"><button class="btn o" onclick="pickCover()">Cover selbst auswählen</button></div>
    ${addType==='physical'?`<h3>Weitere Exemplare / Ausgaben</h3><p class="hint">Gleiches Werk, unterschiedliche Sprache, Cover, Preis oder Ausgabe.</p>${editionRows(draft.editions||[],'ex')}<button class="btn o" onclick="newEdition()">+ Weitere Ausgabe hinzufügen</button>`:''}
    <div style="height:16px"></div><button class="btn" onclick="saveBook()">Buch hinzufügen</button>
   </div>`;
@@ -911,21 +911,7 @@ function showResults(msg=''){
 }
 function search(){const e=$('q');if(!e)return;const q=e.value.trim(),tk=++searchSeq;
   clearTimeout(searchWait);window._res=q?CAT_().filter(c=>norm(c.title+' '+c.author+' '+(c.en||'')).includes(norm(q))).slice(0,10):[];
-  showResults(q?'Suche weitere Titel online …':'');if(q.length<2)return;
-  searchWait=setTimeout(()=>searchOnline(q,tk),360);
-}
-async function searchOnline(q,tk){
-  const ctl=new AbortController(),timeout=setTimeout(()=>ctl.abort(),8500),pool=[...(window._res||[])];
-  try{
-    const urls=[`https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(q)}&maxResults=20&printType=books`,
-      `https://openlibrary.org/search.json?q=${encodeURIComponent(q)}&limit=20&fields=title,author_name,first_publish_year,language,isbn,cover_i`];
-    const res=await Promise.allSettled(urls.map(async(u,i)=>{const r=await fetch(u,{signal:ctl.signal});if(!r.ok)throw Error('HTTP '+r.status);const j=await r.json();return i===0?(j.items||[]).map(x=>{const v=x.volumeInfo||{};return{title:v.title,author:(v.authors||[]).join(', '),year:(v.publishedDate||'').slice(0,4),genre:(v.categories||[])[0]||'',pages:v.pageCount,lang:v.language||'',...metadataGoogle(v,x),source:'Google Books'}}):(j.docs||[]).map(v=>({title:v.title,author:(v.author_name||[]).slice(0,2).join(', '),year:v.first_publish_year,lang:(v.language||[]).includes('ger')?'de':(v.language||[]).includes('eng')?'en':'',cover:v.cover_i?'https://covers.openlibrary.org/b/id/'+v.cover_i+'-L.jpg':null,isbn:(v.isbn||[])[0]||'',source:'Open Library'}))}));
-    if(tk!==searchSeq||!$('q')||$('q').value.trim()!==q)return;
-    for(const it of res){if(it.status==='fulfilled')pool.push(...it.value.filter(x=>x.title))}
-    const unique=new Set();window._res=pool.filter(v=>{const k=norm(v.title)+'|'+norm(v.author);if(unique.has(k))return false;unique.add(k);return true}).slice(0,30);
-    showResults(window._res.length?'':'Keine Treffer. Du kannst das Buch manuell eintragen.');
-  }catch(e){if(tk===searchSeq)showResults(window._res.length?'':'Onlinesuche nicht erreichbar. Manuelle Eingabe ist möglich.')}
-  finally{clearTimeout(timeout)}
+  showResults(window._res.length?'':'Keine passenden Einträge im lokalen Katalog. Du kannst das Buch manuell eintragen.');
 }
 function fill(i){keep();const v=window._res[i];if(!v)return;const c=v.cover;draft={...draft,...Object.fromEntries(Object.entries(v).filter(([k,val])=>val!==undefined&&val!==null&&val!==''))};if(c)draft.covers=uniqueCovers([c,...(draft.covers||[])]);render()}
 
@@ -961,7 +947,7 @@ function drawEditBook(){if(!editDraft)return;const b=editDraft;
   <details class="info-details"><summary>Erweiterte Details</summary>${f('pages','Seitenzahl','type="number" min="0"')}${f('language','Sprache')}${f('isbn','ISBN')}${f('edition','Ausgabe')}</details>
   <label>Medium</label><select id="ed_type"><option value="digital" ${b.type==='digital'?'selected':''}>Digital</option><option value="physical" ${b.type==='physical'?'selected':''}>Physisch</option></select>
   <div class="cset">${(b.covers||[]).map(c=>`<img src="${esc(c)}" alt="Cover">`).join('')}</div>
-  <div class="book-actions"><button class="btn o" onclick="editCover(${b.id})">Cover selbst auswählen</button><button class="chip" onclick="coverGallery('book',${b.id})">Andere Cover online</button></div>
+  <div class="book-actions"><button class="btn o" onclick="editCover(${b.id})">Cover selbst auswählen</button></div>
   ${b.type==='physical'?`<h3>Ausgaben & Exemplare</h3>${b.editions.map((e,i)=>`<div class="edition-row"><b>Ausgabe ${i+1}</b><label>ISBN</label><input id="ee_${i}_isbn" value="${esc(e.isbn||'')}"><label>Sprache</label><input id="ee_${i}_language" value="${esc(e.language||'')}"><label>Einband</label>${formatSelect(e.format||'Paperback',`ee_${i}_format`)}<label>Edition / Sonderausgabe</label><input id="ee_${i}_edition" value="${esc(e.edition||'')}"><label>Preis</label><input id="ee_${i}_price" type="number" step="0.01" min="0" value="${esc(e.price??'')}"><label>Anzahl</label><input id="ee_${i}_qty" type="number" min="1" value="${esc(e.qty||1)}"><label>Cover-Link (optional)</label><input id="ee_${i}_cover" value="${esc(e.cover||'')}"><button class="chip" onclick="editRemoveEdition(${i})">Ausgabe entfernen</button></div>`).join('')}<button class="chip" onclick="editAddEdition()">+ Ausgabe hinzufügen</button>`:''}
   <div class="book-actions"><button class="btn" onclick="saveEdit(${b.id})">Änderungen speichern</button><button class="btn o" onclick="bookM(${b.id})">Abbrechen</button></div>`;render()}
 function saveEdit(id){const b=S.books.find(x=>x.id===id);if(!b||!editDraft)return;captureEdit();if(!String(editDraft.title||'').trim())return toast('Titel ist erforderlich.');for(const k of ['title','author','year','genre','tags','series','seriesNumber','publisher','pages','language','isbn','edition','price'])b[k]=editDraft[k];b.pages=+b.pages||0;b.msrp=buSafeNumber(editDraft.price);b.purchasePrice=buSafeNumber(editDraft.purchasePrice);b.condition=editDraft.condition||'unknown';b.price=b.price===''?null:+b.price;b.type=editDraft.type;if(b.type==='physical'){b.editions=editDraft.editions.map(copyEdition);unifyBookEd(b)}else b.qty=1;editDraft=null;modal=null;save();toast('Buch aktualisiert.')}
@@ -1096,9 +1082,9 @@ function settings(){
   <h3>Textgröße</h3><div class="row">${['Klein','Normal','Groß'].map((n,i)=>`<button class="chip ${(S.fs==null?1:S.fs)==i?'on':''}" aria-pressed="${(S.fs==null?1:S.fs)==i}" onclick="S.fs=${i};save()">${n}</button>`).join('')}</div>
   <h3>Lesetempo</h3><div class="pad"><label>Wörter pro Seite (für die Wörter/Min-Schätzung)</label><input type="number" value="${S.wpp}" min="50" onchange="S.wpp=+this.value||275;save()"></div>
   <h3>Währung</h3><div class="row">${['€','$','£','CHF'].map(c=>`<button class="chip ${S.currency==c?'on':''}" onclick="S.currency='${c}';save()">${c}</button>`).join('')}</div>
-  ${hasCl()?'':`<h3>Freunde-Server</h3><div class="pad"><label>Firebase API-Schlüssel</label><input id="fbk" value="${esc(FBCFG.apiKey)}" autocomplete="off" autocapitalize="off"><label>Firebase Projekt-ID</label><input id="fbp" value="${esc(FBCFG.projectId)}" autocomplete="off" autocapitalize="off"><button class="btn" onclick="saveFb()">Speichern</button><p style="color:var(--mut);font-size:13px">Nur für Freunde und Chat. Einrichtung: siehe FIREBASE.md. Ohne diese Angaben bleibt alles offline.</p></div>`}<h3>Erinnerung</h3><div class="pad"><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><button class="chip ${RM().on?'on':''}" aria-pressed="${RM().on}" onclick="setRemind(${!RM().on})">${RM().on?'An':'Aus'}</button><input type="time" value="${RM().time}" onchange="setRemindTime(this.value)" aria-label="Uhrzeit" style="width:auto;margin:0"><button class="chip" onclick="testRemind()">Test</button></div><p class="hint">Täglich zur gewählten Uhrzeit, mit deiner Lese-Serie und deinem nächsten Ziel.</p></div>
+  <h3>Erinnerung</h3><div class="pad"><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><button class="chip ${RM().on?'on':''}" aria-pressed="${RM().on}" onclick="setRemind(${!RM().on})">${RM().on?'An':'Aus'}</button><input type="time" value="${RM().time}" onchange="setRemindTime(this.value)" aria-label="Uhrzeit" style="width:auto;margin:0"><button class="chip" onclick="testRemind()">Test</button></div><p class="hint">Täglich zur gewählten Uhrzeit, mit deiner Lese-Serie und deinem nächsten Ziel.</p></div>
   <h3>Import</h3><div class="row"><button class="btn o" onclick="gqPick()">Goodreads-Export importieren (CSV)</button></div><p class="pad hint">Export aus Goodreads: Mein Konto → Tools → Import/Export. Bücher werden als physisch angelegt, der Status (gelesen / wird gelesen) kommt aus deinen Goodreads-Regalen, bereits vorhandene Titel werden übersprungen.</p>
-  ${window.BooksUpCloud?.ui?.()||""}<h3>Daten sichern</h3><div class="row"><button class="btn" onclick="backupFull()">Backup mit Büchern (ZIP)</button><button class="btn o" onclick="backup()">Nur Daten (JSON)</button><button class="btn o" onclick="restore()">Backup laden</button></div><p class="pad hint">Das ZIP enthält beide Bereiche (Bücher und Manga) mit allen Daten und die Bücherdateien, die JSON-Datei nur die Daten. Letztes Backup: ${ALL.lastBackup?new Date(ALL.lastBackup).toLocaleDateString('de-DE'):'noch nie'}. Teile die Datei nicht mit anderen, sie enthält auch deine Freunde-Identität.</p>
+  ${''}<h3>Daten sichern</h3><div class="row"><button class="btn" onclick="backupFull()">Backup mit Büchern (ZIP)</button><button class="btn o" onclick="backup()">Nur Daten (JSON)</button><button class="btn o" onclick="restore()">Backup laden</button></div><p class="pad hint">Das ZIP enthält beide Bereiche (Bücher und Manga) mit allen Daten und die Bücherdateien, die JSON-Datei nur die Daten. Letztes Backup: ${ALL.lastBackup?new Date(ALL.lastBackup).toLocaleDateString('de-DE'):'noch nie'}. Teile die Datei nicht mit anderen, sie enthält auch deine Freunde-Identität.</p>
   <h3>Hilfe</h3><div class="row"><button class="chip" onclick="showIntro(0)">Einführung ansehen</button><button class="chip" onclick="runDiag()">Systemtest</button></div><div class="pad"><button class="btn o" onclick="booksupCheckUpdate(false)">Auf Updates prüfen</button><p class="hint">BooksUp ${APP_VERSION} · Android: Installation nach Bestätigung · Windows: Updates im installierten Programm.</p></div>`}
 function saveFb(){FBCFG={apiKey:$('fbk').value.trim(),projectId:$('fbp').value.trim()};try{localStorage.setItem(FBK,JSON.stringify(FBCFG))}catch(e){}fbAuth=null;socialReady=false;socialErr=false;errDrawn=false;lastTry=0;US=DB=null;alert('Gespeichert.');render()}
 // ---- Freunde & Chat (online, braucht ein Claude-Konto) ----
@@ -1229,7 +1215,7 @@ const TINY_PDF='JVBERi0xLjMKJZOMi54gUmVwb3J0TGFiIEdlbmVyYXRlZCBQREYgZG9jdW1lbnQg
 let mirT=null,lastSaveWarning=0;
 function store(){
   bu43ReconcileLists();ALL._savedAt=Date.now();
-  window.BooksUpCloud?.changed?.();const snapshot=JSON.stringify(ALL);
+  const snapshot=JSON.stringify(ALL);
   // Large covers belong in IndexedDB. localStorage is best-effort bootstrap only.
   if(snapshot.length<1300000){try{localStorage.setItem('booksup3',snapshot)}catch(e){console.warn('LocalStorage limit, IndexedDB active:',e.name)}}
   clearTimeout(mirT);mirT=setTimeout(async()=>{const ok=await put('__state',snapshot);if(!ok&&Date.now()-lastSaveWarning>15000){lastSaveWarning=Date.now();toast('Speichern fehlgeschlagen. Bitte erstelle ein Backup und prüfe freien Speicherplatz.')}},150);
@@ -1469,13 +1455,13 @@ async function runDiag(){
   add('BarcodeDetector' in window?true:null,'Barcode-Erkennung (ISBN)',navigator.mediaDevices&&navigator.mediaDevices.getUserMedia?'Kamera-Zugriff möglich':'Kein Kamera-Zugriff');
   add(LN()?true:('Notification' in window?true:null),'Erinnerungen',LN()?'Android-Benachrichtigungen (Plugin)':'Nur Browser-Benachrichtigungen');
   const C=window.Capacitor&&Capacitor.Plugins;add((C&&C.Filesystem&&C.Share)?true:(navigator.canShare?true:null),'Backup teilen',(C&&C.Filesystem&&C.Share)?'Android-Teilen-Dialog':navigator.canShare?'Web-Teilen':'Download-Link');
-  add(navigator.onLine,'Internetverbindung',navigator.onLine?'online':'offline (Freunde, ISBN-Suche und Online-Schriften brauchen Internet)')}
+  add(navigator.onLine,'Internetverbindung',navigator.onLine?'online':'offline · alle lokalen Funktionen verfügbar')}
 /* ---- Einführung ---- */
 const INTRO=[
  ['Willkommen bei BooksUp','Deine Bibliothek und dein Lese-Tracker in einer App: digitale Bücher (PDF, EPUB, Comics) und gedruckte Bücher an einem Ort. Alles läuft offline und bleibt auf deinem Gerät.'],
  ['Lesen, wie du magst','Im Leser findest du über „Aa“ drei Modi: Buchseiten zum Blättern, Scrollen wie auf einer Webseite oder Text im Wattpad-Stil. Dazu kommen Kapitelanzeige, Lesezeichen, Suche, Vollbild und automatisches Scrollen.'],
  ['Dranbleiben','Starte eine Lesesitzung, dann zählt BooksUp Zeit, Seiten und Kapitel. Setze Ziele und ein Jahresziel, sammle deine Lese-Serie und lass dich täglich erinnern (Einstellungen).'],
- ['Deine Daten gehören dir','Sichere deine Bücher und Fortschritte regelmäßig unter Einstellungen → Backup. Freunde und Chat sind optional und brauchen einen eigenen Server.']];
+ ['Deine Daten gehören dir','Sichere deine Bücher und Fortschritte regelmäßig unter Einstellungen → Backup. Lokale Datensicherung benötigt keinen Server.']];
 function showIntro(i=0){
   let o=$('intro');if(!o){o=document.createElement('div');o.id='intro';o.className='intro';o.setAttribute('role','dialog');o.setAttribute('aria-modal','true');o.setAttribute('aria-label','Einführung');document.body.appendChild(o)}
   const[t,x]=INTRO[i];
@@ -1532,6 +1518,5 @@ async function booksupCheckUpdate(silent=false){
 }
 setTimeout(()=>booksupCheckUpdate(true),5000);
 
-window.BooksUpCloud?.setup?.({snapshot:()=>ALL,toast,render,getFile:async id=>{const d=await db();return new Promise(resolve=>{const r=d.transaction('f').objectStore('f').get(Number(id));r.onsuccess=()=>resolve(r.result||null);r.onerror=()=>resolve(null)})},putFile:async(id,blob)=>put(Number(id),blob),apply:cloud=>{Object.assign(ALL,cloud);ALL.book=Object.assign(NEW(),ALL.book);ALL.manga=Object.assign(NEW('Manga-Fan'),ALL.manga);S=ALL[sp];store();render()}});
 render();
 </script><script src="booksup-49.js"></script></body></html>
