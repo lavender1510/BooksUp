@@ -46,7 +46,7 @@ function bu46SearchOpen(){go('discoverSearch')}
 function bu46SearchView(){
  return bar('Bücher suchen','home')+'<section class="bu46-discover-search"><div class="bu45-pagehead"><div><span class="next-overline">BOOKSUP DISCOVER</span><h1>Bücher entdecken</h1><p class="hint">Suche nach Titel, Autor oder ISBN und füge Bücher einer Leseliste hinzu, ohne sie als gekauft zu markieren.</p></div></div>'+
  '<form class="bu46-search-form" onsubmit="event.preventDefault();bu46Search($(\'bu46-search-input\').value,true)"><input type="search" id="bu46-search-input" value="'+esc(bu46SearchTerm)+'" placeholder="Titel, Autor, ISBN …" autocomplete="off" required><button class="btn" type="submit">Suchen</button></form>'+
- '<div id="bu46-search-status" class="hint">'+(bu46SearchBusy?'Suche läuft …':bu46SearchResults.length?bu46SearchResults.length+' Treffer aus Google Books und Open Library':'Suche nach deinen nächsten Büchern')+'</div>'+
+ '<div id="bu46-search-status" class="hint">'+(bu46SearchBusy?'Suche läuft …':bu46SearchResults.length?bu46SearchResults.length+' lokale Treffer':'Suche in den lokalen Buchvorschlägen')+'</div>'+
  '<div id="bu46-search-items" class="bu46-result-grid">'+bu46SearchResults.map((b,i)=>bu46SearchCard(b,i)).join('')+'</div></section>';
 }
 function bu46SearchCard(b,i){
@@ -151,56 +151,4 @@ function bu46ReadingHistory(){
  return '<section class="card bu46-reading-history"><div class="bu45-pagehead"><h2>Gelesene Bücher im Zeitverlauf</h2><small>'+finished.length+' abgeschlossene Bücher</small></div>'+
  '<div class="bu46-history-columns"><div><h3>Nach Jahr</h3>'+(years.length?chart(years,Math.max(...years.map(x=>x[1]))):'<p class="hint">Noch keine Abschlussdaten hinterlegt.</p>')+'</div><div><h3>Nach Monat</h3>'+(months.length?chart(months,Math.max(...months.map(x=>x[1]))):'<p class="hint">Keine datierten Abschlüsse vorhanden.</p>')+'</div></div></section>';
 }
-/* Admin buttons only work through an external OAuth backend.
-   Local UI state is never proof of ownership or permission. */
-function bu46AdminEndpoint(){return String(window.BOOKSUP_ADMIN_API_URL||'').replace(/\/+$/,'')}
-function bu46AdminView(){
- const endpoint=bu46AdminEndpoint();
- return '<div class="bu46-admin card"><h3>BooksUp-Adminbereich</h3><p class="hint">Für redaktionelle Buchinformationen und eigene News-Artikel. Schreibrechte werden ausschließlich über eine verifizierte GitHub-Anmeldung geprüft.</p>'+
- (endpoint?'<button class="btn" onclick="bu46AdminLogin()">Mit GitHub anmelden</button><button class="btn o" onclick="bu46AdminOpen()">Adminbereich öffnen</button>':
- '<p class="hint">Noch nicht aktiviert: Der Herausgeber muss die sichere GitHub-OAuth-Verbindung und den Veröffentlichungsdienst konfigurieren. Es gibt keine lokale Admin-Freischaltung.</p>')+'</div>';
-}
-function bu46AdminLogin(){const url=bu46AdminEndpoint();if(url)window.open(url+'/auth/login','_blank','noopener,noreferrer')}
-function bu46AdminOpen(){const url=bu46AdminEndpoint();if(url)window.open(url+'/admin','_blank','noopener,noreferrer')}
-/* Only already-published, public editorial data is fetched. Personal fields
-   never leave the device; private ages are not written to Github. */
-let bu46EditorialUpdated=0,bu46EditorialNews=[],bu46EditorialBooks=[],bu46EditorialBusy=false;
-async function bu46FetchEditorial(){
- if(bu46EditorialBusy||Date.now()-bu46EditorialUpdated<3600000)return;
- bu46EditorialBusy=true;
- try{
-  const root='https://raw.githubusercontent.com/lavender1510/BooksUp/main/www/';
-  const [a,b]=await Promise.allSettled(['admin-news.json','admin-books.json'].map(p=>fetchMetaUrl(root+p)));
-  if(a.status==='fulfilled'&&Array.isArray(a.value.articles))bu46EditorialNews=a.value.articles.filter(x=>x?.title&&/^https:\/\//.test(x.url||'')).slice(0,120);
-  if(b.status==='fulfilled'&&Array.isArray(b.value.books))bu46EditorialBooks=b.value.books.slice(0,400);
-  bu46EditorialUpdated=Date.now();
-  bu46ApplyEditorial();
-  if(view==='news')render();
- }catch(e){console.debug('Editorial data unavailable',e)}
- finally{bu46EditorialBusy=false}
-}
-function bu46ApplyEditorial(){
- if(bu46EditorialNews.length){
-  const keys=new Set(bu46EditorialNews.map(x=>x.id||x.title+'|'+x.date));
-  buNewsArticles=[...bu46EditorialNews,...buNewsArticles.filter(x=>!keys.has(x.id||x.title+'|'+x.date))].slice(0,100);
- }
- if(!bu46EditorialBooks.length)return;
- const lookup=new Map();
- for(const x of bu46EditorialBooks){const key=buNorm(x.title+'|'+x.author);if(key)lookup.set(key,x);if(x.isbn)lookup.set('isbn:'+isbnClean(x.isbn),x)}
- let changed=false;
- for(const b of [...ALL.book.books,...ALL.manga.books,...(ALL.book.libraryBooks||[]),...(ALL.manga.libraryBooks||[])]){
-  const meta=lookup.get('isbn:'+isbnClean(b.isbn))||lookup.get(buNorm(b.title+'|'+b.author));if(!meta)continue;
-  for(const key of ['publisher','genre','tags','series','seriesNumber','language','year','pages','description','minAge']){
-   if((b[key]===undefined||b[key]===null||b[key]==='')&&meta[key]){b[key]=meta[key];changed=true}
-  }
-  if(!b.cover&&!b.covers?.length&&/^https:\/\//.test(meta.cover||'')){b.covers=[meta.cover];changed=true}
- }
- if(changed)persist();
-}
-function bu46AfterRender(){
- if(view==='news'||view==='home'||view==='libraryDetail'||view==='detail')bu46FetchEditorial().catch(()=>{});
- if(view==='libraryDetail'||view==='catalog'||view==='searchDetail'||view==='detail'){
-  const b=bu46ActiveDetailBook();if(b)bu46SimilarLoad(b).catch(()=>{});
- }
- if(view==='listDetail'){const list=bu45AllLists().find(x=>String(x.id)===String(cur||bu45ListId));const b=(list?.items||[]).map(bu45Book).find(x=>x.genre||x.author);if(b)bu46SimilarLoad(b).catch(()=>{})}
-}
+function bu46AfterRender(){/* Offline: no editorial server or background metadata calls. */}
