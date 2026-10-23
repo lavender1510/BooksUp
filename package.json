@@ -1,8 +1,8 @@
 {
   "name": "booksup",
-  "version": "5.5.1",
+  "version": "5.6.0",
   "private": true,
-  "description": "BooksUp 5.5.1 – Windows 5.2 and Android 4.6 original designs with the latest features",
+  "description": "BooksUp 5.6.0 – Stable offline library and reader; original Windows 5.2 / Android 4.6 designs",
   "productName": "BooksUp",
   "main": "electron/main.cjs",
   "type": "commonjs",
@@ -26,9 +26,7 @@
     "@capacitor/local-notifications": "^8.0.0",
     "@capacitor/share": "^8.0.0",
     "@capacitor/android": "^8.5.2",
-    "@capacitor/splash-screen": "^8.0.0",
-    "electron-updater": "^6.6.2",
-    "@capgo/capacitor-social-login": "^8.5.15"
+    "@capacitor/splash-screen": "^8.0.0"
   },
   "devDependencies": {
     "@capacitor/cli": "^8.5.2",

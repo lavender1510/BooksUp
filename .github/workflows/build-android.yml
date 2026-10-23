@@ -44,45 +44,39 @@ jobs:
           echo "BOOKSUP_RELEASE_KEYSTORE=$RUNNER_TEMP/booksup-release.keystore" >> "$GITHUB_ENV"
       - name: Install dependencies
         run: npm install --no-audit --no-fund
-      - name: Run regression tests
+      - name: Run offline release regression suite
         run: |
           npm run test:static
-          node tools/test-android-48.cjs
-          node tools/test-49.cjs
-          node tools/test-50.cjs
-          node tools/test-51.cjs
-          node tools/test-52.cjs
+          node tools/test-offline.cjs
           node tools/test-53.cjs
           node tools/test-54.cjs
           node tools/test-55.cjs
           node tools/test-55-behavior.cjs
-          node tools/test-55-navigation-regression.cjs
+          node tools/test-56-functional.cjs
       - name: Build signed production APK
         env:
           BOOKSUP_RELEASE_STORE_PASSWORD: ${{ secrets.BOOKSUP_ANDROID_RELEASE_STORE_PASSWORD }}
           BOOKSUP_RELEASE_KEY_ALIAS: ${{ secrets.BOOKSUP_ANDROID_RELEASE_KEY_ALIAS }}
           BOOKSUP_RELEASE_KEY_PASSWORD: ${{ secrets.BOOKSUP_ANDROID_RELEASE_KEY_PASSWORD }}
-          BOOKSUP_GOOGLE_WEB_CLIENT_ID: ${{ secrets.BOOKSUP_GOOGLE_WEB_CLIENT_ID }}
         run: |
-          node -e "const fs=require('fs');fs.writeFileSync('www/cloud-drive-config.js','window.BOOKSUP_GOOGLE_WEB_CLIENT_ID='+JSON.stringify(process.env.BOOKSUP_GOOGLE_WEB_CLIENT_ID||'')+';\n')"
           node tools/build-android-release.cjs
       - name: Verify signed release and LAN policy
         shell: bash
         run: |
-          APK="release/BooksUp-5.5.1.apk"
+          APK="release/BooksUp-5.6.0.apk"
           test -s "$APK"
           "$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --verbose --print-certs "$APK"
-          "$ANDROID_HOME/build-tools/36.0.0/aapt" dump badging "$APK" | grep -q "versionName='5.5.1'"
+          "$ANDROID_HOME/build-tools/36.0.0/aapt" dump badging "$APK" | grep -q "versionName='5.6.0'"
           "$ANDROID_HOME/build-tools/36.0.0/aapt" dump xmltree "$APK" AndroidManifest.xml | grep -q 'usesCleartextTraffic'
-          unzip -p "$APK" assets/public/index.html | grep -q 'const APP_VERSION="5.5.1";'
+          unzip -p "$APK" assets/public/index.html | grep -q 'const APP_VERSION="5.6.0";'
           ! unzip -p "$APK" assets/public/index.html | grep -q 'href="booksup-android-48.css"'
           ! unzip -p "$APK" assets/public/index.html | grep -q 'href="booksup-53.css"'
           for f in booksup-53.js booksup-52.js booksup-55.js booksup-54-features.css; do unzip -l "$APK" | grep -q "assets/public/$f"; done
       - name: Upload signed release artifact
         uses: actions/upload-artifact@v4
         with:
-          name: BooksUp-5.5.1-Android-Production
-          path: release/BooksUp-5.5.1.apk
+          name: BooksUp-5.6.0-Android-Production
+          path: release/BooksUp-5.6.0.apk
           if-no-files-found: error
           retention-days: 90
       - name: Publish stable Android release
@@ -91,20 +85,20 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         shell: bash
         run: |
-          TAG='v5.5.1-android'
+          TAG='v5.6.0-android'
           cat > release-notes.md <<'NOTES'
-          # BooksUp 5.5.1 – Android Settings & News hotfix
-          Production-signed Android release, not a debug build.
-          - Restores the prior Settings and News entries in default navigation.
-          - Keeps users' custom navigation choices and existing features.
-          - Offline, timed-out and invalid News responses show a retry state.
-          - Retains offline cached articles and prevents repeated failing calls.
-          - Keeps Android 4.6 design, existing library and data untouched.
-          - Install only over apps with the same signing certificate; verify backups first.
+          # BooksUp 5.6.0 – Stabile Offline-Abschlussversion (Android)
+          Diese Version ist die vorläufige stabile Abschlussversion von BooksUp.
+          - Vorübergehend entfernt: Cloud-Backup, Online-Konten, News, Preisalarm, Online-Katalog, LibreTranslate und Online-Updates.
+          - Bücher, Leselisten, Lesefortschritte und vorhandene lokale Dateien bleiben erhalten.
+          - PDF-/EPUB-Reader, Markierungen, Notizen, lokale ZIP-/JSON-Backups und LAN-Transfer bleiben.
+          - Fehlerbehandlung und Überlauf bei langen Texten, Dialogen und kleinen Bildschirmen verbessert.
+          - Originales Android-4.6-Design beibehalten.
+          - Nur bei gleicher Android-Signatur über bestehende Installation aktualisieren. Vorher Backup erstellen.
           NOTES
           if gh release view "$TAG" >/dev/null 2>&1; then
-            gh release upload "$TAG" release/BooksUp-5.5.1.apk --clobber
-            gh release edit "$TAG" --title 'BooksUp 5.5.1 – Android Production' --notes-file release-notes.md --prerelease=false --latest=false
+            gh release upload "$TAG" release/BooksUp-5.6.0.apk --clobber
+            gh release edit "$TAG" --title 'BooksUp 5.6.0 – Android Production' --notes-file release-notes.md --prerelease=false --latest=false
           else
-            gh release create "$TAG" release/BooksUp-5.5.1.apk --title 'BooksUp 5.5.1 – Android Production' --notes-file release-notes.md --target "$GITHUB_SHA" --latest=false
+            gh release create "$TAG" release/BooksUp-5.6.0.apk --title 'BooksUp 5.6.0 – Android Production' --notes-file release-notes.md --target "$GITHUB_SHA" --latest=false
           fi

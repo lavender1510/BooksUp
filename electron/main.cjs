@@ -1,7 +1,6 @@
 'use strict';
 
 const { app, BrowserWindow, protocol, net, shell, session, dialog, ipcMain } = require('electron');
-const { autoUpdater } = require('electron-updater');
 const path = require('node:path');
 const { pathToFileURL } = require('node:url');
 const { stat, readFile } = require('node:fs/promises');
@@ -97,124 +96,6 @@ function createWindow() {
 
 
 /* Signed-in user data stays in Electron's existing booksup:// origin during upgrades. */
-let updateBusy=false;
-const booksupUpdateStatus=(message,percent,progress)=>{if(mainWindow&&!mainWindow.isDestroyed())mainWindow.webContents.send('booksup-update:status',{message,percent:percent??null,transferred:Number(progress?.transferred||0),total:Number(progress?.total||0),bytesPerSecond:Number(progress?.bytesPerSecond||0)})};
-autoUpdater.on('download-progress',info=>{const pct=Math.round(info.percent||0);booksupUpdateStatus('Lade Update herunter …',pct,info);});
-autoUpdater.on('update-not-available',()=>booksupUpdateStatus('BooksUp ist aktuell.',null));
-autoUpdater.autoDownload=false;
-autoUpdater.autoInstallOnAppQuit=false;
-autoUpdater.allowPrerelease=false;
-autoUpdater.allowDowngrade=false;
-autoUpdater.setFeedURL({provider:'github',owner:'lavender1510',repo:'BooksUp',releaseType:'release'});
-autoUpdater.on('update-available', async info=>{
-  booksupUpdateStatus('Update verfügbar: '+info.version,null);
-  if(!mainWindow||mainWindow.isDestroyed())return;
-  const {response}=await dialog.showMessageBox(mainWindow,{
-    type:'info',buttons:['Herunterladen','Später'],defaultId:0,cancelId:1,
-    title:'BooksUp-Update',message:'BooksUp '+info.version+' ist verfügbar.',
-    detail:'Das Update wird heruntergeladen und nach deiner Bestätigung installiert.'
-  });
-  if(response===0){try{await autoUpdater.downloadUpdate()}catch(e){dialog.showErrorBox('Update konnte nicht geladen werden',String(e.message||e))}}
-});
-autoUpdater.on('error',e=>{console.error('BooksUp updater:',e);booksupUpdateStatus('Update fehlgeschlagen: '+String(e.message||e),null);});
-autoUpdater.on('update-downloaded',async info=>{
-  booksupUpdateStatus('Update '+info.version+' bereit zur Installation.',100);
-  if(!mainWindow||mainWindow.isDestroyed())return;
-  const {response}=await dialog.showMessageBox(mainWindow,{
-    type:'info',buttons:['Jetzt installieren','Später'],defaultId:0,cancelId:1,
-    title:'BooksUp-Update bereit',message:'BooksUp '+info.version+' wurde heruntergeladen.',
-    detail:'BooksUp wird zum Installieren neu gestartet. Deine Bibliotheksdaten bleiben auf diesem Gerät.'
-  });
-  if(response===0){
-     booksupUpdateStatus('Installation wird gestartet. BooksUp beendet sich und wird nach der Installation neu geöffnet.',100);
-     try{
-       // Persist success feedback before the NSIS updater closes the renderer.
-       await mainWindow.webContents.executeJavaScript('localStorage.setItem(\'booksup-update-pending\','+JSON.stringify(info.version)+')');
-     }catch(error){console.warn('Could not persist update completion marker:',error);}
-     try{autoUpdater.quitAndInstall(false,true);}catch(error){booksupUpdateStatus('Installation fehlgeschlagen: '+String(error.message||error),null);dialog.showErrorBox('BooksUp Update',String(error.message||error));}
-   }
-});
-async function checkBooksUpUpdates(manual=false){
-  if(!app.isPackaged||process.platform!=='win32'){
-    return {message:'Installierbare Updates stehen in der gepackten Windows-Version zur Verfügung.'};
-  }
-  if(process.env.PORTABLE_EXECUTABLE_DIR){
-    if(manual)await shell.openExternal('https://github.com/lavender1510/BooksUp/releases');
-    return {message:'Portable Version: Release-Seite im Browser geöffnet. Neue portable EXE manuell herunterladen.'};
-  }
-  if(updateBusy)return {message:'Eine Update-Prüfung läuft bereits.'};
-  updateBusy=true;
-  try{
-    const result=await autoUpdater.checkForUpdates();
-    if(!result?.updateInfo || result.isUpdateAvailable===false){
-      if(manual)await dialog.showMessageBox(mainWindow,{type:'info',message:'BooksUp ist aktuell.'});
-      return {message:'Update-Prüfung abgeschlossen.'};
-    }
-    return {message:'Update gefunden: '+result.updateInfo.version};
-  }catch(e){
-    const msg=String(e.message||e);
-    if(manual){const {response}=await dialog.showMessageBox(mainWindow,{type:'warning',buttons:['Releases öffnen','Schließen'],defaultId:0,cancelId:1,message:'Update-Prüfung fehlgeschlagen',detail:msg});if(response===0)await shell.openExternal('https://github.com/lavender1510/BooksUp/releases');}
-    return {message:'Update-Prüfung fehlgeschlagen: '+msg};
-  }finally{updateBusy=false}
-}
-ipcMain.handle('booksup-update:check',()=>checkBooksUpUpdates(true));
-
-// Restrict DNB metadata lookups to a known SRU endpoint and the active BooksUp window.
-// Fetch public catalog data from a fixed set of providers in Electron's main process.
-ipcMain.handle('booksup-metadata:search', async (event, request) => {
-  if (!mainWindow || event.sender !== mainWindow.webContents ||
-      !event.senderFrame?.url.startsWith(APP_ORIGIN + '/')) throw Error('Unauthorized metadata lookup');
-  const title = String(request?.title || '').trim().slice(0, 180);
-  const author = String(request?.author || '').trim().slice(0, 120);
-  const topic=String(request?.topic||'').trim().slice(0,60).replace(/[^a-zA-Z0-9 -]/g,'');
-  const isbn = String(request?.isbn || '').replace(/[^0-9X]/gi, '').toUpperCase();
-  if (!title && !topic && !/^(?:[0-9]{9}[0-9X]|[0-9]{13})$/.test(isbn)) throw Error('Title or valid ISBN required');
-  const query = topic ? 'subject:' + topic : isbn ? 'isbn:' + isbn : 'intitle:' + title + (author ? ' inauthor:' + author : '');
-  const googleUrls = [
-    'https://www.googleapis.com/books/v1/volumes?q=' + encodeURIComponent(query) + '&maxResults=35&printType=books',
-    'https://www.googleapis.com/books/v1/volumes?q=' + encodeURIComponent(title + ' ' + author) + '&maxResults=20&printType=books'
-  ];
-  const openUrl = 'https://openlibrary.org/search.json?' +
-    (topic ? 'q=' + encodeURIComponent('subject:' + topic) : isbn ? 'isbn=' + encodeURIComponent(isbn) : 'q=' + encodeURIComponent(title + (author ? ' ' + author : ''))) +
-    '&limit=20&lang=de&fields=key,title,author_name,isbn,first_publish_year,cover_i,subject,language,publisher,editions,editions.title,editions.language,editions.isbn_13,editions.isbn_10,editions.publisher,editions.publish_date';
-  const urls = [...googleUrls, openUrl];
-  async function fetchCatalog(url) {
-    const resp = await fetch(url, {signal: AbortSignal.timeout(11000), headers:{Accept:'application/json'}});
-    if (!resp.ok) throw Error('HTTP ' + resp.status);
-    const json = await resp.text();
-    if (json.length > 1600000) throw Error('Catalog response too large');
-    return JSON.parse(json);
-  }
-  const results = await Promise.allSettled(urls.map(fetchCatalog));
-  const errors = results.map((x,i)=>x.status==='rejected'?['Google Books','Google Books','Open Library'][i]+': '+String(x.reason?.message||x.reason):null).filter(Boolean);
-  return {google: results.slice(0,2).flatMap(x=>x.status==='fulfilled' ? x.value.items || [] : []),
-          open: results[2].status==='fulfilled' ? results[2].value.docs || [] : [],
-          errors};
-});
-ipcMain.handle('booksup-metadata:dnb-title', async (event, rawTitle) => {
-  if (!mainWindow || event.sender !== mainWindow.webContents || !event.senderFrame?.url.startsWith(APP_ORIGIN + '/')) throw Error('Unauthorized lookup');
-  const title = String(rawTitle || '').replace(/[=*"()]/g,' ').trim().slice(0,140);
-  if (title.length < 3) return '';
-  const url = 'https://services.dnb.de/sru/dnb?version=1.1&operation=searchRetrieve&recordSchema=MARC21-xml&maximumRecords=8&query=' + encodeURIComponent('tit=' + title);
-  const response = await fetch(url, {signal:AbortSignal.timeout(11000),headers:{Accept:'application/xml'}});
-  if(!response.ok)throw Error('DNB HTTP '+response.status);
-  const data=await response.text();
-  if(data.length>350000)throw Error('DNB result too large');
-  return data;
-});
-ipcMain.handle('booksup-metadata:dnb', async (event, rawIsbn) => {
-  if (!mainWindow || event.sender !== mainWindow.webContents || !event.senderFrame?.url.startsWith(APP_ORIGIN + '/')) throw Error('Unauthorized metadata lookup');
-  const isbn = String(rawIsbn || '').replace(/[^0-9X]/gi, '').toUpperCase();
-  if (!/^(?:[0-9]{9}[0-9X]|[0-9]{13})$/.test(isbn)) throw Error('Invalid ISBN');
-  const endpoint = 'https://services.dnb.de/sru/dnb?version=1.1&operation=searchRetrieve&recordSchema=MARC21-xml&maximumRecords=4&query=' + encodeURIComponent('num=' + isbn);
-  const response = await fetch(endpoint, {signal: AbortSignal.timeout(9000), headers:{Accept:'application/xml'}});
-  if (!response.ok) throw Error('DNB response ' + response.status);
-  const body = await response.text();
-  if (body.length > 300000) throw Error('DNB response too large');
-  return body;
-});
-
-
 /* Persistent local BooksUp backup writer. Renderer never chooses an arbitrary path. */
 const fsBackup=require('node:fs/promises');
 const {randomUUID}=require('node:crypto');
@@ -258,13 +139,6 @@ ipcMain.handle('booksup-backup:abort',async(event,id)=>{
  bu45BackupSessions.delete(id);await entry.file.close().catch(()=>{});await fsBackup.unlink(entry.temp).catch(()=>{});return true;
 });
 
-// Local OS credential storage and localhost OAuth only. The renderer never sees refresh tokens.
-const booksupDrive=require('./booksup-drive.cjs');
-ipcMain.handle('booksup-drive:login',event=>{bu45AuthIpc(event);return booksupDrive.login();});
-ipcMain.handle('booksup-drive:resume',event=>{bu45AuthIpc(event);return booksupDrive.resume();});
-ipcMain.handle('booksup-drive:disconnect',event=>{bu45AuthIpc(event);return booksupDrive.disconnect();});
-ipcMain.handle('booksup-drive:request',(event,args)=>{bu45AuthIpc(event);return booksupDrive.request(args);});
-
 app.whenReady().then(() => {
   protocol.handle('booksup', serveApp);
   // Camera scan is opt-in. Other requests are not silently approved.
@@ -278,7 +152,6 @@ app.whenReady().then(() => {
     callback(response === 0);
   });
   createWindow();
-  if(app.isPackaged&&process.platform==='win32')setTimeout(()=>checkBooksUpUpdates(false),12000);
   app.on('activate', () => { if (!BrowserWindow.getAllWindows().length) createWindow(); });
 });
 app.on('window-all-closed', () => { if (process.platform !== 'darwin') app.quit(); });

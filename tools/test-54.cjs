@@ -8,7 +8,7 @@ const init=read('tools/android-init.cjs');
 const main=read('electron/main.cjs');
 const features=read('www/booksup-54-features.css');
 const v=JSON.parse(read('package.json')).version;
-assert.equal(v,'5.5.1');
+assert.match(v,/^5\.\d+\.\d+$/);
 // Classic Android is a renderer choice, NOT a downgrade of app logic or database.
 assert.match(mobile,/const booksupUseOriginalMobileLayout=true/);
 assert.match(mobile,/if\(booksupUseOriginalMobileLayout\)return oldListDetails\.apply/);

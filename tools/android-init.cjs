@@ -76,24 +76,15 @@ const smallIcon='<?xml version="1.0" encoding="utf-8"?>\n'+
 writeFileSync(join(vectorDir,'ic_stat_booksup.xml'),smallIcon);
 execBin(command, ['--no-install', 'cap', 'sync', 'android']);
 
-// Register the native in-app APK installer and its private FileProvider.
-// This is only a user-confirmed installer handoff; Android enforces signatures.
+// Register the native LAN plugin. Cloud and remote-APK services are not bundled.
 const native=join(ROOT,'mobile','android-native');
 const javaDir=join(android,'app','src','main','java','dev','lyvt','booksup');
-const xmlDir=join(android,'app','src','main','res','xml');
-mkdirSync(javaDir,{recursive:true});mkdirSync(xmlDir,{recursive:true});
-for(const name of ['MainActivity.java','BooksUpUpdaterPlugin.java','BooksUpNetworkPlugin.java'])
+
+mkdirSync(javaDir,{recursive:true});
+for(const name of ['MainActivity.java','BooksUpNetworkPlugin.java'])
  copyFileSync(join(native,name),join(javaDir,name));
-copyFileSync(join(native,'booksup_paths.xml'),join(xmlDir,'booksup_paths.xml'));
 const manifestPath=join(android,'app','src','main','AndroidManifest.xml');
 let manifest=readFileSync(manifestPath,'utf8');
-if(!manifest.includes('android.permission.REQUEST_INSTALL_PACKAGES'))
- manifest=manifest.replace('<application','<uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />\n    <application');
-if(!manifest.includes('.booksup.fileprovider')){
- const provider='<provider android:name="androidx.core.content.FileProvider" android:authorities="\${applicationId}.booksup.fileprovider" android:exported="false" android:grantUriPermissions="true"><meta-data android:name="android.support.FILE_PROVIDER_PATHS" android:resource="@xml/booksup_paths" /></provider>';
- if(!manifest.includes('</application>'))throw Error('Android application manifest missing');
- manifest=manifest.replace('</application>',provider+'\n    </application>');
-}
 // Local HTTP is used only for PIN-protected LAN WebRTC signaling (RFC1918 IPs).
 // Digital book files themselves are transferred over encrypted WebRTC/DTLS.
 // Android 9+ blocks HTTP LAN by default. The native BooksUpNetwork plugin only

@@ -1,5 +1,4 @@
-/* BooksUp 4.4: remote recommendations + opt-in pricing + reader zoom.
-   URL and auth for price provider must be supplied by publisher. No invented prices. */
+/* BooksUp 4.4: preserved local shelf interactions and reader zoom. */
 const BU44_REC_KEY='booksup.rec.v44',BU44_FEED_KEY='booksup.prices.v44';
 let bu44Remote=[],bu44LastFetch=0,bu44LastAttempt=0,bu44Loading=false,bu44PriceBusy=false;
 function bu44RetrieveCache(){
@@ -7,7 +6,18 @@ function bu44RetrieveCache(){
 }
 bu44RetrieveCache();
 function bu44ExtraRecommendations(){return bu44Remote}
-function bu44EditionIsbn(v){return String(v||'').replace(/[^\dX]/gi,'').slice(0,13)}
+function bu44EditionIsbn(v){
+ const s=String(v||'').replace(/[^0-9X]/gi,'').toUpperCase().slice(0,13);
+ if(/^\d{9}[\dX]$/.test(s)){
+  let sum=0;for(let i=0;i<10;i++)sum+=(s[i]==='X'?10:Number(s[i]))*(10-i);
+  if(sum%11===0){
+   const base='978'+s.slice(0,9);let check=0;
+   for(let i=0;i<12;i++)check+=Number(base[i])*(i%2?3:1);
+   return base+String((10-check%10)%10);
+  }
+ }
+ return s;
+}
 function bu44PoolSubjects(){
  const r=S.rec||{},from=[...(r.includeGenres||[]),...S.books.filter(b=>b.rating>=7||b.finished).map(b=>b.genre)].filter(Boolean);
  const m={fantasy:'fantasy',sciencefiction:'science fiction',scifi:'science fiction',romance:'romance',liebe:'romance',manga:'manga',thriller:'thriller',krimi:'mystery',history:'history',historisch:'history',sachbuch:'nonfiction',biografie:'biography',graphicnovel:'graphic novel'};
@@ -23,33 +33,7 @@ function bu44ItemToBook(x){
   year:v.publishedDate?.slice(0,4)||'',publisher:v.publisher||'',language:v.language||'',pages:v.pageCount||0,
   description:v.description||'',cover:cover.replace(/^http:/,'https:'),own:0};
 }
-async function bu44FetchRecommendations(force=false){
- if(bu44Loading||navigator.onLine===false)return;
- if(!force&&Date.now()-bu44LastFetch<6*3600000&&bu44Remote.length)return;
- if(!force&&Date.now()-bu44LastAttempt<10*60000)return;
- if(force){ALL.recCycle=(Number(ALL.recCycle)||0)+1;}
- bu44LastAttempt=Date.now();bu44Loading=true;
- try{
-  const subjects=bu44PoolSubjects();
-  const offset=new Date().getDate()%subjects.length;
-  const order=[...subjects.slice(offset),...subjects.slice(0,offset)];
-  const tasks=order.slice(0,5).map(async(sub,i)=>{
-   const lang=ALL.nextLanguage&&ALL.nextLanguage!=='system'?ALL.nextLanguage:('de');
-   const q='subject:'+sub;
-   const url='https://www.googleapis.com/books/v1/volumes?q='+encodeURIComponent(q)+'&orderBy=newest&maxResults=30&startIndex='+(((Math.floor(Date.now()/86400000)+i+Number(ALL.recCycle||0)*3)%8)*30)+'&langRestrict='+encodeURIComponent(lang==='de'||lang==='en'?lang:'en');
-   const response=await fetch(url);
-   if(!response.ok)throw Error('HTTP '+response.status);
-   const j=await response.json();return (j.items||[]).map(bu44ItemToBook).filter(Boolean);
-  });
-  const settled=await Promise.allSettled(tasks),items=settled.flatMap(x=>x.status==='fulfilled'?x.value:[]);
-  const seen=new Set(),unique=items.filter(b=>{const k=buNorm(b.title+' '+b.author);if(seen.has(k))return false;seen.add(k);return true});
-  if(unique.length){const old=new Set((bu44Remote||[]).map(b=>buNorm(b.title+'|'+b.author)));const extras=unique.filter(b=>!old.has(buNorm(b.title+'|'+b.author)));bu44Remote=[...extras,...bu44Remote].slice(0,200);bu44LastFetch=Date.now();
-    try{localStorage.setItem(BU44_REC_KEY,JSON.stringify({time:bu44LastFetch,items:bu44Remote}))}catch{}
-    if(view==='home'||view==='catalog')render();
-  }
- }catch(e){console.debug('Recommendations cache kept:',String(e))}
- finally{bu44Loading=false}
-}
+async function bu44FetchRecommendations(){return false;}
 function bu44AddMenu(){
  modal='<h3>Bücher hinzufügen</h3><p>Wähle, welches Buch du hinzufügen möchtest.</p><div class="bu44-add-menu"><button class="next-setting-row" onclick="modal=null;addType=\'physical\';view=\'add\';draft={};render()">📖 Physisches Buch</button><button class="next-setting-row" onclick="modal=null;addType=\'digital\';view=\'add\';draft={};render()">▣ Digitales Buch / PDF / EPUB</button><button class="next-setting-row" onclick="modal=null;batchChoose()">＋ Mehrere digitale Dateien importieren</button></div><button class="chip" onclick="modal=null;render()">Schließen</button>';
  render();
@@ -65,54 +49,6 @@ function bu44ShelfToolbar(){
  (bu44AdvancedShelf?'<div class="bu44-advanced"><button class="chip" onclick="bu44SwitchShelf(\'all\')">Alle Bücher</button><button class="chip" onclick="buToggleMulti()">Mehrere auswählen</button><button class="chip" onclick="go(\'lists\')">Leselisten</button><button class="chip" onclick="newFolder()">Ordner erstellen</button><label>Sortieren <select onchange="shSort=this.value;render()"><option value="added" '+(shSort==='added'?'selected':'')+'>Zuletzt hinzugefügt</option><option value="title" '+(shSort==='title'?'selected':'')+'>Titel</option><option value="author" '+(shSort==='author'?'selected':'')+'>Autor</option><option value="rating" '+(shSort==='rating'?'selected':'')+'>Bewertung</option></select></label>'+
  '<div class="bu44-folders">'+S.folders.map(f=>'<button class="chip" onclick="shFolder='+JSON.stringify(f).replace(/"/g,'&quot;')+';render()">'+esc(f)+'</button>').join('')+'</div></div>':'')+
  (buMulti?'<div class="bu-bulk"><strong id="bu-selected-count">'+buSelected.size+' ausgewählt</strong><button class="chip" onclick="buSelectVisible()">Sichtbare wählen</button><button class="btn o" onclick="buBulkFolder()">In Ordner</button><button class="btn o" onclick="buBulkDelete()">Löschen</button></div>':'')+'</div>';
-}
-/* On-device opt-in only. No user ISBNs are published to GitHub or sent to an unconfigured provider. */
-function bu44Watches(){if(!Array.isArray(ALL.medimopsWatches))ALL.medimopsWatches=[];return ALL.medimopsWatches}
-function bu44WatchState(b){
- const key=bu44EditionIsbn(b.isbn);return key&&bu44Watches().some(x=>x.isbn===key);
-}
-function bu44WatchPrompt(b){
- const isbn=bu44EditionIsbn(b.isbn);
- if(!isbn)return alert('Für einen Preisalarm wird die ISBN dieser Ausgabe benötigt.');
- const watching=bu44WatchState(b);
- const detail='BooksUp kann einmal täglich den Preis dieser ISBN vergleichen, sofern der Publisher eine MediMops-Datenquelle aktiviert hat. Preisänderungen werden mit Quelle und Datum angezeigt. Ohne API-Verbindung werden keine erfundenen Preise oder Alarme erzeugt.';
- if(!confirm((watching?'Preisalarm deaktivieren?':'Preisalarm für '+b.title+' aktivieren?')+'\n\n'+detail))return;
- if(watching)ALL.medimopsWatches=bu44Watches().filter(x=>x.isbn!==isbn);
- else bu44Watches().push({isbn,title:b.title,author:b.author,lastPrice:null,lastChecked:null,alerts:[]});
- persist();toast(watching?'Preisalarm deaktiviert':'Preisalarm vorgemerkt – Datenquelle erforderlich.');render();
-}
-function bu44WatchCatalog(index){const b=buRecs().list[Number(index)];if(b)bu44WatchPrompt(b)}
-async function bu44CheckWatches(){
- if(bu44PriceBusy||navigator.onLine===false||!bu44Watches().length)return;
- if(Date.now()-Number(ALL.lastPriceCheck||0)<86400000)return;
- const endpoint=String(window.BOOKSUP_PRICE_FEED_URL||'https://raw.githubusercontent.com/lavender1510/BooksUp/main/www/medimops-prices.json').trim();
- if(!/^https:\/\/[^\s]+$/.test(endpoint))return;
- bu44PriceBusy=true;
- try{
-  const res=await fetch(endpoint,{cache:'no-store'});
-  if(!res.ok)throw Error('Price feed '+res.status);
-  const doc=await res.json();
-  if(!Array.isArray(doc.prices))throw Error('Missing price records');
-  const now=Date.now();
-  for(const w of bu44Watches()){
-   const item=doc.prices.find(p=>bu44EditionIsbn(p.isbn)===w.isbn&&p.provider==='medimops'&&Number.isFinite(Number(p.price))&&p.currency==='EUR');
-   if(!item)continue;
-   const amount=Number(item.price);if(w.lastPrice!==null&&w.lastPrice!==amount){
-    w.alerts??=[];w.alerts.unshift({at:now,before:w.lastPrice,after:amount,source:item.source||'MediMops',url:item.url||''});
-    toast('MediMops: Preis geändert · '+w.title+': '+amount.toFixed(2)+' €');
-    const ln=window.Capacitor?.Plugins?.LocalNotifications;
-    try{if(ln&&(await ln.checkPermissions()).display==='granted')await ln.schedule({notifications:[{id:Math.floor(Math.random()*2147000000)+1,title:'BooksUp · Preisänderung',body:w.title+': '+w.lastPrice.toFixed(2)+' € → '+amount.toFixed(2)+' €',smallIcon:'ic_stat_booksup',schedule:{at:new Date(Date.now()+2500)}}]})}catch(e){console.debug('Price notification skipped',e)}
-   }
-   w.lastPrice=amount;w.lastChecked=now;
-  }
-  ALL.lastPriceCheck=now;persist();
- }catch(e){console.debug('MediMops price monitor inactive:',e)}
- finally{bu44PriceBusy=false}
-}
-function bu44PriceNotificationsView(){
- return '<div class="bu44-price-watch"><h3>MediMops-Preisalarm (Beta)</h3><p class="hint">Nur für Bücher, bei denen du den Preisalarm ausdrücklich aktiviert hast. Der Preis wird nur bei verfügbarer MediMops-Datenquelle geprüft; ohne Anbieteranbindung werden keine Preiswerte angezeigt.</p>'+
- bu44Watches().map(w=>'<div class="li"><b>'+esc(w.title)+'</b><small>'+esc(w.isbn)+' · '+(w.lastPrice===null?'Noch kein geprüfter Preis':w.lastPrice.toFixed(2)+' €')+'</small></div>').join('')+
- '<p class="hint">Eine tägliche Hintergrundbenachrichtigung bei geschlossener App erfordert einen angeschlossenen Preis-Dienst und Push-Infrastruktur. GitHub allein stellt keine MediMops-Preis-API bereit.</p></div>';
 }
 /* Actual PDF zoom factor, not an illusion that crops the document. */
 function bu44ZoomValue(){return Math.max(.8,Math.min(3,Number(S.pdfZoom)||1))}
@@ -162,7 +98,8 @@ function bu44AfterRender(){
  if(view==='home')setTimeout(()=>bu44FetchRecommendations(false),700);
  if(view==='shelf')setTimeout(()=>buFilterShelfLive(),0);
  if(view==='reader')setTimeout(bu44AddReaderZoom,30);
- if(bu44Watches().length)setTimeout(bu44CheckWatches,900);
 }
 
-const BU44_WORDS={"Mehr Bücher entdecken":["Discover more books","Découvrir plus de livres","Descubrir más libros","Scopri altri libri"],"Bücher im Regal suchen":["Search bookshelf","Rechercher dans la bibliothèque","Buscar en la estantería","Cerca nella libreria"],"Bücher hinzufügen":["Add books","Ajouter des livres","Añadir libros","Aggiungi libri"],"Digitale Bücher":["Digital books","Livres numériques","Libros digitales","Libri digitali"],"Physische Bücher":["Physical books","Livres papier","Libros físicos","Libri cartacei"],"Mehr Optionen":["More options","Plus d'options","Más opciones","Altre opzioni"],"Alle Bücher":["All books","Tous les livres","Todos los libros","Tutti i libri"],"Mehrere auswählen":["Select multiple","Sélection multiple","Seleccionar varios","Seleziona più"],"Ordner erstellen":["Create folder","Créer un dossier","Crear carpeta","Crea cartella"],"Mehrere digitale Dateien importieren":["Import digital files","Importer des fichiers numériques","Importar archivos digitales","Importa file digitali"],"Bücher in deiner Bibliothek":["books in your library","livres dans votre bibliothèque","libros en tu biblioteca","libri nella tua libreria"],"Preisalarm":["Price alert","Alerte de prix","Alerta de precio","Avviso prezzo"],"MediMops-Preisalarm":["MediMops price alert","Alerte prix MediMops","Alerta precio MediMops","Avviso prezzo MediMops"],"Preisalarm deaktivieren?":["Disable price alert?","Désactiver l'alerte ?","¿Desactivar alerta?","Disattivare l'avviso?"],"Vergrößern":["Zoom in","Agrandir","Acercar","Ingrandisci"],"Verkleinern":["Zoom out","Réduire","Alejar","Riduci"],"Verbindung erforderlich":["Connection required","Connexion requise","Conexión necesaria","Connessione necessaria"],"Nicht verfügbar":["Unavailable","Indisponible","No disponible","Non disponibile"],"Euro":["Euro","Euro","Euro","Euro"],"US-Dollar":["US dollar","Dollar américain","Dólar estadounidense","Dollaro USA"],"Britisches Pfund":["British pound","Livre sterling","Libra esterlina","Sterlina britannica"],"Schweizer Franken":["Swiss franc","Franc suisse","Franco suizo","Franco svizzero"],"Schwedische Krone":["Swedish krona","Couronne suédoise","Corona sueca","Corona svedese"],"Norwegische Krone":["Norwegian krone","Couronne norvégienne","Corona noruega","Corona norvegese"],"Dänische Krone":["Danish krone","Couronne danoise","Corona danesa","Corona danese"],"Japanischer Yen":["Japanese yen","Yen japonais","Yen japonés","Yen giapponese"],"Kanadischer Dollar":["Canadian dollar","Dollar canadien","Dólar canadiense","Dollaro canadese"],"Australischer Dollar":["Australian dollar","Dollar australien","Dólar australiano","Dollaro australiano"],"Neuigkeiten":["News","Actualités","Noticias","Novità"],"Preisänderung":["Price change","Changement de prix","Cambio de precio","Variazione prezzo"],"Automatisch":["Automatic","Automatique","Automático","Automatico"],"Kapitel":["Chapters","Chapitres","Capítulos","Capitoli"],"PDF-Zoom":["PDF zoom","Zoom PDF","Zoom PDF","Zoom PDF"],"Lesesitzung":["Reading session","Séance de lecture","Sesión de lectura","Sessione di lettura"],"Buch herunterladen":["Download book","Télécharger le livre","Descargar libro","Scarica libro"],"Buchdetails":["Book details","Détails du livre","Detalles del libro","Dettagli del libro"],"Cover im Internet suchen":["Search for online cover","Chercher une couverture en ligne","Buscar portada en línea","Cerca copertina online"],"Cover nicht verfügbar":["Cover unavailable","Couverture indisponible","Portada no disponible","Copertina non disponibile"],"Empfehlungen anpassen":["Customize recommendations","Personnaliser les recommandations","Personalizar recomendaciones","Personalizza i consigli"],"Bücher und Geschichten":["Books and stories","Livres et histoires","Libros e historias","Libri e storie"],"Letzter Speicherstand geladen":["Latest save restored","Dernière sauvegarde chargée","Último guardado cargado","Ultimo salvataggio caricato"],"Keine Daten gefunden":["No data found","Aucune donnée trouvée","No se encontraron datos","Nessun dato trovato"],"Updates verfügbar":["Updates available","Mises à jour disponibles","Actualizaciones disponibles","Aggiornamenti disponibili"],"Theme-Vorlagen":["Theme templates","Modèles de thème","Plantillas de tema","Modelli di tema"],"Benachrichtigung testen":["Test notification","Tester la notification","Probar notificación","Prova notifica"],"Preis prüfen":["Check price","Vérifier le prix","Consultar precio","Controlla prezzo"],"Fertig gelesen":["Finished reading","Lecture terminée","Lectura terminada","Lettura terminata"],"Zustand":["Condition","État","Estado","Condizione"],"Ordner":["Folder","Dossier","Carpeta","Cartella"],"Markierung":["Highlight","Surlignage","Resaltado","Evidenziazione"]};
+const BU44_WORDS={"Mehr Bücher entdecken":["Discover more books","Découvrir plus de livres","Descubrir más libros","Scopri altri libri"],"Bücher im Regal suchen":["Search bookshelf","Rechercher dans la bibliothèque","Buscar en la estantería","Cerca nella libreria"],"Bücher hinzufügen":["Add books","Ajouter des livres","Añadir libros","Aggiungi libri"],"Digitale Bücher":["Digital books","Livres numériques","Libros digitales","Libri digitali"],"Physische Bücher":["Physical books","Livres papier","Libros físicos","Libri cartacei"],"Mehr Optionen":["More options","Plus d'options","Más opciones","Altre opzioni"],"Alle Bücher":["All books","Tous les livres","Todos los libros","Tutti i libri"],"Mehrere auswählen":["Select multiple","Sélection multiple","Seleccionar varios","Seleziona più"],"Ordner erstellen":["Create folder","Créer un dossier","Crear carpeta","Crea cartella"],"Mehrere digitale Dateien importieren":["Import digital files","Importer des fichiers numériques","Importar archivos digitales","Importa file digitali"],"Bücher in deiner Bibliothek":["books in your library","livres dans votre bibliothèque","libros en tu biblioteca","libri nella tua libreria"],"Vergrößern":["Zoom in","Agrandir","Acercar","Ingrandisci"],"Verkleinern":["Zoom out","Réduire","Alejar","Riduci"],"Verbindung erforderlich":["Connection required","Connexion requise","Conexión necesaria","Connessione necessaria"],"Nicht verfügbar":["Unavailable","Indisponible","No disponible","Non disponibile"],"Euro":["Euro","Euro","Euro","Euro"],"US-Dollar":["US dollar","Dollar américain","Dólar estadounidense","Dollaro USA"],"Britisches Pfund":["British pound","Livre sterling","Libra esterlina","Sterlina britannica"],"Schweizer Franken":["Swiss franc","Franc suisse","Franco suizo","Franco svizzero"],"Schwedische Krone":["Swedish krona","Couronne suédoise","Corona sueca","Corona svedese"],"Norwegische Krone":["Norwegian krone","Couronne norvégienne","Corona noruega","Corona norvegese"],"Dänische Krone":["Danish krone","Couronne danoise","Corona danesa","Corona danese"],"Japanischer Yen":["Japanese yen","Yen japonais","Yen japonés","Yen giapponese"],"Kanadischer Dollar":["Canadian dollar","Dollar canadien","Dólar canadiense","Dollaro canadese"],"Australischer Dollar":["Australian dollar","Dollar australien","Dólar australiano","Dollaro australiano"],"Neuigkeiten":["News","Actualités","Noticias","Novità"],"Preisänderung":["Price change","Changement de prix","Cambio de precio","Variazione prezzo"],"Automatisch":["Automatic","Automatique","Automático","Automatico"],"Kapitel":["Chapters","Chapitres","Capítulos","Capitoli"],"PDF-Zoom":["PDF zoom","Zoom PDF","Zoom PDF","Zoom PDF"],"Lesesitzung":["Reading session","Séance de lecture","Sesión de lectura","Sessione di lettura"],"Buch herunterladen":["Download book","Télécharger le livre","Descargar libro","Scarica libro"],"Buchdetails":["Book details","Détails du livre","Detalles del libro","Dettagli del libro"],"Cover im Internet suchen":["Search for online cover","Chercher une couverture en ligne","Buscar portada en línea","Cerca copertina online"],"Cover nicht verfügbar":["Cover unavailable","Couverture indisponible","Portada no disponible","Copertina non disponibile"],"Empfehlungen anpassen":["Customize recommendations","Personnaliser les recommandations","Personalizar recomendaciones","Personalizza i consigli"],"Bücher und Geschichten":["Books and stories","Livres et histoires","Libros e historias","Libri e storie"],"Letzter Speicherstand geladen":["Latest save restored","Dernière sauvegarde chargée","Último guardado cargado","Ultimo salvataggio caricato"],"Keine Daten gefunden":["No data found","Aucune donnée trouvée","No se encontraron datos","Nessun dato trovato"],"Updates verfügbar":["Updates available","Mises à jour disponibles","Actualizaciones disponibles","Aggiornamenti disponibili"],"Theme-Vorlagen":["Theme templates","Modèles de thème","Plantillas de tema","Modelli di tema"],"Benachrichtigung testen":["Test notification","Tester la notification","Probar notificación","Prova notifica"],"Preis prüfen":["Check price","Vérifier le prix","Consultar precio","Controlla prezzo"],"Fertig gelesen":["Finished reading","Lecture terminée","Lectura terminada","Lettura terminata"],"Zustand":["Condition","État","Estado","Condizione"],"Ordner":["Folder","Dossier","Carpeta","Cartella"],"Markierung":["Highlight","Surlignage","Resaltado","Evidenziazione"]};
+
+/* Price-alert labels remain available offline in all five shipped locales. */

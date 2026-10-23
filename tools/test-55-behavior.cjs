@@ -8,13 +8,13 @@ const manga={books:[],libraryBooks:[],readingLists:[],folders:[]};
 const state={
  console,URL,Map,Set,Promise,Date,Math,JSON,Number,String,Array,Error,
  ALL:{book:profile,manga},S:profile,sp:'book',cur:42,view:'detail',
- NEXT_SETTINGS:[],nextSettingCategory:'appearance',bu45ListId:7,bu45ListSettingsId:7,
+ NEXT_SETTINGS:[],CATB:[{title:'Other',author:'Writer',genre:'Fantasy'}],CATM:[],nextSettingCategory:'appearance',bu45ListId:7,bu45ListSettingsId:7,
  bu46SimilarCache:new Map(),bu46SearchTerm:'',bu46SearchResults:[],
- document:{createElement:()=>({textContent:'',style:{}}),head:{appendChild(){}},
+ addEventListener(){},removeEventListener(){},document:{createElement:()=>({textContent:'',style:{}}),head:{appendChild(){}},
   addEventListener(){},querySelectorAll(){return[]},getElementById(){return null}},
  localStorage:{getItem:()=>null,setItem(){},removeItem(){}},
  navigator:{onLine:true},crypto:{randomUUID:()=>String(Math.random())},
- setTimeout(){},clearTimeout(){},requestAnimationFrame(){},
+ setTimeout(){},clearTimeout(){},setInterval(){},clearInterval(){},requestAnimationFrame(){},
  getComputedStyle:()=>({position:'relative'}),
  APP_VERSION:'5.5.1',rdFull:false,pgNow:1,editDraft:null,
  bu45AllLists:()=>state.S.readingLists,bu45Extra:()=>state.S.libraryBooks,
@@ -65,12 +65,13 @@ state.bu55SetReadStatus(73,'abandoned');
 state.bu43RefreshList(profile.readingLists[0]);
 assert.ok(profile.readingLists[0].items.some(e=>e.bookId===73));
 state.bu55SetNav('news',true);
-assert.ok(state.ALL.bu55BottomNav.includes('news'));
+assert.ok(!state.ALL.bu55BottomNav?.includes('news'),'retired news may never be enabled');
+state.bu55SetNav('library',true);assert.ok(state.ALL.bu55BottomNav.includes('library'));
 state.bu46MoreBooks();assert.equal(state.view,'discoverSearch');
 (async()=>{
  await state.bu46SimilarLoad({title:'Novel',author:'Writer',genre:'Fantasy'});
  assert.equal(state.bu46SimilarCache.get('novel writer')[0].title,'Other');
  state.editDraft={title:'Novel',covers:['https://example.com/new.jpg']};
  state.saveEdit(42);assert.equal(original.covers[0],'https://example.com/new.jpg');
- console.log('BooksUp 5.5 behavior tests passed: statuses, automatic lists, visibility, formats, navigation, Discover, recommendations and cover save.');
+ console.log('BooksUp offline behavior tests passed: statuses, automatic lists, visibility, formats, navigation, Discover, recommendations and cover save.');
 })().catch(e=>{console.error(e);process.exitCode=1});

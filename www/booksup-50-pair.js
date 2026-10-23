@@ -178,7 +178,11 @@ async function preview(payload){
    try{const raw=atob(f.data),bytes=Uint8Array.from(raw,x=>x.charCodeAt(0));await put(Number(f.id),new Blob([bytes],{type:f.type||'application/octet-stream'}));}catch(e){console.warn('Digital book transfer',e);}
   }
   for(const k of ['book','manga'])delete ALL[k].bu50NewFileIds;
-  persist();render();say('Importiert: '+added+' Bücher. '+skipped+' vorhandene/konfliktbehaftete Bücher wurden nicht überschrieben.');return true;
+  persist();
+  // The receiver confirms only after the complete state has reached persistent storage.
+  const durable=await put('__state',JSON.stringify(ALL));
+  if(!durable)throw Error('Gerätespeicher konnte Daten nicht sichern. Bitte Speicherplatz und Backup prüfen.');
+  render();say('Importiert: '+added+' Bücher. '+skipped+' vorhandene/konfliktbehaftete Bücher wurden nicht überschrieben.');return true;
  }catch(e){say('Import fehlgeschlagen: '+e.message);return false;}
  finally{importBusy=false;}
 }

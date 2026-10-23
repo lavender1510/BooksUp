@@ -251,6 +251,23 @@ const dictionary={
  'Verbindung anbieten':['Offer connection','Proposer une connexion','Ofrecer conexión','Offri connessione'],
  'Nur Bibliothek':['Library only','Bibliothèque uniquement','Solo biblioteca','Solo biblioteca']
 };
+Object.assign(dictionary,{
+ 'Verwerfen':['Discard','Annuler les modifications','Descartar','Annulla modifiche'],
+ 'Bearbeiten':['Edit','Modifier','Editar','Modifica'],
+ 'Entfernen':['Remove','Supprimer','Eliminar','Rimuovi'],
+ 'Nicht verfügbar':['Not available','Non disponible','No disponible','Non disponibile'],
+ 'Hell':['Light','Clair','Claro','Chiaro'],
+ 'Dunkel':['Dark','Sombre','Oscuro','Scuro'],
+ 'System':['System','Système','Sistema','Sistema'],
+ 'Ähnliche Bücher':['Similar books','Livres similaires','Libros similares','Libri simili'],
+ 'Erneut suchen':['Search again','Rechercher à nouveau','Buscar de nuevo','Cerca di nuovo'],
+ 'Verlag':['Publisher','Éditeur','Editorial','Editore'],
+ 'Band':['Volume','Tome','Tomo','Volume'],
+ 'Lesesitzung':['Reading session','Session de lecture','Sesión de lectura','Sessione di lettura'],
+ 'Daten sicher senden':['Send data securely','Envoyer les données en sécurité','Enviar datos de forma segura','Invia dati in sicurezza'],
+ 'Verbindung trennen':['Disconnect','Déconnecter','Desconectar','Disconnetti'],
+ 'Kein Gerät verbunden':['No device connected','Aucun appareil connecté','Ningún dispositivo conectado','Nessun dispositivo connesso']
+});
 const canonical=new Map(),knownTranslations=new Map();
 const register=(de,loc)=>{
  if(!de||!Array.isArray(loc))return;
@@ -276,13 +293,13 @@ function translateLabel(text,lang){
 }
 let localeBusy=false;
 function applyLanguage(){
- if(view==='reader'||localeBusy)return;
+ if(localeBusy)return;
  const app=document.getElementById('app');if(!app)return;
  const lang=typeof nextLanguage==='function'?nextLanguage():'de';
  document.documentElement.lang=lang;
  localeBusy=true;
  try{
-  if(typeof buTranslateUI==='function')buTranslateUI();
+  if(view!=='reader'&&typeof buTranslateUI==='function')buTranslateUI();
   // Inspect only known UI words, and never arbitrary book or user-authored prose.
   if(typeof document.createTreeWalker==='function'&&typeof NodeFilter!=='undefined'){
    const walk=document.createTreeWalker(app,NodeFilter.SHOW_TEXT),nodes=[];
@@ -308,6 +325,7 @@ function applyLanguage(){
    }
   });
  }finally{localeBusy=false;}
+
 }
 let languageObservation;
 function observeLanguage(){
@@ -323,61 +341,10 @@ const after=window.nextAfterRender;
 window.nextAfterRender=function(){
  after?.apply(this,arguments);
  document.body.classList.toggle('bu53-reader',view==='reader');
- if(view==='reader'){setTimeout(improveReader,0);setTimeout(renderHighlights,180);}
+ if(view==='reader'){setTimeout(improveReader,0);setTimeout(renderHighlights,180);setTimeout(applyLanguage,200);}
  else{applyLanguage();observeLanguage();}
 };
 window.bu53ApplyLanguage=applyLanguage;
-
-/* Real transfer progress is not an animation: only bytes reported by the
- * Android native downloader and Windows electron-updater advance this bar. */
-let updateStart=0;
-let downloadLast={bytes:0,time:0};
-function fmtBytes(bytes){return Number(bytes)>0?(Number(bytes)/1048576).toFixed(1)+' MB':'0 MB';}
-function fmtTime(seconds){const s=Math.max(0,Math.ceil(seconds));return s>=60?Math.floor(s/60)+' min '+s%60+' s':s+' s';}
-function progressUpdate(data){
- const panel=document.getElementById('bu53-update-progress');if(!panel)return;
- const bytes=Number(data?.transferred||data?.downloadedBytes||0);
- const total=Number(data?.total||data?.totalBytes||0);
- const now=Date.now();
- if(!updateStart){updateStart=now;downloadLast={bytes:0,time:now};}
- const seconds=Math.max(.001,(now-updateStart)/1000);
- const speed=Number(data?.bytesPerSecond||0)||(bytes>0?bytes/seconds:0);
- const rawPct=total>0?Math.round(bytes/total*100):data?.percent;
- const pct=Number.isFinite(Number(rawPct))&&rawPct!==null?Math.max(0,Math.min(100,Number(rawPct))):null;
- const bar=panel.querySelector('progress'),label=panel.querySelector('.bu53-update-progress-label');
- if(bar){if(pct===null)bar.removeAttribute('value');else bar.value=pct;}
- if(label){
-  const eta=total>bytes&&speed>100?fmtTime((total-bytes)/speed):'wird berechnet';
-  label.textContent=(data?.message||'Update wird heruntergeladen …')+
-    (pct!==null?' · '+pct+'%':'')+
-    (bytes>0?' · '+fmtBytes(bytes)+(total>0?' / '+fmtBytes(total):''):'')+
-    (speed>100?' · '+fmtBytes(speed)+'/s':'')+
-    (total>bytes?' · Restzeit ca. '+eta:'');
- }
- panel.hidden=false;
- if(pct===100||/aktuell|fehlgeschlagen|blockiert|Abgeschlossen/i.test(String(data?.message||''))){downloadLast={bytes:0,time:0};updateStart=0;}
-}
-const prevSettingsDetail=window.nextSettingsDetail;
-window.nextSettingsDetail=function(){
- const html=prevSettingsDetail.apply(this,arguments);
- if(nextSettingCategory!=='updates')return html;
- const progress='<div id="bu53-update-progress" class="bu53-update-progress" aria-live="polite" hidden>'+
- '<progress max="100" value="0" aria-label="Update-Download"></progress>'+
- '<div class="bu53-update-progress-label">Update wird vorbereitet …</div></div>';
- return /id="bu50-update-status"/.test(html)?html.replace(/(<p[^>]*id="bu50-update-status"[^>]*>[\s\S]*?<\/p>)/,'$1'+progress):html.replace(/<\/div>\s*$/,progress+'</div>');
-};
-try{
- window.booksupUpdateEvents?.subscribe?.(progressUpdate);
- window.Capacitor?.Plugins?.BooksUpUpdater?.addListener?.('downloadProgress',progressUpdate);
-}catch(error){console.debug('Update progress setup',error);}
-const oldUpdate=window.bu50CheckAppUpdate;
-window.bu50CheckAppUpdate=async function(){
- updateStart=0;downloadLast={bytes:0,time:0};
- const box=document.getElementById('bu53-update-progress');
- if(box){box.hidden=false;const t=box.querySelector('.bu53-update-progress-label');if(t)t.textContent='Prüfe auf neue Versionen …';}
- try{return await oldUpdate.apply(this,arguments);}
- catch(error){progressUpdate({message:'Update fehlgeschlagen: '+String(error.message||error)});throw error;}
-};
 
 /* Check local LAN reachability separately from WebRTC ICE. This distinguishes
  * Android HTTP policy, wrong PIN and Windows firewall before pairing starts. */

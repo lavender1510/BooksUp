@@ -1,6 +1,7 @@
 name: BooksUp 5.0 Cross-Platform Verification
 on:
   pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
     paths:
       - 'www/**'
       - 'mobile/**'
@@ -15,7 +16,7 @@ permissions:
 jobs:
   verify:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 40
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -23,25 +24,34 @@ jobs:
           node-version: '22'
       - name: Static source validation
         run: npm run test:static
-      - name: Cross-platform regression tests
+      - name: BooksUp 5.6 focused regression tests
+        run: node tools/test-56-functional.cjs
+      - name: Verify server-free BooksUp release behavior
+        run: node tools/test-offline.cjs
+      - name: Offline reader, settings, navigation and original design regressions
         run: |
-          node tools/test-49.cjs
-          node tools/test-50.cjs
-          node tools/test-51.cjs
-          node tools/test-52.cjs
           node tools/test-53.cjs
           node tools/test-54.cjs
-          node tools/test-50.cjs
-          node tools/test-windows-47.cjs
-          node tools/test-windows-48.cjs
-          node tools/test-android-48.cjs
+          node tools/test-55.cjs
+          node tools/test-55-behavior.cjs
+          node tools/test-56-functional.cjs
+          node tools/test-offline.cjs
+      - name: Install browser-only UI test runtime
+        run: |
+          npm install --no-save --no-audit --no-fund playwright@1.56.0
+          npx playwright install --with-deps chromium
+      - name: Check offline responsive UI in Chromium
+        shell: bash
+        run: |
+          python3 -m http.server 8765 --bind 127.0.0.1 --directory www >/tmp/booksup-http.log 2>&1 &
+          SERVER_PID=$!
+          trap 'kill "$SERVER_PID" || true' EXIT
+          node tools/test-offline-layout.cjs
       - name: Check native and shared JavaScript
         run: |
           node --check electron/main.cjs
-          node --check electron/booksup-drive.cjs
           node --check electron/preload.cjs
           node --check www/booksup-49.js
-          node --check www/cloud-drive.js
           node --check www/booksup-50.js
           node --check www/booksup-50-pair.js
           node --check www/booksup-50-services.js

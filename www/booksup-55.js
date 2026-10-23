@@ -180,13 +180,14 @@ window.bu45ProfileLists=function(){return view==='profile'?'':previousProfileLis
 window.bu46ReadingHistory=function(){return view==='profile'?'':previousHistory.apply(this,arguments);};
 
 // Bottom navigation only: keep the entire desktop sidebar and profile links.
-const navDefault=['home','library','shelf','news','profile','settings'];
+const navDefault=['home','library','shelf','profile','settings'];
 function visibleNav(){
  const candidate=Array.isArray(ALL.bu55BottomNav)?ALL.bu55BottomNav:navDefault;
  const visible=navDefault.filter(x=>candidate.includes(x));
  return visible.length?visible:navDefault;
 }
 window.bu55SetNav=function(id,enabled){
+ if(!navDefault.includes(id))return;
  let arr=visibleNav();
  arr=enabled?[...new Set([...arr,id])]:arr.filter(x=>x!==id);
  if(!arr.length){toast('Mindestens ein Navigationspunkt muss sichtbar bleiben.');return;}
@@ -203,7 +204,7 @@ const oldSettingsDetail=window.nextSettingsDetail;
 window.nextSettingsDetail=function(){
  if(nextSettingCategory!=='navigation')return oldSettingsDetail.apply(this,arguments);
  return bar('Untere Navigation','settings')+'<div class="next-settings-pane"><h1>Untere Navigation</h1><p class="hint">Wähle die sichtbaren Bereiche. Alle Seiten bleiben über Profil und Einstellungen erreichbar.</p>'+
- [['home','Entdecken'],['library','Bibliothek'],['shelf','Bücherregal'],['news','News'],['profile','Profil'],['settings','Einstellungen']].map(([id,name])=>
+ [['home','Entdecken'],['library','Bibliothek'],['shelf','Bücherregal'],['profile','Profil'],['settings','Einstellungen']].map(([id,name])=>
  '<label class="next-language-row"><input type="checkbox" '+(visibleNav().includes(id)?'checked':'')+' onchange="bu55SetNav('+JSON.stringify(id)+',this.checked)"> '+name+'</label>').join('')+
  '<div class="row"><button class="chip" onclick="ALL.bu55BottomNav=null;persist();render()">Standard wiederherstellen</button><button class="chip" onclick="go(\'profile\')">Zum Profil</button></div></div>';
 };
@@ -212,7 +213,7 @@ const oldProfileHome=window.home;
 window.home=function(){
  let html=oldProfileHome.apply(this,arguments);
  if(view!=='profile')return html;
- const extras=[['library','Bibliothek'],['news','News'],['settings','Einstellungen']].filter(([id])=>!visibleNav().includes(id));
+ const extras=[['library','Bibliothek'],['settings','Einstellungen']].filter(([id])=>!visibleNav().includes(id));
  if(!extras.length)return html;
  const tiles=extras.map(([id,name])=>'<button class="tile" onclick="go('+JSON.stringify(id)+')"><div><b>'+name+'</b><br><small>Bereich öffnen</small></div></button>').join('');
  return html.replace(/(<div class="grid">)/,'$1'+tiles);
@@ -366,34 +367,41 @@ window.bu55RetrySimilar=function(id){
  if(!book||similarKey(book)!==id)return;
  bu46SimilarCache.delete(id);similarErrors.delete(id);void window.bu46SimilarLoad(book);
 };
+// Recommendations are scored against the OPEN book. Never manufacture candidate genres.
+const simWords=value=>new Set(String(value||'').normalize('NFKD').toLowerCase().replace(/[\u0300-\u036f]/g,'').replace(/[^\p{L}\p{N}]+/gu,' ').split(/\s+/).filter(w=>w.length>3&&!['book','novel','fiction','story','series','pages','buch','roman','geschichte','livre','libro','volume','the','with','eine','einer','über','from','their','this','that'].includes(w)));
+const simOverlap=(a,b)=>{const A=simWords(a),B=simWords(b);return [...A].filter(w=>B.has(w)).length;};
+const simField=v=>String(v||'').normalize('NFKD').toLowerCase().replace(/[^\p{L}\p{N}]/gu,'');
+function simScore(seed,item){
+ const series=simField(seed.series),sameSeries=series&&series===simField(item.series);
+ const genreMatch=simOverlap(seed.genre,item.genre),tags=simOverlap(seed.tags,item.tags);
+ const topic=simOverlap(seed.description,item.description),cross=simOverlap([seed.genre,seed.tags].join(' '),[item.genre,item.tags,item.description].join(' '));
+ const sameAuthor=simField(seed.author)&&simField(seed.author)===simField(item.author);
+ const samePublisher=simField(seed.publisher)&&simField(seed.publisher)===simField(item.publisher);
+ // Topic, author or series must independently establish relevance.
+ if(!sameSeries&&!sameAuthor&&!genreMatch&&!tags&&!cross&&topic<2)return -1;
+ let score=(sameSeries?60:0)+(sameAuthor?34:0)+Math.min(genreMatch,3)*23+Math.min(tags,5)*12+Math.min(cross,4)*9+Math.min(topic,5)*5;
+ if(samePublisher)score+=2;
+ const years=[Number.parseInt(seed.year,10),Number.parseInt(item.year,10)];
+ if(years.every(Number.isFinite))score+=Math.max(0,5-Math.floor(Math.abs(years[0]-years[1])/4));
+ const lang=typeof nextLanguage==='function'?nextLanguage():'de';
+ if(item.language===lang)score+=4;
+ return score>=21?score:-1;
+}
 window.bu46SimilarLoad=async function(book){
  if(!book?.title)return;
- const id=similarKey(book);
- if(similarPending.has(id)||bu46SimilarCache.has(id))return;
- similarPending.add(id);
- const paint=()=>{const box=[...document.querySelectorAll('[data-similar-key]')].find(el=>el.dataset.similarKey===id);if(box){const node=document.createElement('div');node.innerHTML=window.bu46SimilarHtml(book);const replacement=node.querySelector('[data-similar-key]');if(replacement)box.innerHTML=replacement.innerHTML;bu43LoadCovers();}};
- paint();
- const withTimeout=(promise,ms)=>Promise.race([promise,new Promise((_,reject)=>setTimeout(()=>reject(Error('Timeout nach '+ms/1000+' Sekunden')),ms))]);
- const query=book.genre?'subject:'+book.genre:book.author?'inauthor:'+book.author:book.title;
- const results=await Promise.allSettled([
-  withTimeout(fetchMetaUrl('https://www.googleapis.com/books/v1/volumes?q='+encodeURIComponent(query)+'&maxResults=25'),12000),
-  withTimeout(fetchMetaUrl('https://openlibrary.org/search.json?q='+encodeURIComponent(book.genre||book.author||book.title)+'&limit=25'),12000)
- ]);
- const seen=new Set(),list=[];
- function accept(b){
-  if(!b?.title||buNorm(b.title)===buNorm(book.title)||!bu46Allowed(b))return;
-  const k=String(b.isbn||'')||buNorm(b.title)+'|'+buNorm(b.author);
-  if(seen.has(k))return;seen.add(k);list.push(b);
- }
- try{
-  if(results[0].status==='fulfilled')for(const raw of results[0].value.items||[])accept(bu44ItemToBook(raw));
-  if(results[1].status==='fulfilled')for(const raw of results[1].value.docs||[])accept({
-   title:raw.title,author:raw.author_name?.join(', ')||'',isbn:raw.isbn?.[0]||'',year:raw.first_publish_year||'',
-   cover:raw.cover_i?'https://covers.openlibrary.org/b/id/'+raw.cover_i+'-M.jpg':'',genre:book.genre||''
-  });
-  if(results.every(r=>r.status==='rejected'))similarErrors.set(id,'offline');
-  bu46SimilarCache.set(id,list.slice(0,12));
- }finally{similarPending.delete(id);paint();}
+ const id=similarKey(book);if(bu46SimilarCache.has(id))return;
+ const choices=[...CATB,...CATM,...ALL.book.books,...ALL.manga.books,
+  ...(ALL.book.libraryBooks||[]),...(ALL.manga.libraryBooks||[])];
+ const seen=new Set();
+ const scored=choices.map(b=>({b,score:simScore(book,b)})).filter(x=>{
+  const key=simField(x.b.title)+'|'+simField(x.b.author);
+  if(x.score<0||!x.b.title||!bu46Allowed(x.b)||key===simField(book.title)+'|'+simField(book.author)||seen.has(key))return false;
+  seen.add(key);return true;
+ }).sort((a,b)=>b.score-a.score).slice(0,12);
+ bu46SimilarCache.set(id,scored.map(x=>x.b));
+ const box=[...document.querySelectorAll('[data-similar-key]')].find(e=>e.dataset.similarKey===id);
+ if(box){const holder=document.createElement('div');holder.innerHTML=window.bu46SimilarHtml(book);
+  const content=holder.querySelector('[data-similar-key]');if(content)box.innerHTML=content.innerHTML;}
 };
 // Discover is an existing screen; clicking its CTA must navigate even if catalog APIs are absent.
 window.bu46MoreBooks=function(){bu46SearchTerm='';bu46SearchResults=[];go('discoverSearch');};
@@ -416,7 +424,7 @@ window.bu55OpenEditionScanner=async function(){
  captureEdit();
  const node=document.getElementById('bu55-edition-scan-area');if(!node)return;
  stopScanner();
- node.innerHTML='<p class="hint">ISBN-13 scannen oder ISBN-10 manuell eingeben. Metadaten werden erst nach Bestätigung übernommen.</p>'+
+ node.innerHTML='<p class="hint">ISBN-13 scannen oder ISBN-10 manuell eingeben. Vorhandene Metadaten bleiben unverändert.</p>'+
  '<video id="bu55-edition-video" playsinline muted></video>'+
  '<div class="row"><input id="bu55-edition-isbn" inputmode="numeric" placeholder="ISBN-10 / ISBN-13">'+
  '<button class="chip" onclick="bu55LookupEdition($(\'bu55-edition-isbn\').value)">Prüfen</button>'+
@@ -447,27 +455,15 @@ window.bu55OpenEditionScanner=async function(){
 window.bu55LookupEdition=async function(raw){
  const isbn=isbnClean(raw),status=document.getElementById('bu55-edition-status');
  if(!isbnValid(isbn)){if(status)status.textContent='ISBN ungültig (Prüfziffer prüfen).';return;}
- if(status)status.textContent='Suche Cover, Verlag und Ausgabe …';
- try{
-  const result=await Promise.race([lookupIsbn(isbn),new Promise((_,reject)=>setTimeout(()=>reject(Error('Buchdaten-Abfrage hat zu lange gedauert.')),16000))]);
-  if(!result){if(status)status.textContent='Keine Metadaten gefunden. Die ISBN kann trotzdem manuell eingegeben werden.';return;}
-  const details='ISBN: '+isbn+'\nTitel: '+(result.title||'unbekannt')+'\nVerlag: '+(result.publisher||'keine Angabe')+
-   '\nEinband: '+(result.format||'nicht bekannt')+'\nCover: '+(result.cover?'gefunden':'nicht gefunden')+
-   '\n\nDiese Angaben für das Buch vorschlagen? Andere Felder und Lesedaten bleiben erhalten.';
-  if(!confirm(details)){if(status)status.textContent='Änderungen nicht übernommen.';return;}
-  captureEdit();editDraft.isbn=isbn;
-  if(result.publisher)editDraft.publisher=result.publisher;
-  if(result.format)editDraft.format=result.format;
-  if(result.cover)editDraft.covers=[result.cover,...(editDraft.covers||[]).filter(x=>x!==result.cover)];
-  if(editDraft.type==='physical'){
-   editDraft.editions??=[];
-   if(!editDraft.editions.length)editDraft.editions.push({qty:1,format:'Paperback'});
-   editDraft.editions[0].isbn=isbn;
-   if(result.format)editDraft.editions[0].format=result.format;
-   if(result.cover)editDraft.editions[0].cover=result.cover;
-  }
-  stopScanner();drawEditBook();toast('Ausgabe vorgeschlagen. Mit „Änderungen speichern“ bestätigen.');
- }catch(error){if(status)status.textContent='ISBN-Abfrage fehlgeschlagen: '+String(error.message||error);}
+ captureEdit();
+ editDraft.isbn=isbn;
+ if(editDraft.type==='physical'){
+  editDraft.editions??=[];
+  if(!editDraft.editions.length)editDraft.editions.push({qty:1,format:'Paperback'});
+  editDraft.editions[0].isbn=isbn;
+ }
+ stopScanner();drawEditBook();
+ toast('ISBN übernommen. Metadaten bleiben unverändert. Mit „Änderungen speichern“ bestätigen.');
 };
 const oldGo=window.go;
 window.go=function(){stopScanner();return oldGo.apply(this,arguments);};
@@ -627,11 +623,49 @@ if(typeof penShow==='function')window.showPg=async function(){const result=await
 const penDraw=window.drawPg;
 if(typeof penDraw==='function')window.drawPg=async function(){const result=await penDraw.apply(this,arguments);requestAnimationFrame(paintPen);return result;};
 
+// Ensure saved PDF/text selections return after every async text segment render.
+const segmentBefore56=window.loadSeg;
+if(typeof segmentBefore56==='function')window.loadSeg=async function(){
+ const result=await segmentBefore56.apply(this,arguments);
+ restoreTextMarks();return result;
+};
+// Reader HUD uses the existing session state and the real PDF page count.
+function sessionHud(){
+ const wrap=document.getElementById('rdwrap');if(!wrap)return;
+ let badge=document.getElementById('bu56-session-hud');
+ if(!rdFull){badge?.remove();return;}
+ if(!badge){badge=document.createElement('span');badge.id='bu56-session-hud';badge.className='mut';
+  badge.setAttribute('role','status');badge.style.cssText='position:absolute;z-index:12;right:12px;bottom:12px;padding:4px 8px;border-radius:8px;background:var(--card);color:var(--ink);font-size:12px;opacity:.85;pointer-events:none';
+  wrap.appendChild(badge);
+ }
+ const b=S.books.find(x=>String(x.id)===String(cur));
+ if(!b)return;
+ const page=Math.max(1,Number(pgNow)||Number(b.page)||1);
+ const total=Math.max(0,Number(typeof pdfDoc!=='undefined'&&pdfDoc?.numPages||b.pages)||0);
+ const start=Number(S.sess?.start),seconds=S.sess?.bid==b.id&&Number.isFinite(start)?Math.max(0,Math.floor((Date.now()-start)/1000)):0;
+ const timer=String(Math.floor(seconds/60)).padStart(2,'0')+':'+String(seconds%60).padStart(2,'0');
+ badge.textContent='Seite '+page+' von '+(total||'?')+' · '+timer;
+ if(S.sess?.automatic&&S.sess.bid==b.id)S.sess.lastAlive=Date.now();
+}
+setInterval(()=>{if(view==='reader'&&rdFull)sessionHud();},1200);
+setInterval(()=>{if(view==='reader'&&rdFull&&S.sess?.automatic)persist();},15000);
+function recoverAutoSession(){
+ const x=S.sess;if(!x?.automatic||view==='reader')return;
+ const book=S.books.find(b=>String(b.id)===String(x.bid));
+ const end=Math.min(Date.now(),Math.max(Number(x.start)||0,Number(x.lastAlive)||Number(x.start)||0)+30000);
+ if(book&&Number(x.start)>0&&end>=x.start){
+  S.log.push({bid:book.id,date:iso(end),mins:Math.max(1,Math.ceil((end-x.start)/60000)),pages:Math.max(0,Number(book.page||0)-Number(x.p0||0)),chapters:Math.max(0,Number(book.chapter||0)-Number(x.c0||0)),automatic:true,recovered:true});
+ }
+ S.sess=null;persist();
+}
+setTimeout(recoverAutoSession,300);
+document.addEventListener('visibilitychange',()=>{if(document.hidden&&rdFull){sessionHud();finishAutoSession();}else if(!document.hidden&&rdFull&&!S.sess)beginAutoSession();},true);
+window.addEventListener('pagehide',()=>{if(rdFull)finishAutoSession();},true);
 const oldAfter=window.nextAfterRender;
 window.nextAfterRender=function(){
  oldAfter?.apply(this,arguments);
  entryControls();
- if(view==='reader'){setTimeout(readerTools,100);setTimeout(()=>{decorateHighlights();paintPen();restoreTextMarks();},450);}
+ if(view==='reader'){setTimeout(sessionHud,150);setTimeout(readerTools,100);setTimeout(()=>{decorateHighlights();paintPen();restoreTextMarks();},450);}
 };
 const style=document.createElement('style');
 style.textContent='.bu55-book-status,.bu55-list-controls,.bu55-import{margin:12px 0;padding:10px;border:1px solid var(--bd);border-radius:10px}.bu55-list-controls label,.bu55-book-status label,.bu55-medium{display:block;font-size:13px;margin:8px 0}.bu55-import-pages{max-height:40vh;overflow:auto}.bu55-import-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px solid var(--bd)}.bu55-import-row span{min-width:0}.bu55-import-row small{display:block;color:var(--mut)}.bu55-import-row select{flex-shrink:0}.bu55-highlight-colors{display:flex;align-items:center;gap:6px;font-size:12px}#bu55-edition-video{max-width:100%;width:100%;max-height:200px;object-fit:cover;border-radius:10px;background:#111}.bu55-abandoned{color:var(--mut)}#rdwrap.full.bu55-focus .rdtop,#rdwrap.full.bu55-focus .next-reading-tools,#rdwrap.full.bu55-focus .bu47-reader-tools,#rdwrap.full.bu55-focus .bu53-zoom-toolbar{display:none!important}';
@@ -645,6 +679,6 @@ window.toggleFull=function(){
  if(entering&&wrap?.requestFullscreen)void wrap.requestFullscreen().catch(()=>{});
  else if(!entering&&document.fullscreenElement)void document.exitFullscreen().catch(()=>{});
 };
-document.addEventListener('fullscreenchange',()=>{if(!document.fullscreenElement&&rdFull){const wrap=document.getElementById('rdwrap');wrap?.classList.remove('bu55-focus');}});
+document.addEventListener('fullscreenchange',()=>{if(!document.fullscreenElement&&rdFull){const wrap=document.getElementById('rdwrap');wrap?.classList.remove('bu55-focus');window.toggleFull();}});
 document.addEventListener('dblclick',e=>{if(rdFull&&e.target.closest('#rdwrap'))toggleFull();});
 })();

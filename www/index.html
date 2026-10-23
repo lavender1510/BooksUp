@@ -136,7 +136,7 @@ mark{background:#ffe27a;color:#000;border-radius:3px;padding:0 1px}
 .book .detail-btn{display:block;font-size:12px;margin:6px 0 0;padding:5px 7px;border:1px solid var(--bd);border-radius:8px;background:var(--card);color:var(--ink)}
 .choices-scroll{max-height:22vh;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}.book-form .btn{margin:3px 4px 8px 0}.cover-choice{background:transparent;border:0;padding:3px;cursor:pointer}.cover-choice img{width:64px;height:90px;object-fit:cover;border-radius:7px}.search-results .li{cursor:pointer}.edition-row{padding:12px;border:1px solid var(--bd);border-radius:14px;margin:10px 0}.edition-row .cset{overflow-x:auto}.book-actions{display:flex;gap:8px;flex-wrap:wrap}.info-details{border:1px solid var(--bd);border-radius:12px;padding:10px;margin-bottom:14px}.info-details summary{cursor:pointer;font-weight:600}.isbn-queue{max-height:26vh;overflow-y:auto}.crop-help{font-size:12px;color:var(--mut)}.search-results small{color:var(--mut)}
 </style><link rel="stylesheet" href="booksup-next.css"><link rel="stylesheet" href="booksup-49.css"></head><body><div id="app"></div>
-<script src="booksup-admin-config.js"></script><script src="booksup-46.js"></script><script src="booksup-46-extra.js"></script><script src="booksup-46-i18n.js"></script><script src="booksup-45.js"></script><script src="booksup-desktop.js"></script><script src="booksup-45-i18n.js"></script><script src="booksup-44.js"></script><script src="booksup-43.js"></script><script src="booksup-polish.js"></script><script src="booksup-library.js"></script><script src="booksup-next.js"></script><script src="cloud-drive-config.js"></script><script src="cloud-drive.js"></script>
+<script src="booksup-46.js"></script><script src="booksup-46-extra.js"></script><script src="booksup-46-i18n.js"></script><script src="booksup-45.js"></script><script src="booksup-desktop.js"></script><script src="booksup-45-i18n.js"></script><script src="booksup-44.js"></script><script src="booksup-43.js"></script><script src="booksup-polish.js"></script><script src="booksup-library.js"></script><script src="booksup-next.js"></script>
 <script>
 const T=[['Pastell Rosa','#f0a4bd','Pastell'],['Pastell Blau','#96bfea','Pastell'],['Pastell Mint','#93d9bb','Pastell'],['Neon Pink','#ff2e93','Neon'],['Neon Grün','#39ff14','Neon'],['Neon Blau','#00e5ff','Neon'],['Pastell Lavendel','#c3b1e8','Pastell'],['Pastell Pfirsich','#f7b98f','Pastell'],['Pastell Zitrone','#efe08a','Pastell'],['Neon Violett','#b026ff','Neon'],['Neon Orange','#ff7a00','Neon'],['Neon Gelb','#f4ff00','Neon'],['Bordeaux','#8c2f39','Klassisch'],['Tannengrün','#2f6b4f','Klassisch'],['Marine','#2d4a7a','Klassisch'],['Graphit','#4a4f57','Klassisch'],['Kupfer','#b4693c','Klassisch'],['Gold','#c9a227','Klassisch']],PAP=[['Creme','#f5f0e8'],['Weiß · AMOLED','#ffffff'],['Kühl · Mitternacht','#dfe7f3'],['Salbei · Wald','#dbe7d6']];
 const IC={shelf:'M4 4v16M9 4v16M14 6l4 14M3 20h18',plus:'M12 5v14M5 12h14',target:'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8z',cog:'M4 8h10M18 8h2M4 16h2M10 16h10M14 6v4M6 14v4',back:'M15 5l-7 7 7 7',user:'M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM4 21c1-4 4-6 8-6s7 2 8 6',chart:'M5 20V10M12 20V4M19 20v-7',arrow:'M9 5l7 7-7 7',users:'M9 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM3 20c.5-3 3-5 6-5s5.5 2 6 5M17 8a2.5 2.5 0 1 1 0 5M17 15c2 0 3.5 1.5 4 4',swap:'M7 7h12l-3-3M17 17H5l3 3'};
@@ -267,10 +267,10 @@ function render(){
   try{
     const r=document.documentElement;r.style.setProperty('--acc',T[S.theme][1]);
     const dk=S.mode==2||(S.mode==0&&matchMedia('(prefers-color-scheme:dark)').matches);r.setAttribute('data-theme',dk?'dark':'light');r.dataset.paper=S.paper||0;r.style.setProperty('--fz',[14,16,19,22][S.fs==null?1:S.fs]+'px');const mt=document.querySelector('meta[name=theme-color]');if(mt)mt.content=getComputedStyle(r).getPropertyValue('--bg').trim();
-    const V={home:nextHome,library:bu45Library,libraryDetail:bu45LibraryDetail,discoverSearch:bu46SearchView,searchDetail:bu46BookInfo,listDetail:bu45ListDetails,listSettings:bu45ListSettings,insights:bu45DesktopInsights,transfer:bu45TransferHub,news:buNewsView,profile:()=>home()+bu45ProfileLists()+bu46ReadingHistory(),shelf:()=>shelf()+bu45ShelfImports(),lists:bu45ListsOverview,catalog:buCatalogView,add,goals,pedit,settings:nextSettings,settingsDetail:nextSettingsDetail,detail:nextBookDetails,readOptions:nextReadOptions,stats,reader:nextReader,friends,chat};
+    const V={home:nextHome,library:bu45Library,libraryDetail:bu45LibraryDetail,discoverSearch:bu46SearchView,searchDetail:bu46BookInfo,listDetail:bu45ListDetails,listSettings:bu45ListSettings,insights:bu45DesktopInsights,transfer:bu45TransferHub,profile:()=>home()+bu45ProfileLists()+bu46ReadingHistory(),shelf:()=>shelf()+bu45ShelfImports(),lists:bu45ListsOverview,catalog:buCatalogView,add,goals,pedit,settings:nextSettings,settingsDetail:nextSettingsDetail,detail:nextBookDetails,readOptions:nextReadOptions,stats,reader:nextReader};
     let h=V[view]();
     if(modal)h+=`<div class="modal" role="dialog" aria-modal="true" onclick="modal=null;render()"><div onclick="event.stopPropagation()">${modal}</div></div>`;
-    $('app').innerHTML=nextShell(h);if(!modal)camStop();nextAfterRender();buPolishAfterRender();bu43AfterRender();bu44AfterRender();bu46AfterRender();if(view==='friends'||view==='chat')post();
+    $('app').innerHTML=nextShell(h);if(!modal)camStop();nextAfterRender();buPolishAfterRender();bu43AfterRender();bu44AfterRender();bu46AfterRender();
   }catch(err){
     document.documentElement.removeAttribute('data-theme');
     $('app').innerHTML=`<div style="padding:24px;font-family:system-ui,sans-serif;color:#22201c;background:#faf7fb;min-height:100vh"><h2 style="font-family:Newsreader,Georgia,serif">Etwas ist schiefgelaufen</h2><p>${(err&&err.message)||err}</p><button style="padding:10px 16px;border-radius:8px;border:1px solid #ccc;background:#fff" onclick="view='home';render()">Zur Startseite</button></div>`;
@@ -289,7 +289,7 @@ function home(){
   <div style="color:var(--mut)">${esc(p.bio)}</div>
   <div class="lbl" style="margin-top:16px">Ziele · ${done.length} von ${S.goals.length}</div><div class="prog"><i style="width:${S.goals.length?done.length/S.goals.length*100:0}%"></i></div>
   <div style="margin-top:14px">${done.map(g=>`<span class="badge" onclick="badge(${g.id})">${esc(g.title)}</span>`).join('')}</div></div>
-  ${backupCard()}${cont()}${yearMini()}<div class="grid">${tile('shelf','shelf','Bücherregal',dig+' digital')}${tile('add','plus','Hinzufügen','Digital oder physisch')}${tile('goals','target','Ziele',S.goals.filter(g=>!g.done).length+' aktiv')}${tile('settings','cog','Einstellungen','Design & Backup')}${tile('friends','users','Freunde',ALL.friends.length+' verbunden')}<button class="tile" onclick="sw()">${ic('swap')}<div><b>${sp=='manga'?'Bücher':'Manga'}</b><br><small>${sp=='manga'?'Zurück zur Bibliothek':'Eigenes Profil & Regal'}</small></div></button></div>
+  ${backupCard()}${cont()}${yearMini()}<div class="grid">${tile('shelf','shelf','Bücherregal',dig+' digital')}${tile('add','plus','Hinzufügen','Digital oder physisch')}${tile('goals','target','Ziele',S.goals.filter(g=>!g.done).length+' aktiv')}${tile('settings','cog','Einstellungen','Design & Backup')}<button class="tile" onclick="sw()">${ic('swap')}<div><b>${sp=='manga'?'Bücher':'Manga'}</b><br><small>${sp=='manga'?'Zurück zur Bibliothek':'Eigenes Profil & Regal'}</small></div></button></div>
   <div class="card"><div class="lbl">Bibliothek</div><div style="display:flex;align-items:center;gap:20px">
    <svg width="84" height="84" viewBox="0 0 64 64"><circle cx="32" cy="32" r="26" fill="none" stroke="var(--bd)" stroke-width="8"/><circle cx="32" cy="32" r="26" fill="none" stroke="var(--acc)" stroke-width="8" stroke-dasharray="${f*163.4} 163.4" transform="rotate(-90 32 32)"/><text x="32" y="38" text-anchor="middle" font-family="Newsreader,Georgia,serif" font-size="18" font-weight="600" fill="var(--ink)">${totalCopies}</text></svg>
    <div class="kpi" style="flex:1;grid-template-columns:1fr 1fr"><div><span class="big">${dig}</span><small>Digital</small></div><div><span class="big">${phy}</span><small>Physisch</small></div></div></div>
@@ -865,10 +865,10 @@ function unifyBookEd(b){if(b.type!=='physical')return;b.editions=editionsOf(b);b
 function mergePhysical(book){const ex=S.books.find(b=>b.type==='physical'&&norm(b.title)===norm(book.title)&&norm(b.author)===norm(book.author));if(!ex){unifyBookEd(book);S.books.push(book);return book}const incoming=editionsOf(book);ex.editions=[...editionsOf(ex),...incoming];for(const k of ['genre','tags','series','seriesNumber','publisher','year','pages'])if(!ex[k]&&book[k])ex[k]=book[k];ex.covers=uniqueCovers([...(ex.covers||[]),...(book.covers||[])]);unifyBookEd(ex);return ex}
 function metadataGoogle(v={},item={}){const pr=item.saleInfo?.listPrice;return{title:v.title||'',author:(v.authors||[]).join(', '),year:(v.publishedDate||'').slice(0,4),genre:(v.categories||[])[0]||'',tags:(v.categories||[]).slice(0,3).join(', '),publisher:v.publisher||'',pages:v.pageCount||'',language:v.language||'',cover:safeCover(v.imageLinks?.thumbnail?.replace(/^http:/,'https:'))||null,price:pr?.amount??'',msrp:pr?.amount??'',isbn:(v.industryIdentifiers||[]).find(x=>x.type==='ISBN_13')?.identifier||'',series:v.seriesInfo?.bookDisplayNumber?'':undefined,source:'Google Books'}}
 function metadataOL(d={}){return{title:d.title||'',author:(d.authors||[]).map(a=>a.name).join(', '),year:((d.publish_date||'').match(/\d{4}/)||[''])[0],genre:(d.subjects||[])[0]?.name||'',tags:(d.subjects||[]).slice(0,4).map(x=>x.name).join(', '),publisher:(d.publishers||[]).map(x=>x.name).join(', '),pages:d.number_of_pages||'',cover:safeCover(d.cover?.large||d.cover?.medium),language:(d.languages||[]).map(x=>x.key?.split('/').pop()).join(', '),series:(d.series||[])[0]||'',seriesNumber:((d.series||[])[0]||'').match(/(?:#|band |vol\.?\s*)(\d+)/i)?.[1]||'',format:d.physical_format||'',edition:d.edition_name||'',source:'Open Library'}}
-async function fetchMetaUrl(url){const ac=new AbortController(),timer=setTimeout(()=>ac.abort(),7500);try{const r=await fetch(url,{signal:ac.signal});if(!r.ok)throw Error('HTTP '+r.status);return await r.json()}finally{clearTimeout(timer)}}
-async function autoBookMeta(){keep();const title=draft.title?.trim();if(!title||title.length<3)return;const token=++searchSeq;toast('Buchdaten werden gesucht …');try{const j=await fetchMetaUrl('https://www.googleapis.com/books/v1/volumes?q='+encodeURIComponent('intitle:'+title+(draft.author?' inauthor:'+draft.author:''))+'&maxResults=5');if(token!==searchSeq||view!=='add')return;keep();const v=j.items?.[0];if(!v){toast('Keine automatischen Daten gefunden.');return}const info=metadataGoogle(v.volumeInfo,v);for(const k of ['author','year','genre','tags','publisher','pages','language','series','isbn','price'])if(!draft[k]&&info[k])draft[k]=info[k];if(info.cover&&!(draft.covers||[]).length)draft.covers=[info.cover];render();toast('Gefundene Daten übernommen – alle Felder editierbar.')}catch(e){toast('Onlinesuche nicht verfügbar, manuelle Eingabe bleibt möglich.')}}
-function coverGallery(target='draft',id=null){if(target==='draft')keep();window._covTarget={target,id};modal='<h3>Cover suchen</h3><p class="hint">Suche nach anderen Ausgaben; wähle ein Cover oder lade ein eigenes hoch.</p><p id="covermsg" class="hint">Suche läuft …</p><div class="cset" id="coverlist"></div><button class="btn o" onclick="pickCoverFromGallery()">Eigenes Cover hochladen</button>';render();findCoverCandidates(target==='draft'?draft:S.books.find(b=>b.id==id)).then(cs=>{window._coverChoices=cs;const el=$('coverlist'),msg=$('covermsg');if(msg)msg.textContent=cs.length?'Cover antippen, um es zu übernehmen.':'Keine weiteren Cover gefunden.';if(el)el.innerHTML=cs.map((u,i)=>`<button class="cover-choice" onclick="chooseOnlineCover(${i})" aria-label="Cover ${i+1} auswählen"><img src="${esc(u)}" loading="lazy"></button>`).join('')}).catch(e=>{if($('covermsg'))$('covermsg').textContent='Suche derzeit nicht verfügbar.'})}
-async function findCoverCandidates(b){if(!b)return[];let urls=[...(b.covers||[])].filter(x=>safeCover(x));if(b.isbn)urls.push('https://covers.openlibrary.org/b/isbn/'+encodeURIComponent(b.isbn)+'-L.jpg?default=false');const q=b.isbn?'isbn:'+b.isbn:'intitle:'+b.title;try{const j=await fetchMetaUrl('https://www.googleapis.com/books/v1/volumes?q='+encodeURIComponent(q)+'&maxResults=30');urls.push(...(j.items||[]).map(v=>v.volumeInfo?.imageLinks?.thumbnail?.replace(/^http:/,'https:')).filter(Boolean))}catch(e){}try{const j=await fetchMetaUrl('https://openlibrary.org/search.json?'+(b.isbn?'isbn='+encodeURIComponent(b.isbn):'title='+encodeURIComponent(b.title))+'&limit=20&fields=cover_i,isbn');urls.push(...(j.docs||[]).filter(x=>x.cover_i).map(x=>'https://covers.openlibrary.org/b/id/'+x.cover_i+'-L.jpg'))}catch(e){}return uniqueCovers(urls.filter(safeCover))}
+async function fetchMetaUrl(){throw Error('Online-Metadatensuche ist in dieser Offline-Version deaktiviert.');}
+async function autoBookMeta(){return false;}
+function coverGallery(target='draft',id=null){return target==='draft'?pickCover():editCover(id);}
+async function findCoverCandidates(b){return (b?.covers||[]).filter(Boolean);}
 function chooseOnlineCover(i){const url=window._coverChoices?.[i],t=window._covTarget;if(!url||!t)return;if(t.target==='draft')draft.covers=uniqueCovers([url,...(draft.covers||[])]);else{const b=S.books.find(x=>x.id==t.id);if(b){b.covers=uniqueCovers([url,...(b.covers||[])]);persist()}}modal=null;render();toast('Cover übernommen.')}
 function pickCoverFromGallery(){const t=window._covTarget;modal=null;if(t?.target==='draft')pickCover();else if(t?.id)editCover(t.id)}
 function newEdition(){keep();draft.editions=[...(draft.editions||[]),{language:draft.language||'',format:'Hardcover',edition:'',isbn:'',qty:1,price:'',cover:''}];render()}
@@ -881,13 +881,13 @@ function add(){
   const covers=draft.covers||[];
   return bar(addType==='digital'?'Digitales Buch':'Physisches Buch')+`<div class="pad book-form">
    ${addType==='digital'?`<button class="btn o" onclick="pickPdf()">${draft.pdfName?'✓ '+esc(draft.pdfName):'PDF / EPUB / Comic wählen'}</button><button class="btn o" onclick="batchChoose()">Mehrere Dateien hinzufügen</button>`:'<button class="btn o" onclick="addManyNames()">Mehrere Titel hinzufügen</button>'}
-   <button class="btn o" onclick="isbnM()">ISBN scannen / mehrere ISBNs</button><button class="btn o" onclick="buEnrichDraft()">✦ Buchdaten & Cover automatisch ergänzen</button>
+   <button class="btn o" onclick="isbnM()">ISBN scannen / mehrere ISBNs</button>
    <label>Suche nach Titel, Autor oder ISBN</label><input id="q" placeholder="Titel, Reihe, Autor oder ISBN" oninput="search()"><div id="res" class="search-results" role="status"></div>
-   ${f('title','Buchtitel','onchange="autoBookMeta()"')}${f('author','Autor')}${f('year','Erscheinungsjahr')}${f('genre','Genre')}${f('tags','Tags (mit Komma trennen)')}${f('series','Reihe')}${f('seriesNumber','Band / Reihenfolge')}${f('publisher','Verlag')}${f('price','UVP / Listenpreis','type="number" min="0" step="0.01"')}${buAmountFields('add',draft)}
+   ${f('title','Buchtitel','')}${f('author','Autor')}${f('year','Erscheinungsjahr')}${f('genre','Genre')}${f('tags','Tags (mit Komma trennen)')}${f('series','Reihe')}${f('seriesNumber','Band / Reihenfolge')}${f('publisher','Verlag')}${f('price','UVP / Listenpreis','type="number" min="0" step="0.01"')}${buAmountFields('add',draft)}
    ${addType==='physical'?f('qty','Anzahl Exemplare','type="number" min="1"'):''}
    <details class="info-details" ${draft.detailsOpen?'open':''} ontoggle="draft.detailsOpen=this.open"><summary>Erweiterte Details</summary>${f('language','Sprache (z. B. de, en)')}${f('isbn','ISBN-10 / ISBN-13')}${f('pages','Seitenzahl')}${f('edition','Edition / Ausgabebezeichnung')}<label>Einband</label>${formatSelect(draft.format||'Unbekannt','f_format')}</details>
    ${covers.length?`<div class="cset">${covers.map(c=>`<img src="${esc(c)}" alt="Buchcover" loading="lazy">`).join('')}</div>`:''}
-   <div class="book-actions"><button class="btn o" onclick="pickCover()">Cover selbst auswählen</button><button class="btn o" onclick="coverGallery()">Andere Cover online</button></div>
+   <div class="book-actions"><button class="btn o" onclick="pickCover()">Cover selbst auswählen</button></div>
    ${addType==='physical'?`<h3>Weitere Exemplare / Ausgaben</h3><p class="hint">Gleiches Werk, unterschiedliche Sprache, Cover, Preis oder Ausgabe.</p>${editionRows(draft.editions||[],'ex')}<button class="btn o" onclick="newEdition()">+ Weitere Ausgabe hinzufügen</button>`:''}
    <div style="height:16px"></div><button class="btn" onclick="saveBook()">Buch hinzufügen</button>
   </div>`;
@@ -911,21 +911,7 @@ function showResults(msg=''){
 }
 function search(){const e=$('q');if(!e)return;const q=e.value.trim(),tk=++searchSeq;
   clearTimeout(searchWait);window._res=q?CAT_().filter(c=>norm(c.title+' '+c.author+' '+(c.en||'')).includes(norm(q))).slice(0,10):[];
-  showResults(q?'Suche weitere Titel online …':'');if(q.length<2)return;
-  searchWait=setTimeout(()=>searchOnline(q,tk),360);
-}
-async function searchOnline(q,tk){
-  const ctl=new AbortController(),timeout=setTimeout(()=>ctl.abort(),8500),pool=[...(window._res||[])];
-  try{
-    const urls=[`https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(q)}&maxResults=20&printType=books`,
-      `https://openlibrary.org/search.json?q=${encodeURIComponent(q)}&limit=20&fields=title,author_name,first_publish_year,language,isbn,cover_i`];
-    const res=await Promise.allSettled(urls.map(async(u,i)=>{const r=await fetch(u,{signal:ctl.signal});if(!r.ok)throw Error('HTTP '+r.status);const j=await r.json();return i===0?(j.items||[]).map(x=>{const v=x.volumeInfo||{};return{title:v.title,author:(v.authors||[]).join(', '),year:(v.publishedDate||'').slice(0,4),genre:(v.categories||[])[0]||'',pages:v.pageCount,lang:v.language||'',...metadataGoogle(v,x),source:'Google Books'}}):(j.docs||[]).map(v=>({title:v.title,author:(v.author_name||[]).slice(0,2).join(', '),year:v.first_publish_year,lang:(v.language||[]).includes('ger')?'de':(v.language||[]).includes('eng')?'en':'',cover:v.cover_i?'https://covers.openlibrary.org/b/id/'+v.cover_i+'-L.jpg':null,isbn:(v.isbn||[])[0]||'',source:'Open Library'}))}));
-    if(tk!==searchSeq||!$('q')||$('q').value.trim()!==q)return;
-    for(const it of res){if(it.status==='fulfilled')pool.push(...it.value.filter(x=>x.title))}
-    const unique=new Set();window._res=pool.filter(v=>{const k=norm(v.title)+'|'+norm(v.author);if(unique.has(k))return false;unique.add(k);return true}).slice(0,30);
-    showResults(window._res.length?'':'Keine Treffer. Du kannst das Buch manuell eintragen.');
-  }catch(e){if(tk===searchSeq)showResults(window._res.length?'':'Onlinesuche nicht erreichbar. Manuelle Eingabe ist möglich.')}
-  finally{clearTimeout(timeout)}
+  showResults(window._res.length?'':'Keine passenden Einträge im lokalen Katalog. Du kannst das Buch manuell eintragen.');
 }
 function fill(i){keep();const v=window._res[i];if(!v)return;const c=v.cover;draft={...draft,...Object.fromEntries(Object.entries(v).filter(([k,val])=>val!==undefined&&val!==null&&val!==''))};if(c)draft.covers=uniqueCovers([c,...(draft.covers||[])]);render()}
 
@@ -961,7 +947,7 @@ function drawEditBook(){if(!editDraft)return;const b=editDraft;
   <details class="info-details"><summary>Erweiterte Details</summary>${f('pages','Seitenzahl','type="number" min="0"')}${f('language','Sprache')}${f('isbn','ISBN')}${f('edition','Ausgabe')}</details>
   <label>Medium</label><select id="ed_type"><option value="digital" ${b.type==='digital'?'selected':''}>Digital</option><option value="physical" ${b.type==='physical'?'selected':''}>Physisch</option></select>
   <div class="cset">${(b.covers||[]).map(c=>`<img src="${esc(c)}" alt="Cover">`).join('')}</div>
-  <div class="book-actions"><button class="btn o" onclick="editCover(${b.id})">Cover selbst auswählen</button><button class="chip" onclick="coverGallery('book',${b.id})">Andere Cover online</button></div>
+  <div class="book-actions"><button class="btn o" onclick="editCover(${b.id})">Cover selbst auswählen</button></div>
   ${b.type==='physical'?`<h3>Ausgaben & Exemplare</h3>${b.editions.map((e,i)=>`<div class="edition-row"><b>Ausgabe ${i+1}</b><label>ISBN</label><input id="ee_${i}_isbn" value="${esc(e.isbn||'')}"><label>Sprache</label><input id="ee_${i}_language" value="${esc(e.language||'')}"><label>Einband</label>${formatSelect(e.format||'Paperback',`ee_${i}_format`)}<label>Edition / Sonderausgabe</label><input id="ee_${i}_edition" value="${esc(e.edition||'')}"><label>Preis</label><input id="ee_${i}_price" type="number" step="0.01" min="0" value="${esc(e.price??'')}"><label>Anzahl</label><input id="ee_${i}_qty" type="number" min="1" value="${esc(e.qty||1)}"><label>Cover-Link (optional)</label><input id="ee_${i}_cover" value="${esc(e.cover||'')}"><button class="chip" onclick="editRemoveEdition(${i})">Ausgabe entfernen</button></div>`).join('')}<button class="chip" onclick="editAddEdition()">+ Ausgabe hinzufügen</button>`:''}
   <div class="book-actions"><button class="btn" onclick="saveEdit(${b.id})">Änderungen speichern</button><button class="btn o" onclick="bookM(${b.id})">Abbrechen</button></div>`;render()}
 function saveEdit(id){const b=S.books.find(x=>x.id===id);if(!b||!editDraft)return;captureEdit();if(!String(editDraft.title||'').trim())return toast('Titel ist erforderlich.');for(const k of ['title','author','year','genre','tags','series','seriesNumber','publisher','pages','language','isbn','edition','price'])b[k]=editDraft[k];b.pages=+b.pages||0;b.msrp=buSafeNumber(editDraft.price);b.purchasePrice=buSafeNumber(editDraft.purchasePrice);b.condition=editDraft.condition||'unknown';b.price=b.price===''?null:+b.price;b.type=editDraft.type;if(b.type==='physical'){b.editions=editDraft.editions.map(copyEdition);unifyBookEd(b)}else b.qty=1;editDraft=null;modal=null;save();toast('Buch aktualisiert.')}
@@ -1096,127 +1082,11 @@ function settings(){
   <h3>Textgröße</h3><div class="row">${['Klein','Normal','Groß'].map((n,i)=>`<button class="chip ${(S.fs==null?1:S.fs)==i?'on':''}" aria-pressed="${(S.fs==null?1:S.fs)==i}" onclick="S.fs=${i};save()">${n}</button>`).join('')}</div>
   <h3>Lesetempo</h3><div class="pad"><label>Wörter pro Seite (für die Wörter/Min-Schätzung)</label><input type="number" value="${S.wpp}" min="50" onchange="S.wpp=+this.value||275;save()"></div>
   <h3>Währung</h3><div class="row">${['€','$','£','CHF'].map(c=>`<button class="chip ${S.currency==c?'on':''}" onclick="S.currency='${c}';save()">${c}</button>`).join('')}</div>
-  ${hasCl()?'':`<h3>Freunde-Server</h3><div class="pad"><label>Firebase API-Schlüssel</label><input id="fbk" value="${esc(FBCFG.apiKey)}" autocomplete="off" autocapitalize="off"><label>Firebase Projekt-ID</label><input id="fbp" value="${esc(FBCFG.projectId)}" autocomplete="off" autocapitalize="off"><button class="btn" onclick="saveFb()">Speichern</button><p style="color:var(--mut);font-size:13px">Nur für Freunde und Chat. Einrichtung: siehe FIREBASE.md. Ohne diese Angaben bleibt alles offline.</p></div>`}<h3>Erinnerung</h3><div class="pad"><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><button class="chip ${RM().on?'on':''}" aria-pressed="${RM().on}" onclick="setRemind(${!RM().on})">${RM().on?'An':'Aus'}</button><input type="time" value="${RM().time}" onchange="setRemindTime(this.value)" aria-label="Uhrzeit" style="width:auto;margin:0"><button class="chip" onclick="testRemind()">Test</button></div><p class="hint">Täglich zur gewählten Uhrzeit, mit deiner Lese-Serie und deinem nächsten Ziel.</p></div>
+  <h3>Erinnerung</h3><div class="pad"><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><button class="chip ${RM().on?'on':''}" aria-pressed="${RM().on}" onclick="setRemind(${!RM().on})">${RM().on?'An':'Aus'}</button><input type="time" value="${RM().time}" onchange="setRemindTime(this.value)" aria-label="Uhrzeit" style="width:auto;margin:0"><button class="chip" onclick="testRemind()">Test</button></div><p class="hint">Täglich zur gewählten Uhrzeit, mit deiner Lese-Serie und deinem nächsten Ziel.</p></div>
   <h3>Import</h3><div class="row"><button class="btn o" onclick="gqPick()">Goodreads-Export importieren (CSV)</button></div><p class="pad hint">Export aus Goodreads: Mein Konto → Tools → Import/Export. Bücher werden als physisch angelegt, der Status (gelesen / wird gelesen) kommt aus deinen Goodreads-Regalen, bereits vorhandene Titel werden übersprungen.</p>
-  ${window.BooksUpCloud?.ui?.()||""}<h3>Daten sichern</h3><div class="row"><button class="btn" onclick="backupFull()">Backup mit Büchern (ZIP)</button><button class="btn o" onclick="backup()">Nur Daten (JSON)</button><button class="btn o" onclick="restore()">Backup laden</button></div><p class="pad hint">Das ZIP enthält beide Bereiche (Bücher und Manga) mit allen Daten und die Bücherdateien, die JSON-Datei nur die Daten. Letztes Backup: ${ALL.lastBackup?new Date(ALL.lastBackup).toLocaleDateString('de-DE'):'noch nie'}. Teile die Datei nicht mit anderen, sie enthält auch deine Freunde-Identität.</p>
-  <h3>Hilfe</h3><div class="row"><button class="chip" onclick="showIntro(0)">Einführung ansehen</button><button class="chip" onclick="runDiag()">Systemtest</button></div><div class="pad"><button class="btn o" onclick="booksupCheckUpdate(false)">Auf Updates prüfen</button><p class="hint">BooksUp ${APP_VERSION} · Android: Installation nach Bestätigung · Windows: Updates im installierten Programm.</p></div>`}
-function saveFb(){FBCFG={apiKey:$('fbk').value.trim(),projectId:$('fbp').value.trim()};try{localStorage.setItem(FBK,JSON.stringify(FBCFG))}catch(e){}fbAuth=null;socialReady=false;socialErr=false;errDrawn=false;lastTry=0;US=DB=null;alert('Gespeichert.');render()}
-// ---- Freunde & Chat (online, braucht ein Claude-Konto) ----
-let DB=null,US=null,ME=null,msgs=[],unsub=null,subFor=null,lastSync='',socialTried=false,socialReady=false;
-function genCode(){const c='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';return Array.from({length:6},()=>c[Math.floor(Math.random()*c.length)]).join('')}
-if(!ALL.code)ALL.code=genCode();
-// Konto-Zugriff wird erst angefragt, wenn die Person tatsächlich "Freunde" oder "Chat" öffnet,
-// damit die App sofort lädt und nie auf eine Berechtigung wartet.
-// ---- Server-Anbindung für Freunde & Chat (Firebase per REST, ohne Claude-Konto) ----
-const FBK='booksup_fbcfg';
-let FBCFG={apiKey:'',projectId:''};try{Object.assign(FBCFG,JSON.parse(localStorage.getItem(FBK)||'{}'))}catch(e){}
-const fbOn=()=>!!(FBCFG.apiKey&&FBCFG.projectId),hasCl=()=>typeof claude!=='undefined'&&!!claude.use;
-const fsf=o=>Object.fromEntries(Object.entries(o).filter(([k,v])=>v!==undefined).map(([k,v])=>[k,fsv(v)]));
-const fsv=v=>v===null||v===undefined?{nullValue:null}:typeof v=='string'?{stringValue:v}:typeof v=='boolean'?{booleanValue:v}:typeof v=='number'?(Number.isInteger(v)?{integerValue:String(v)}:{doubleValue:v}):Array.isArray(v)?{arrayValue:{values:v.map(fsv)}}:{mapValue:{fields:fsf(v)}};
-const unfsf=f=>Object.fromEntries(Object.entries(f).map(([k,v])=>[k,unfs(v)]));
-const unfs=v=>'stringValue'in v?v.stringValue:'integerValue'in v?+v.integerValue:'doubleValue'in v?v.doubleValue:'booleanValue'in v?v.booleanValue:'arrayValue'in v?(v.arrayValue.values||[]).map(unfs):'mapValue'in v?unfsf(v.mapValue.fields||{}):null;
-let fbAuth=null,tokP=null;
-const fbToken=()=>tokP||(tokP=fbTok().finally(()=>{tokP=null}));
-async function fbTok(){
-  if(fbAuth&&fbAuth.exp>Date.now()+60000)return fbAuth;
-  const K=FBCFG.apiKey;
-  if(ALL.fbRefresh){
-    const r=await fetch('https://securetoken.googleapis.com/v1/token?key='+K,{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:'grant_type=refresh_token&refresh_token='+encodeURIComponent(ALL.fbRefresh)});
-    if(r.ok){const j=await r.json();fbAuth={uid:j.user_id,token:j.id_token,exp:Date.now()+(+j.expires_in)*1000};if(j.refresh_token&&j.refresh_token!==ALL.fbRefresh){ALL.fbRefresh=j.refresh_token;persist()}return fbAuth}
-    if(r.status>=500)throw new Error('server '+r.status);
-  }
-  const r=await fetch('https://identitytoolkit.googleapis.com/v1/accounts:signUp?key='+K,{method:'POST',headers:{'Content-Type':'application/json'},body:'{"returnSecureToken":true}'});
-  if(!r.ok)throw new Error('auth '+r.status);
-  const j=await r.json();fbAuth={uid:j.localId,token:j.idToken,exp:Date.now()+(+j.expiresIn)*1000};ALL.fbRefresh=j.refreshToken;persist();return fbAuth}
-async function fs(path,opt={}){
-  const a=await fbToken(),r=await fetch('https://firestore.googleapis.com/v1/projects/'+FBCFG.projectId+'/databases/(default)/documents'+path,{...opt,headers:{'Authorization':'Bearer '+a.token,'Content-Type':'application/json'}});
-  if(r.status==404)return null;if(!r.ok)throw new Error('fs '+r.status);return r.json()}
-const fbUS={id:async()=>(await fbToken()).uid,
-  profiles:async ids=>{const o={};await Promise.all(ids.map(async id=>{try{const j=await fs('/profiles/'+id);if(j){const d=unfsf(j.fields||{});if(d.name)o[id]={name:d.name}}}catch(e){}}));return o}};
-const fbDB={
-  doc:p=>({
-    set:async d=>{await fs('/'+p,{method:'PATCH',body:JSON.stringify({fields:fsf(d)})})},
-    get:async()=>{const j=await fs('/'+p);return{data:()=>j?unfsf(j.fields||{}):undefined}}}),
-  collection:p=>{const c={orderBy:()=>c,limit:()=>c,
-    add:async d=>{await fs('/'+p,{method:'POST',body:JSON.stringify({fields:fsf(d)})})},
-    onSnapshot:(cb,er)=>{let on=true,t=null;
-      const tick=async()=>{clearTimeout(t);if(!on)return;
-        if(view!=='chat'){on=false;subFor=null;return}
-        if(!document.hidden){try{const parts=p.split('/'),col=parts.pop(),j=await fs('/'+parts.join('/')+':runQuery',{method:'POST',body:JSON.stringify({structuredQuery:{from:[{collectionId:col}],orderBy:[{field:{fieldPath:'ts'},direction:'DESCENDING'}],limit:100}})});
-          cb({docs:(j||[]).filter(x=>x.document).map(x=>({data:()=>unfsf(x.document.fields||{})})).reverse()})}catch(e){er&&er(e)}}
-        if(on)t=setTimeout(tick,3000)};
-      window._chatPoll=tick;tick();return()=>{on=false;clearTimeout(t)}}};
-    return c}};
-
-let lastTry=0,socialErr=false,errDrawn=false,reqs=[];
-async function ensureSocial(){
-  if(socialReady)return true;
-  if(Date.now()-lastTry<15000)return false;
-  lastTry=Date.now();
-  try{
-    if(hasCl()){US=await claude.use('user');DB=await claude.use('db')}
-    else if(fbOn()){US=fbUS;DB=fbDB}
-    else return false;
-    if(US)ME=await US.id();
-    if(DB&&ME){try{await DB.doc('codes/'+ALL.code).set({id:ME})}catch(e){if(DB===fbDB&&!/fs 403/.test(e.message))throw e}}
-    socialReady=!!(US||DB);socialErr=!socialReady;return socialReady;
-  }catch(e){US=DB=null;socialErr=true;return false}
-}
-const pair=id=>[ME,id].sort().join('_').replace(/[^\w-]/g,'');
-function snap(space){const t=ALL[space];return{total:t.books.length,read:t.books.filter(x=>x.finished).length,list:t.books.slice(-14).map(b=>b.title)}}
-async function sync(){if(!DB||!ME)return;const d={name:ALL.book.profile.name||'Leser',bio:ALL.book.profile.bio||'',book:snap('book'),manga:snap('manga'),badges:[...ALL.book.goals,...ALL.manga.goals].filter(g=>g.done).map(g=>g.title).slice(0,6)},j=JSON.stringify(d);if(j==lastSync)return;lastSync=j;try{await DB.doc('profiles/'+ME).set(d)}catch(e){}}
-async function post(){
-  if(view!=='friends'&&view!=='chat')return;
-  const wasReady=socialReady,ready=await ensureSocial();
-  if(!wasReady&&ready&&(view=='friends'||view=='chat')){render();return}
-  if(!ready&&socialErr&&!errDrawn){errDrawn=true;render();return}
-  if(!US)return;
-  if(view=='friends'){sync();loadReqs();const p=await US.profiles(ALL.friends);document.querySelectorAll('.fn').forEach(e=>e.textContent=(p[e.dataset.id]&&p[e.dataset.id].name)||'Freund')}
-  if(view=='chat'){subChat();drawMsgs();const p=await US.profiles([cur]),n=$('cn');if(n)n.textContent=(p[cur]&&p[cur].name)||'Chat'}}
-function copyCode(){try{navigator.clipboard.writeText(ALL.code)}catch(e){}const b=$('cpBtn');if(b){b.textContent='Kopiert ✓';setTimeout(()=>{b.textContent='Kopieren'},1500)}}
-function friends(){
-  const none=!hasCl()&&!fbOn();
-  if(none)return bar('Freunde')+`<div class="card"><div class="lbl">Einrichtung nötig</div><p style="margin:0 0 12px">Freunde und Chat brauchen einen kleinen Server (kostenloses Firebase-Projekt, Anleitung in FIREBASE.md). Alles andere in BooksUp bleibt offline und privat auf diesem Gerät.</p><button class="btn" onclick="go('settings')">Zu den Einstellungen</button></div>`;
-  return bar('Freunde')+(socialErr&&!socialReady?`<div class="card"><p style="margin:0 0 12px">Keine Verbindung zum Server. Prüfe dein Internet und die Server-Angaben in den Einstellungen.</p><button class="btn o" onclick="lastTry=0;socialErr=false;errDrawn=false;render()">Erneut verbinden</button></div>`:'')
-  +`<div id="reqs"></div><div class="card"><div class="lbl">Deine ID</div><div style="display:flex;align-items:center;gap:10px"><span class="big" style="letter-spacing:.08em">${ALL.code}</span><button class="chip" id="cpBtn" onclick="copyCode()">Kopieren</button></div><p style="color:var(--mut);margin:10px 0 0;font-size:13px">Gib diese ID an Freunde weiter, damit sie dich hinzufügen können. Dein Benutzername kann frei geändert werden, die ID bleibt gleich.</p></div>
-  <div class="card"><div class="lbl">Freund per ID hinzufügen</div><input id="fc" placeholder="z.B. AB12CD" maxlength="6" style="text-transform:uppercase" autocapitalize="characters" autocomplete="off"><button class="btn" onclick="addByCode()">Hinzufügen</button><div id="fmsg" style="color:var(--mut);font-size:13px;margin-top:6px" aria-live="polite"></div></div>
-  <h3>Deine Freunde</h3><div class="card">${ALL.friends.map((id,i)=>`<div class="li"><div class="th" style="width:40px;height:40px;border-radius:50%">${ic('user')}</div><div><b class="fn" data-id="${id}">…</b></div><button class="chip" onclick="prof(ALL.friends[${i}])">Profil</button><button class="chip on" onclick="go('chat',ALL.friends[${i}])">Chat</button><button class="chip" aria-label="Freund entfernen" onclick="rmFriend(${i})">✕</button></div>`).join('')||'<span style="color:var(--mut)">Noch keine Freunde. Gib oben eine ID ein.</span>'}</div>
-  ${hasCl()?`<p class="pad" style="color:var(--mut);font-size:12px">Hinweis: Damit ein Freund dir schreiben kann, muss er in den Freigabe-Einstellungen dieser Seite mindestens Kommentar- oder Bearbeitungsrechte haben.</p>`:`<p class="pad" style="color:var(--mut);font-size:12px">Chats sind nicht Ende-zu-Ende-verschlüsselt. Es gibt keine Benachrichtigungen, neue Nachrichten erscheinen beim Öffnen des Chats.</p>`}`}
-function rmFriend(i){if(confirm('Freund entfernen? Der Chatverlauf bleibt auf dem Server.')){ALL.friends.splice(i,1);save()}}
-async function loadReqs(){if(DB!==fbDB||!ME)return;try{const j=await fs('/inbox/'+ME+'/reqs'),ids=((j&&j.documents)||[]).map(d=>d.name.split('/').pop().replace(/[^\w-]/g,'')).filter(id=>!ALL.friends.includes(id));const p=ids.length?await US.profiles(ids):{},el=$('reqs');
-  if(el)el.innerHTML=ids.length?`<div class="card"><div class="lbl">Anfragen</div>${ids.map(id=>`<div class="li"><div><b>${esc((p[id]&&p[id].name)||'Jemand')}</b><br><small>möchte dich als Freund hinzufügen</small></div><button class="chip on" onclick="accReq('${id}')">Annehmen</button><button class="chip" onclick="decReq('${id}')">Ablehnen</button></div>`).join('')}</div>`:''}catch(e){}}
-async function accReq(id){if(!ALL.friends.includes(id))ALL.friends.push(id);try{await fs('/inbox/'+ME+'/reqs/'+id,{method:'DELETE'})}catch(e){}save()}
-async function decReq(id){try{await fs('/inbox/'+ME+'/reqs/'+id,{method:'DELETE'})}catch(e){}loadReqs()}
-async function addByCode(){const code=($('fc').value||'').trim().toUpperCase();if(!code)return;
-  if(code==ALL.code)return $('fmsg').textContent='Das ist deine eigene ID.';
-  await ensureSocial();
-  if(!DB)return $('fmsg').textContent='Keine Verbindung zum Server.';
-  $('fmsg').textContent='Suche…';
-  try{const snap=await DB.doc('codes/'+code).get();const d=snap&&snap.data&&snap.data();
-    if(!d||!d.id)return $('fmsg').textContent='Keine ID gefunden.';
-    if(ALL.friends.includes(d.id))return $('fmsg').textContent='Schon befreundet.';
-    ALL.friends.push(d.id);if(DB===fbDB){try{await DB.doc('inbox/'+d.id+'/reqs/'+ME).set({from:ME,ts:Date.now()})}catch(e){}}$('fc').value='';save();
-  }catch(e){$('fmsg').textContent='Suche fehlgeschlagen.'}}
-async function prof(id){modal='<p>Lade…</p>';render();await ensureSocial();let d={},n='Freund';try{const p=await US.profiles([id]);n=(p[id]&&p[id].name)||n;const sn=await DB.doc('profiles/'+id).get();d=(sn&&sn.data&&sn.data())||{}}catch(e){}
-  const bk=d.book||{total:0,read:0,list:[]},mg=d.manga||{total:0,read:0,list:[]};
-  modal=`<h3 style="margin:0 0 4px">${esc(n)}</h3><p style="color:var(--mut);margin:0 0 12px">${esc(d.bio||'Keine Biografie')}</p>
-  <div class="kpi"><div><span class="big">${bk.read}</span><small>Bücher gelesen</small></div><div><span class="big">${bk.total}</span><small>Bücher gesamt</small></div><div><span class="big">${mg.total}</span><small>Manga</small></div></div>
-  <p>${(d.badges||[]).map(b=>`<span class="badge">${esc(b)}</span>`).join('')||''}</p>
-  ${bk.list.length?`<div class="lbl" style="margin-top:14px">Zuletzt in der Bibliothek</div><p style="margin:0">${bk.list.map(esc).join(' · ')}</p>`:''}
-  ${mg.list.length?`<div class="lbl" style="margin-top:14px">Zuletzt bei Manga</div><p style="margin:0">${mg.list.map(esc).join(' · ')}</p>`:''}
-  <button class="btn" style="margin-top:16px" onclick="modal=null;render()">Schließen</button>`;render()}
-function subChat(){if(!DB||subFor===cur)return;unsub&&unsub();subFor=cur;msgs=[];try{unsub=DB.collection('chats/'+pair(cur)+'/msgs').orderBy('ts','asc').limit(100).onSnapshot(sn=>{msgs=sn.docs.map(d=>d.data());if(view=='chat')drawMsgs()},()=>{})}catch(e){}}
-function chat(){return bar('<span id="cn">Chat</span>','friends')+`<div class="pad"><div id="msgs" style="min-height:45vh"></div><div style="display:flex;gap:8px;position:sticky;bottom:8px;background:var(--bg);padding:8px 0"><input id="mt" style="margin:0" placeholder="Nachricht" onkeydown="if(event.key=='Enter')send()"><button class="chip" onclick="shareM()">Buch teilen</button><button class="btn" onclick="send()">Senden</button></div></div>`}
-function drawMsgs(){const e=$('msgs');if(!e)return;e.innerHTML=msgs.map((m,i)=>`<div class="msg ${m.from==ME?'me':''} ${m.book?'bk':''}" ${m.book?`onclick="bk(${i})"`:''}>${m.book?`<div class="th">${esc((m.book.title||'?')[0])}</div><div><b>${esc(m.book.title)}</b><br><small>${esc(m.book.author||'')} · ${esc(m.book.kind)}</small><br><small>Tippen für Infos</small></div>`:esc(m.text)}</div>`).join('')||'<small style="color:var(--mut)">Noch keine Nachrichten. Sag Hallo!</small>';window.scrollTo(0,document.body.scrollHeight)}
-async function out(m){if(!DB)return alert('Chat braucht Internet und eine Server-Einrichtung.');try{await DB.collection('chats/'+pair(cur)+'/msgs').add({from:ME,ts:Date.now(),...m});window._chatPoll&&window._chatPoll()}catch(e){alert(hasCl()?'Senden fehlgeschlagen. Hat dein Freund Kommentar- oder Bearbeitungsrechte für diese Seite?':'Senden fehlgeschlagen. Prüfe dein Internet.')}}
-function send(){const t=$('mt').value.trim();if(!t)return;$('mt').value='';out({text:t})}
-function shareM(){const l=[...ALL.book.books.map(b=>({b,k:'Buch'})),...ALL.manga.books.map(b=>({b,k:'Manga'}))];window._sh=l;
-  modal='<h3 style="margin:0 0 8px">Was teilen?</h3>'+(l.map((x,i)=>`<div class="li" style="cursor:pointer" onclick="shareB(${i})"><div><b>${esc(x.b.title)}</b><br><small>${x.k}</small></div></div>`).join('')||'<small>Noch keine Bücher.</small>');render()}
-function shareB(i){const{b,k}=window._sh[i];modal=null;out({book:{title:b.title,author:b.author||'',year:b.year||'',genre:b.genre||'',tags:b.tags||'',series:b.series||'',kind:k}});render()}
-function bk(i){const b=msgs[i].book;window._bk=b;modal=`<h3 style="margin:0 0 4px">${esc(b.title)}</h3><p style="color:var(--mut);margin:0 0 10px">${esc(b.author)} · ${esc(b.kind)}</p><p>${[b.year&&'Erschienen '+esc(b.year),b.genre&&'Genre: '+esc(b.genre),b.series&&'Reihe: '+esc(b.series),b.tags&&'Tags: '+esc(b.tags)].filter(Boolean).join('<br>')}</p><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn" onclick="takeB()">Zu meinen Büchern</button><button class="btn o" onclick="modal=null;render()">Schließen</button></div>`;render()}
-function takeB(){const b=window._bk,t=ALL[b.kind=='Manga'?'manga':'book'],id=Date.now();t.books.push({id,added:id,type:'physical',title:b.title,author:b.author,year:b.year,genre:b.genre,tags:b.tags,series:b.series,pdf:false,rating:null});modal=null;save()}
-
-const backTo={reader:'shelf',chat:'friends'};
+  ${''}<h3>Daten sichern</h3><div class="row"><button class="btn" onclick="backupFull()">Backup mit Büchern (ZIP)</button><button class="btn o" onclick="backup()">Nur Daten (JSON)</button><button class="btn o" onclick="restore()">Backup laden</button></div><p class="pad hint">Das ZIP enthält beide Bereiche (Bücher und Manga) mit allen Daten und die Bücherdateien, die JSON-Datei nur die Daten. Letztes Backup: ${ALL.lastBackup?new Date(ALL.lastBackup).toLocaleDateString('de-DE'):'noch nie'}. Bewahre die Sicherung sicher auf; sie enthält persönliche Bücher und Fortschritte.</p>
+  <h3>Hilfe</h3><div class="row"><button class="chip" onclick="showIntro(0)">Einführung ansehen</button><button class="chip" onclick="runDiag()">Systemtest</button></div><div class="pad"><p class="hint">BooksUp ${APP_VERSION} · lokale Bibliothek und Backups ohne Backend</p></div>`}
+const backTo={reader:'shelf'};
 window.androidBack=()=>{if($('intro')){endIntro();return true}if(modal){modal=null;render();return true}if(rdSheet){toggleSheet();return true}if(rdFull){toggleFull();return true}if(view!=='home'){go(backTo[view]||'home');return true}return false};
 addEventListener('keydown',e=>{if(e.key=='Escape'&&modal){modal=null;render()}if(view=='reader'&&!/INPUT|TEXTAREA|SELECT/.test((document.activeElement||{}).tagName||'')){if(e.key=='ArrowRight')flip(rtl()?-1:1);if(e.key=='ArrowLeft')flip(rtl()?1:-1)}});
 matchMedia('(prefers-color-scheme:dark)').addEventListener('change',()=>{if(S.mode==0)render()});
@@ -1229,7 +1099,7 @@ const TINY_PDF='JVBERi0xLjMKJZOMi54gUmVwb3J0TGFiIEdlbmVyYXRlZCBQREYgZG9jdW1lbnQg
 let mirT=null,lastSaveWarning=0;
 function store(){
   bu43ReconcileLists();ALL._savedAt=Date.now();
-  window.BooksUpCloud?.changed?.();const snapshot=JSON.stringify(ALL);
+  const snapshot=JSON.stringify(ALL);
   // Large covers belong in IndexedDB. localStorage is best-effort bootstrap only.
   if(snapshot.length<1300000){try{localStorage.setItem('booksup3',snapshot)}catch(e){console.warn('LocalStorage limit, IndexedDB active:',e.name)}}
   clearTimeout(mirT);mirT=setTimeout(async()=>{const ok=await put('__state',snapshot);if(!ok&&Date.now()-lastSaveWarning>15000){lastSaveWarning=Date.now();toast('Speichern fehlgeschlagen. Bitte erstelle ein Backup und prüfe freien Speicherplatz.')}},150);
@@ -1380,20 +1250,8 @@ function isbnValid(v){v=isbnClean(v);
   if(v.length==13&&/^\d+$/.test(v)){let s=0;for(let i=0;i<12;i++)s+=(+v[i])*(i%2?3:1);return(10-s%10)%10==+v[12]}
   if(v.length==10&&/^\d{9}[\dX]$/.test(v)){let s=0;for(let i=0;i<10;i++)s+=(v[i]=='X'?10:+v[i])*(10-i);return s%11==0}
   return false}
-async function lookupIsbn(i){
-  const candidates=[];
-  const results=await Promise.allSettled([
-    fetchMetaUrl(`https://openlibrary.org/api/books?bibkeys=ISBN:${i}&format=json&jscmd=data`),
-    fetchMetaUrl(`https://www.googleapis.com/books/v1/volumes?q=isbn:${i}`)]);
-  if(results[0].status==='fulfilled'){const d=results[0].value['ISBN:'+i];if(d)candidates.push(metadataOL(d))}
-  if(results[1].status==='fulfilled'){const x=results[1].value.items?.[0];if(x)candidates.push(metadataGoogle(x.volumeInfo,x))}
-  if(!candidates.length)return null;
-  const d={};for(const c of candidates)for(const [key,val]of Object.entries(c))if((d[key]===undefined||d[key]==='')&&val!==undefined&&val!==null&&val!=='')d[key]=val;
-  d.isbn=i;
-  // Physical format is edition-specific; never guess if the provider does not list it.
-  return d;
-}
-async function fetchCover(u){try{const r=await fetch(u);if(!r.ok)return null;const b=await r.blob();if(!/^image\//.test(b.type)||b.size<800)return null;return await new Promise(ok=>urlOf(b,ok,500))}catch(e){return null}}
+async function lookupIsbn(){return null;}
+async function fetchCover(){return null;}
 let camStream=null,camT=0;
 function camStop(){clearTimeout(camT);camT=0;if(camStream){camStream.getTracks().forEach(t=>t.stop());camStream=null}}
 window.camStop=camStop;
@@ -1408,7 +1266,7 @@ function isbnM(){keep();isbnQueue=[];const can='BarcodeDetector' in window&&navi
   <div class="book-actions"><button class="btn" onclick="isbnSaveQueue()">Alle als physische Bücher speichern</button><button class="chip" onclick="isbnGo($('isbn').value)">Ein Buch bearbeiten</button><button class="chip" onclick="camStop();modal=null;render()">Abbrechen</button></div>`;
   render();queueStatus();if(can)camStart()}
 async function isbnAddMany(v){const vals=[...new Set(String(v||'').split(/[\s,;]+/).map(isbnClean).filter(Boolean))];if(isbnBusy)return;isbnBusy=true;const m=$('cmsg');let ok=0;
-  try{for(const isbn of vals){if(!isbnValid(isbn)){if(m)m.textContent='Ungültige ISBN übersprungen: '+isbn;continue}if(isbnQueue.some(x=>x.isbn===isbn))continue;if(m)m.textContent='Suche nach '+isbn+' …';const d=await lookupIsbn(isbn);if(d){isbnQueue.push(d);ok++;queueStatus()}else if(m)m.textContent='Nicht gefunden: '+isbn}
+  try{for(const isbn of vals){if(!isbnValid(isbn)){if(m)m.textContent='Ungültige ISBN übersprungen: '+isbn;continue}if(isbnQueue.some(x=>x.isbn===isbn))continue;if(m)m.textContent='ISBN '+isbn+' wird lokal hinzugefügt …';isbnQueue.push({isbn,title:isbn,author:'',format:'Unbekannt'});ok++;queueStatus()}
     if(m&&ok)m.textContent=`${isbnQueue.length} Buchausgaben gesammelt. Du kannst weiterscannen oder alle speichern.`}
   finally{isbnBusy=false}}
 function isbnSaveQueue(){if(!isbnQueue.length)return toast('Bitte zuerst ISBNs hinzufügen.');let n=0;for(const d of isbnQueue){const b={id:Date.now()*100+n++,added:Date.now()+n,type:'physical',title:d.title||d.isbn,author:d.author||'',genre:d.genre||'',tags:d.tags||'',year:d.year||'',series:d.series||'',publisher:d.publisher||'',pages:d.pages||'',isbn:d.isbn,format:d.format||'Unbekannt',language:d.language||'',edition:d.edition||'',price:d.price||null,covers:d.cover?[d.cover]:[],qty:1,rating:null};b.editions=[copyEdition({...b,cover:d.cover})];mergePhysical(b)}camStop();isbnQueue=[];modal=null;shf='physical';view='shelf';save();toast(n+' Bücher/Editionen hinzugefügt.')}
@@ -1425,11 +1283,7 @@ function isbnPhoto(){raw('image/*',async f=>{const m=$('cmsg');
 async function isbnGo(v){
   const i=isbnClean(String(v||'').split(/[\s,;]+/).find(Boolean));const m=$('cmsg');
   if(!isbnValid(i)){if(m)m.textContent='Ungültige ISBN: Prüfziffer kontrollieren.';return}
-  camStop();if(m)m.textContent='Buch wird gesucht …';const d=await lookupIsbn(i);
-  if(!d){if(m)m.textContent='Keine Daten gefunden. Bitte ISBN oder Internet prüfen.';return}
-  draft={...draft,...Object.fromEntries(Object.entries(d).filter(([k,v])=>v!=null&&v!=='')),detailsOpen:true};
-  if(d.cover)draft.covers=uniqueCovers([d.cover,...(draft.covers||[])]);
-  addType='physical';modal=null;render();toast('ISBN-Daten übernommen. Du kannst alle Angaben ändern.')}
+  camStop();draft={...draft,isbn:i,detailsOpen:true};addType='physical';modal=null;render();toast('ISBN übernommen. Bitte Buchdaten manuell ergänzen.')}
 /* ---- Statistik: Tempo, Prognose, Jahresziel ---- */
 function pph(){const r=S.log.filter(l=>l.date>=iso(Date.now()-29*864e5)),m=r.reduce((t,l)=>t+l.mins,0),p=r.reduce((t,l)=>t+l.pages,0);return m>=10?Math.round(p/m*60):0}
 const ppd14=()=>S.log.filter(l=>l.date>=iso(Date.now()-13*864e5)).reduce((t,l)=>t+l.pages,0)/14;
@@ -1469,13 +1323,13 @@ async function runDiag(){
   add('BarcodeDetector' in window?true:null,'Barcode-Erkennung (ISBN)',navigator.mediaDevices&&navigator.mediaDevices.getUserMedia?'Kamera-Zugriff möglich':'Kein Kamera-Zugriff');
   add(LN()?true:('Notification' in window?true:null),'Erinnerungen',LN()?'Android-Benachrichtigungen (Plugin)':'Nur Browser-Benachrichtigungen');
   const C=window.Capacitor&&Capacitor.Plugins;add((C&&C.Filesystem&&C.Share)?true:(navigator.canShare?true:null),'Backup teilen',(C&&C.Filesystem&&C.Share)?'Android-Teilen-Dialog':navigator.canShare?'Web-Teilen':'Download-Link');
-  add(navigator.onLine,'Internetverbindung',navigator.onLine?'online':'offline (Freunde, ISBN-Suche und Online-Schriften brauchen Internet)')}
+  add(navigator.onLine,'Internetverbindung',navigator.onLine?'online':'offline · alle lokalen Funktionen verfügbar')}
 /* ---- Einführung ---- */
 const INTRO=[
  ['Willkommen bei BooksUp','Deine Bibliothek und dein Lese-Tracker in einer App: digitale Bücher (PDF, EPUB, Comics) und gedruckte Bücher an einem Ort. Alles läuft offline und bleibt auf deinem Gerät.'],
  ['Lesen, wie du magst','Im Leser findest du über „Aa“ drei Modi: Buchseiten zum Blättern, Scrollen wie auf einer Webseite oder Text im Wattpad-Stil. Dazu kommen Kapitelanzeige, Lesezeichen, Suche, Vollbild und automatisches Scrollen.'],
  ['Dranbleiben','Starte eine Lesesitzung, dann zählt BooksUp Zeit, Seiten und Kapitel. Setze Ziele und ein Jahresziel, sammle deine Lese-Serie und lass dich täglich erinnern (Einstellungen).'],
- ['Deine Daten gehören dir','Sichere deine Bücher und Fortschritte regelmäßig unter Einstellungen → Backup. Freunde und Chat sind optional und brauchen einen eigenen Server.']];
+ ['Deine Daten gehören dir','Sichere deine Bücher und Fortschritte regelmäßig unter Einstellungen → Backup. Lokale Datensicherung benötigt keinen Server.']];
 function showIntro(i=0){
   let o=$('intro');if(!o){o=document.createElement('div');o.id='intro';o.className='intro';o.setAttribute('role','dialog');o.setAttribute('aria-modal','true');o.setAttribute('aria-label','Einführung');document.body.appendChild(o)}
   const[t,x]=INTRO[i];
@@ -1487,51 +1341,5 @@ addEventListener('load',()=>{try{const A=window.Capacitor&&Capacitor.Plugins&&Ca
 /* Datenreparatur: 'finished' muss ein Datum sein */
 (function(){try{for(const k of ['book','manga']){const t=ALL[k];if(!t||!t.books)continue;t.books.forEach(b=>{if(b.finished&&typeof b.finished!=='string'){b.finished=iso(b.added||b.id||Date.now());persist()}if(b.started&&typeof b.started!=='string'){b.started=iso(b.added||b.id||Date.now());persist()}})}}catch(e){}})();
 
-/* BooksUp 3.2.2: update checks (no user data is changed by this process) */
-let booksupCheckingUpdate=false;
-const booksupPlatform=()=>window.Capacitor?.getPlatform?.()==='android'?'android':window.booksupDesktopUpdate?'windows':'web';
-const booksupVersion=v=>String(v||'0').split('.').slice(0,3).map(x=>parseInt(x,10)||0);
-const booksupNewer=v=>{const a=booksupVersion(v),b=booksupVersion(APP_VERSION);return a[0]>b[0]||(a[0]===b[0]&&(a[1]>b[1]||(a[1]===b[1]&&a[2]>b[2])))};
-async function booksupOpenRelease(url){
-  if(!/^https:\/\/github\.com\/lavender1510\/BooksUp\//.test(url))return;
-  const browser=window.Capacitor?.Plugins?.Browser;
-  if(browser?.open)await browser.open({url});
-  else if(window.Capacitor?.getPlatform?.()==='android')location.href=url;
-  else window.open(url,'_blank','noopener,noreferrer');
-}
-async function booksupCheckUpdate(silent=false){
-  if(booksupCheckingUpdate)return;
-  booksupCheckingUpdate=true;
-  try{
-    if(booksupPlatform()==='windows'){
-      if(window.booksupDesktopUpdate?.check){const msg=await window.booksupDesktopUpdate.check();if(!silent&&msg?.message)toast(msg.message)}
-      else if(!silent)toast('Windows-Updateprüfung nur in der installierten App verfügbar.');
-      return;
-    }
-    if(booksupPlatform()!=='android'){if(!silent)toast('Automatische Updates sind für Android und Windows verfügbar.');return}
-    const controller=new AbortController();
-    const timeout=setTimeout(()=>controller.abort(),12000);
-    let response;
-    try{response=await fetch('https://api.github.com/repos/lavender1510/BooksUp/releases?per_page=30',{headers:{Accept:'application/vnd.github+json'},cache:'no-store',signal:controller.signal})}
-    finally{clearTimeout(timeout)}
-    if(!response.ok)throw Error('HTTP '+response.status);
-    const releases=await response.json();
-    const available=releases.filter(r=>!r.draft&&r.assets?.some(a=>/\.apk$/i.test(a.name))).map(r=>({...r,ver:r.tag_name?.match(/^v(\d+\.\d+\.\d+)/)?.[1]})).filter(r=>r.ver&&booksupNewer(r.ver));
-    available.sort((a,b)=>{const x=booksupVersion(a.ver),y=booksupVersion(b.ver);return y[0]-x[0]||y[1]-x[1]||y[2]-x[2]});
-    const latest=available[0];
-    if(!latest){if(!silent)toast('BooksUp '+APP_VERSION+' ist aktuell.');return}
-    const key='booksup-update-noticed-'+latest.ver;
-    if(silent&&sessionStorage.getItem(key))return;
-    sessionStorage.setItem(key,'1');
-    if(confirm('BooksUp '+latest.ver+' ist verfügbar. Möchtest du die neue APK herunterladen? Android fragt danach, ob du sie installieren möchtest.')){
-      const asset=latest.assets.find(a=>/\.apk$/i.test(a.name));
-      await booksupOpenRelease(asset?.browser_download_url||latest.html_url);
-    }
-  }catch(e){if(!silent)toast('Updateprüfung fehlgeschlagen: '+String(e?.message||e))}
-  finally{booksupCheckingUpdate=false}
-}
-setTimeout(()=>booksupCheckUpdate(true),5000);
-
-window.BooksUpCloud?.setup?.({snapshot:()=>ALL,toast,render,getFile:async id=>{const d=await db();return new Promise(resolve=>{const r=d.transaction('f').objectStore('f').get(Number(id));r.onsuccess=()=>resolve(r.result||null);r.onerror=()=>resolve(null)})},putFile:async(id,blob)=>put(Number(id),blob),apply:cloud=>{Object.assign(ALL,cloud);ALL.book=Object.assign(NEW(),ALL.book);ALL.manga=Object.assign(NEW('Manga-Fan'),ALL.manga);S=ALL[sp];store();render()}});
 render();
 </script><script src="booksup-49.js"></script></body></html>

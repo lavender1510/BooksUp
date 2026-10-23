@@ -7,25 +7,19 @@ import com.getcapacitor.JSObject;
 import com.getcapacitor.annotation.CapacitorPlugin;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.net.URLEncoder;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.ByteArrayOutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.regex.Pattern;
 import org.json.JSONObject;
-import org.json.JSONArray;
 
-// All requests are performed natively: Android WebView CORS and mixed-content
-// restrictions cannot block the app's fixed HTTPS book data sources or LAN signaling.
+// Local LAN signaling only. No remote catalog or translation API.
 @CapacitorPlugin(name = "BooksUpNetwork")
 public class BooksUpNetworkPlugin extends Plugin {
     private static final Pattern PRIVATE_IP = Pattern.compile(
        "^(?:10\\.(?:\\d{1,3}\\.){2}\\d{1,3}|192\\.168\\.(?:\\d{1,3}\\.)\\d{1,3}|172\\.(?:1[6-9]|2\\d|3[01])\\.(?:\\d{1,3}\\.)\\d{1,3})$");
 
-    private String enc(String value) throws Exception {
-        return URLEncoder.encode(value == null ? "" : value, "UTF-8");
-    }
     private JSONObject request(String uri, JSONObject body) throws Exception {
         URL url=new URL(uri);
         HttpURLConnection c=(HttpURLConnection)url.openConnection();
@@ -51,34 +45,6 @@ public class BooksUpNetworkPlugin extends Plugin {
                 return new JSONObject(new String(bytes.toByteArray(),StandardCharsets.UTF_8));
             }
         }finally{c.disconnect();}
-    }
-    @PluginMethod
-    public void searchCatalog(PluginCall call) {
-        final String title=call.getString("title","").trim();
-        final String author=call.getString("author","").trim();
-        final String isbn=call.getString("isbn","").replaceAll("[^0-9Xx]","");
-        final String topic=call.getString("topic","").trim();
-        if(title.length()>180||author.length()>120||topic.length()>60||(!topic.isEmpty()&&!topic.matches("[a-zA-Z0-9 -]{1,60}"))||(!isbn.isEmpty()&&!isbn.matches("(?:[0-9]{13}|[0-9]{9}[0-9Xx])"))){
-            call.reject("Ungültige Buchsuchdaten");return;
-        }
-        if(title.isEmpty()&&isbn.isEmpty()&&topic.isEmpty()){call.reject("Titel oder ISBN erforderlich");return;}
-        new Thread(()->{
-            JSONArray google=new JSONArray(),open=new JSONArray(),errors=new JSONArray();
-            try {
-                String q=!topic.isEmpty()?"subject:"+topic:(isbn.isEmpty()?title+(author.isEmpty()?"":" "+author):"isbn:"+isbn);
-                String g="https://www.googleapis.com/books/v1/volumes?q="+enc(q)+"&maxResults=40&printType=books";
-                try {JSONArray rows=request(g,null).optJSONArray("items");if(rows!=null)for(int i=0;i<rows.length();i++)google.put(rows.opt(i));}
-                catch(Exception e){errors.put("Google Books: "+e.getMessage());}
-                String endpoint="https://openlibrary.org/search.json?"
-                    +(isbn.isEmpty()?"q="+enc(q):"isbn="+enc(isbn))
-                    +"&limit=40&fields=key,title,author_name,isbn,first_publish_year,cover_i,subject,language,publisher";
-                try {JSONArray rows=request(endpoint,null).optJSONArray("docs");if(rows!=null)for(int i=0;i<rows.length();i++)open.put(rows.opt(i));}
-                catch(Exception e){errors.put("Open Library: "+e.getMessage());}
-                JSObject result=new JSObject();
-                result.put("google",google);result.put("open",open);result.put("errors",errors);
-                call.resolve(result);
-            }catch(Exception e){call.reject("Buchkatalog: "+e.getMessage());}
-        },"BooksUpNativeBookCatalog").start();
     }
     @PluginMethod
     public void signal(PluginCall call){

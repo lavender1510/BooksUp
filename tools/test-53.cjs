@@ -15,7 +15,7 @@ assert.match(read('.github/workflows/build-android.yml'),/BOOKSUP_ANDROID_RELEAS
 assert.doesNotMatch(read('.github/workflows/build-android.yml'),/build-apk\.cjs|assembleDebug/);
 assert.match(read('tools/build-android-release.cjs'),/assembleRelease/);
 assert.match(read('electron/main.cjs'),/booksup-53\.js/);
-assert.match(read('package.json'),/"version": "5\.5\.1"/);
+assert.equal(JSON.parse(read('package.json')).version,'5.6.0');
 let count=0,changed=0,saved=0,callbacks={};const textNode={nodeType:3,nodeValue:'Read'};
 const item={closest:()=>null,childNodes:[textNode],hasAttribute:()=>false};
 const scroll={clientWidth:350,clientHeight:560,scrollWidth:800,scrollHeight:1400,isConnected:true,
@@ -55,6 +55,6 @@ assert.equal(S.books[0].annotations[0].text,'important sentence');
 env.view='home';
 window.bu53ApplyLanguage();
 assert.equal(textNode.nodeValue,'Lesen','English labels must return to selected German after render');
-assert.match(window.nextSettingsDetail(),/bu53-update-progress/);
+assert.doesNotMatch(window.nextSettingsDetail(),/bu53-update-progress/);
 assert.equal(typeof window.bu47ToggleHighlightMode,'function','Cross-platform area highlighting should exist');
 console.log('OK: BooksUp 5.3 persistent 180% zoom, saved highlights, German switching, update ETA panel, Android production gate, mobile CSS');

@@ -1,7 +1,7 @@
 /* BooksUp Windows 4.7 – desktop improvements. Android bundles do not execute this file. */
 (function () {
   'use strict';
-  if (!window.booksupDesktopUpdate) return;
+  if (!window.booksupBackupFile) return;
   window.booksupWindows47 = true;
 
   const localize = {
