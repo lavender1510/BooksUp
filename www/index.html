@@ -865,10 +865,10 @@ function unifyBookEd(b){if(b.type!=='physical')return;b.editions=editionsOf(b);b
 function mergePhysical(book){const ex=S.books.find(b=>b.type==='physical'&&norm(b.title)===norm(book.title)&&norm(b.author)===norm(book.author));if(!ex){unifyBookEd(book);S.books.push(book);return book}const incoming=editionsOf(book);ex.editions=[...editionsOf(ex),...incoming];for(const k of ['genre','tags','series','seriesNumber','publisher','year','pages'])if(!ex[k]&&book[k])ex[k]=book[k];ex.covers=uniqueCovers([...(ex.covers||[]),...(book.covers||[])]);unifyBookEd(ex);return ex}
 function metadataGoogle(v={},item={}){const pr=item.saleInfo?.listPrice;return{title:v.title||'',author:(v.authors||[]).join(', '),year:(v.publishedDate||'').slice(0,4),genre:(v.categories||[])[0]||'',tags:(v.categories||[]).slice(0,3).join(', '),publisher:v.publisher||'',pages:v.pageCount||'',language:v.language||'',cover:safeCover(v.imageLinks?.thumbnail?.replace(/^http:/,'https:'))||null,price:pr?.amount??'',msrp:pr?.amount??'',isbn:(v.industryIdentifiers||[]).find(x=>x.type==='ISBN_13')?.identifier||'',series:v.seriesInfo?.bookDisplayNumber?'':undefined,source:'Google Books'}}
 function metadataOL(d={}){return{title:d.title||'',author:(d.authors||[]).map(a=>a.name).join(', '),year:((d.publish_date||'').match(/\d{4}/)||[''])[0],genre:(d.subjects||[])[0]?.name||'',tags:(d.subjects||[]).slice(0,4).map(x=>x.name).join(', '),publisher:(d.publishers||[]).map(x=>x.name).join(', '),pages:d.number_of_pages||'',cover:safeCover(d.cover?.large||d.cover?.medium),language:(d.languages||[]).map(x=>x.key?.split('/').pop()).join(', '),series:(d.series||[])[0]||'',seriesNumber:((d.series||[])[0]||'').match(/(?:#|band |vol\.?\s*)(\d+)/i)?.[1]||'',format:d.physical_format||'',edition:d.edition_name||'',source:'Open Library'}}
-async function fetchMetaUrl(url){const ac=new AbortController(),timer=setTimeout(()=>ac.abort(),7500);try{const r=await fetch(url,{signal:ac.signal});if(!r.ok)throw Error('HTTP '+r.status);return await r.json()}finally{clearTimeout(timer)}}
-async function autoBookMeta(){keep();const title=draft.title?.trim();if(!title||title.length<3)return;const token=++searchSeq;toast('Buchdaten werden gesucht …');try{const j=await fetchMetaUrl('https://www.googleapis.com/books/v1/volumes?q='+encodeURIComponent('intitle:'+title+(draft.author?' inauthor:'+draft.author:''))+'&maxResults=5');if(token!==searchSeq||view!=='add')return;keep();const v=j.items?.[0];if(!v){toast('Keine automatischen Daten gefunden.');return}const info=metadataGoogle(v.volumeInfo,v);for(const k of ['author','year','genre','tags','publisher','pages','language','series','isbn','price'])if(!draft[k]&&info[k])draft[k]=info[k];if(info.cover&&!(draft.covers||[]).length)draft.covers=[info.cover];render();toast('Gefundene Daten übernommen – alle Felder editierbar.')}catch(e){toast('Onlinesuche nicht verfügbar, manuelle Eingabe bleibt möglich.')}}
-function coverGallery(target='draft',id=null){if(target==='draft')keep();window._covTarget={target,id};modal='<h3>Cover suchen</h3><p class="hint">Suche nach anderen Ausgaben; wähle ein Cover oder lade ein eigenes hoch.</p><p id="covermsg" class="hint">Suche läuft …</p><div class="cset" id="coverlist"></div><button class="btn o" onclick="pickCoverFromGallery()">Eigenes Cover hochladen</button>';render();findCoverCandidates(target==='draft'?draft:S.books.find(b=>b.id==id)).then(cs=>{window._coverChoices=cs;const el=$('coverlist'),msg=$('covermsg');if(msg)msg.textContent=cs.length?'Cover antippen, um es zu übernehmen.':'Keine weiteren Cover gefunden.';if(el)el.innerHTML=cs.map((u,i)=>`<button class="cover-choice" onclick="chooseOnlineCover(${i})" aria-label="Cover ${i+1} auswählen"><img src="${esc(u)}" loading="lazy"></button>`).join('')}).catch(e=>{if($('covermsg'))$('covermsg').textContent='Suche derzeit nicht verfügbar.'})}
-async function findCoverCandidates(b){if(!b)return[];let urls=[...(b.covers||[])].filter(x=>safeCover(x));if(b.isbn)urls.push('https://covers.openlibrary.org/b/isbn/'+encodeURIComponent(b.isbn)+'-L.jpg?default=false');const q=b.isbn?'isbn:'+b.isbn:'intitle:'+b.title;try{const j=await fetchMetaUrl('https://www.googleapis.com/books/v1/volumes?q='+encodeURIComponent(q)+'&maxResults=30');urls.push(...(j.items||[]).map(v=>v.volumeInfo?.imageLinks?.thumbnail?.replace(/^http:/,'https:')).filter(Boolean))}catch(e){}try{const j=await fetchMetaUrl('https://openlibrary.org/search.json?'+(b.isbn?'isbn='+encodeURIComponent(b.isbn):'title='+encodeURIComponent(b.title))+'&limit=20&fields=cover_i,isbn');urls.push(...(j.docs||[]).filter(x=>x.cover_i).map(x=>'https://covers.openlibrary.org/b/id/'+x.cover_i+'-L.jpg'))}catch(e){}return uniqueCovers(urls.filter(safeCover))}
+async function fetchMetaUrl(){throw Error('Online-Metadatensuche ist in dieser Offline-Version deaktiviert.');}
+async function autoBookMeta(){return false;}
+function coverGallery(target='draft',id=null){return target==='draft'?pickCover():editCover(id);}
+async function findCoverCandidates(b){return (b?.covers||[]).filter(Boolean);}
 function chooseOnlineCover(i){const url=window._coverChoices?.[i],t=window._covTarget;if(!url||!t)return;if(t.target==='draft')draft.covers=uniqueCovers([url,...(draft.covers||[])]);else{const b=S.books.find(x=>x.id==t.id);if(b){b.covers=uniqueCovers([url,...(b.covers||[])]);persist()}}modal=null;render();toast('Cover übernommen.')}
 function pickCoverFromGallery(){const t=window._covTarget;modal=null;if(t?.target==='draft')pickCover();else if(t?.id)editCover(t.id)}
 function newEdition(){keep();draft.editions=[...(draft.editions||[]),{language:draft.language||'',format:'Hardcover',edition:'',isbn:'',qty:1,price:'',cover:''}];render()}
@@ -881,9 +881,9 @@ function add(){
   const covers=draft.covers||[];
   return bar(addType==='digital'?'Digitales Buch':'Physisches Buch')+`<div class="pad book-form">
    ${addType==='digital'?`<button class="btn o" onclick="pickPdf()">${draft.pdfName?'✓ '+esc(draft.pdfName):'PDF / EPUB / Comic wählen'}</button><button class="btn o" onclick="batchChoose()">Mehrere Dateien hinzufügen</button>`:'<button class="btn o" onclick="addManyNames()">Mehrere Titel hinzufügen</button>'}
-   <button class="btn o" onclick="isbnM()">ISBN scannen / mehrere ISBNs</button><button class="btn o" onclick="buEnrichDraft()">✦ Buchdaten & Cover automatisch ergänzen</button>
+   <button class="btn o" onclick="isbnM()">ISBN scannen / mehrere ISBNs</button>
    <label>Suche nach Titel, Autor oder ISBN</label><input id="q" placeholder="Titel, Reihe, Autor oder ISBN" oninput="search()"><div id="res" class="search-results" role="status"></div>
-   ${f('title','Buchtitel','onchange="autoBookMeta()"')}${f('author','Autor')}${f('year','Erscheinungsjahr')}${f('genre','Genre')}${f('tags','Tags (mit Komma trennen)')}${f('series','Reihe')}${f('seriesNumber','Band / Reihenfolge')}${f('publisher','Verlag')}${f('price','UVP / Listenpreis','type="number" min="0" step="0.01"')}${buAmountFields('add',draft)}
+   ${f('title','Buchtitel','')}${f('author','Autor')}${f('year','Erscheinungsjahr')}${f('genre','Genre')}${f('tags','Tags (mit Komma trennen)')}${f('series','Reihe')}${f('seriesNumber','Band / Reihenfolge')}${f('publisher','Verlag')}${f('price','UVP / Listenpreis','type="number" min="0" step="0.01"')}${buAmountFields('add',draft)}
    ${addType==='physical'?f('qty','Anzahl Exemplare','type="number" min="1"'):''}
    <details class="info-details" ${draft.detailsOpen?'open':''} ontoggle="draft.detailsOpen=this.open"><summary>Erweiterte Details</summary>${f('language','Sprache (z. B. de, en)')}${f('isbn','ISBN-10 / ISBN-13')}${f('pages','Seitenzahl')}${f('edition','Edition / Ausgabebezeichnung')}<label>Einband</label>${formatSelect(draft.format||'Unbekannt','f_format')}</details>
    ${covers.length?`<div class="cset">${covers.map(c=>`<img src="${esc(c)}" alt="Buchcover" loading="lazy">`).join('')}</div>`:''}
@@ -1250,20 +1250,8 @@ function isbnValid(v){v=isbnClean(v);
   if(v.length==13&&/^\d+$/.test(v)){let s=0;for(let i=0;i<12;i++)s+=(+v[i])*(i%2?3:1);return(10-s%10)%10==+v[12]}
   if(v.length==10&&/^\d{9}[\dX]$/.test(v)){let s=0;for(let i=0;i<10;i++)s+=(v[i]=='X'?10:+v[i])*(10-i);return s%11==0}
   return false}
-async function lookupIsbn(i){
-  const candidates=[];
-  const results=await Promise.allSettled([
-    fetchMetaUrl(`https://openlibrary.org/api/books?bibkeys=ISBN:${i}&format=json&jscmd=data`),
-    fetchMetaUrl(`https://www.googleapis.com/books/v1/volumes?q=isbn:${i}`)]);
-  if(results[0].status==='fulfilled'){const d=results[0].value['ISBN:'+i];if(d)candidates.push(metadataOL(d))}
-  if(results[1].status==='fulfilled'){const x=results[1].value.items?.[0];if(x)candidates.push(metadataGoogle(x.volumeInfo,x))}
-  if(!candidates.length)return null;
-  const d={};for(const c of candidates)for(const [key,val]of Object.entries(c))if((d[key]===undefined||d[key]==='')&&val!==undefined&&val!==null&&val!=='')d[key]=val;
-  d.isbn=i;
-  // Physical format is edition-specific; never guess if the provider does not list it.
-  return d;
-}
-async function fetchCover(u){try{const r=await fetch(u);if(!r.ok)return null;const b=await r.blob();if(!/^image\//.test(b.type)||b.size<800)return null;return await new Promise(ok=>urlOf(b,ok,500))}catch(e){return null}}
+async function lookupIsbn(){return null;}
+async function fetchCover(){return null;}
 let camStream=null,camT=0;
 function camStop(){clearTimeout(camT);camT=0;if(camStream){camStream.getTracks().forEach(t=>t.stop());camStream=null}}
 window.camStop=camStop;
@@ -1278,7 +1266,7 @@ function isbnM(){keep();isbnQueue=[];const can='BarcodeDetector' in window&&navi
   <div class="book-actions"><button class="btn" onclick="isbnSaveQueue()">Alle als physische Bücher speichern</button><button class="chip" onclick="isbnGo($('isbn').value)">Ein Buch bearbeiten</button><button class="chip" onclick="camStop();modal=null;render()">Abbrechen</button></div>`;
   render();queueStatus();if(can)camStart()}
 async function isbnAddMany(v){const vals=[...new Set(String(v||'').split(/[\s,;]+/).map(isbnClean).filter(Boolean))];if(isbnBusy)return;isbnBusy=true;const m=$('cmsg');let ok=0;
-  try{for(const isbn of vals){if(!isbnValid(isbn)){if(m)m.textContent='Ungültige ISBN übersprungen: '+isbn;continue}if(isbnQueue.some(x=>x.isbn===isbn))continue;if(m)m.textContent='Suche nach '+isbn+' …';const d=await lookupIsbn(isbn);if(d){isbnQueue.push(d);ok++;queueStatus()}else if(m)m.textContent='Nicht gefunden: '+isbn}
+  try{for(const isbn of vals){if(!isbnValid(isbn)){if(m)m.textContent='Ungültige ISBN übersprungen: '+isbn;continue}if(isbnQueue.some(x=>x.isbn===isbn))continue;if(m)m.textContent='ISBN '+isbn+' wird lokal hinzugefügt …';isbnQueue.push({isbn,title:isbn,author:'',format:'Unbekannt'});ok++;queueStatus()}
     if(m&&ok)m.textContent=`${isbnQueue.length} Buchausgaben gesammelt. Du kannst weiterscannen oder alle speichern.`}
   finally{isbnBusy=false}}
 function isbnSaveQueue(){if(!isbnQueue.length)return toast('Bitte zuerst ISBNs hinzufügen.');let n=0;for(const d of isbnQueue){const b={id:Date.now()*100+n++,added:Date.now()+n,type:'physical',title:d.title||d.isbn,author:d.author||'',genre:d.genre||'',tags:d.tags||'',year:d.year||'',series:d.series||'',publisher:d.publisher||'',pages:d.pages||'',isbn:d.isbn,format:d.format||'Unbekannt',language:d.language||'',edition:d.edition||'',price:d.price||null,covers:d.cover?[d.cover]:[],qty:1,rating:null};b.editions=[copyEdition({...b,cover:d.cover})];mergePhysical(b)}camStop();isbnQueue=[];modal=null;shf='physical';view='shelf';save();toast(n+' Bücher/Editionen hinzugefügt.')}
@@ -1295,11 +1283,7 @@ function isbnPhoto(){raw('image/*',async f=>{const m=$('cmsg');
 async function isbnGo(v){
   const i=isbnClean(String(v||'').split(/[\s,;]+/).find(Boolean));const m=$('cmsg');
   if(!isbnValid(i)){if(m)m.textContent='Ungültige ISBN: Prüfziffer kontrollieren.';return}
-  camStop();if(m)m.textContent='Buch wird gesucht …';const d=await lookupIsbn(i);
-  if(!d){if(m)m.textContent='Keine Daten gefunden. Bitte ISBN oder Internet prüfen.';return}
-  draft={...draft,...Object.fromEntries(Object.entries(d).filter(([k,v])=>v!=null&&v!=='')),detailsOpen:true};
-  if(d.cover)draft.covers=uniqueCovers([d.cover,...(draft.covers||[])]);
-  addType='physical';modal=null;render();toast('ISBN-Daten übernommen. Du kannst alle Angaben ändern.')}
+  camStop();draft={...draft,isbn:i,detailsOpen:true};addType='physical';modal=null;render();toast('ISBN übernommen. Bitte Buchdaten manuell ergänzen.')}
 /* ---- Statistik: Tempo, Prognose, Jahresziel ---- */
 function pph(){const r=S.log.filter(l=>l.date>=iso(Date.now()-29*864e5)),m=r.reduce((t,l)=>t+l.mins,0),p=r.reduce((t,l)=>t+l.pages,0);return m>=10?Math.round(p/m*60):0}
 const ppd14=()=>S.log.filter(l=>l.date>=iso(Date.now()-13*864e5)).reduce((t,l)=>t+l.pages,0)/14;
