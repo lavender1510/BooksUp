@@ -1,5 +1,4 @@
-/* BooksUp 4.4: remote recommendations + opt-in pricing + reader zoom.
-   URL and auth for price provider must be supplied by publisher. No invented prices. */
+/* BooksUp 4.4: preserved local shelf interactions and reader zoom. */
 const BU44_REC_KEY='booksup.rec.v44',BU44_FEED_KEY='booksup.prices.v44';
 let bu44Remote=[],bu44LastFetch=0,bu44LastAttempt=0,bu44Loading=false,bu44PriceBusy=false;
 function bu44RetrieveCache(){
@@ -34,33 +33,7 @@ function bu44ItemToBook(x){
   year:v.publishedDate?.slice(0,4)||'',publisher:v.publisher||'',language:v.language||'',pages:v.pageCount||0,
   description:v.description||'',cover:cover.replace(/^http:/,'https:'),own:0};
 }
-async function bu44FetchRecommendations(force=false){
- if(bu44Loading||navigator.onLine===false)return;
- if(!force&&Date.now()-bu44LastFetch<6*3600000&&bu44Remote.length)return;
- if(!force&&Date.now()-bu44LastAttempt<10*60000)return;
- if(force){ALL.recCycle=(Number(ALL.recCycle)||0)+1;}
- bu44LastAttempt=Date.now();bu44Loading=true;
- try{
-  const subjects=bu44PoolSubjects();
-  const offset=new Date().getDate()%subjects.length;
-  const order=[...subjects.slice(offset),...subjects.slice(0,offset)];
-  const tasks=order.slice(0,5).map(async(sub,i)=>{
-   const lang=ALL.nextLanguage&&ALL.nextLanguage!=='system'?ALL.nextLanguage:('de');
-   const q='subject:'+sub;
-   const url='https://www.googleapis.com/books/v1/volumes?q='+encodeURIComponent(q)+'&orderBy=newest&maxResults=30&startIndex='+(((Math.floor(Date.now()/86400000)+i+Number(ALL.recCycle||0)*3)%8)*30)+'&langRestrict='+encodeURIComponent(lang==='de'||lang==='en'?lang:'en');
-   const response=await fetch(url);
-   if(!response.ok)throw Error('HTTP '+response.status);
-   const j=await response.json();return (j.items||[]).map(bu44ItemToBook).filter(Boolean);
-  });
-  const settled=await Promise.allSettled(tasks),items=settled.flatMap(x=>x.status==='fulfilled'?x.value:[]);
-  const seen=new Set(),unique=items.filter(b=>{const k=buNorm(b.title+' '+b.author);if(seen.has(k))return false;seen.add(k);return true});
-  if(unique.length){const old=new Set((bu44Remote||[]).map(b=>buNorm(b.title+'|'+b.author)));const extras=unique.filter(b=>!old.has(buNorm(b.title+'|'+b.author)));bu44Remote=[...extras,...bu44Remote].slice(0,200);bu44LastFetch=Date.now();
-    try{localStorage.setItem(BU44_REC_KEY,JSON.stringify({time:bu44LastFetch,items:bu44Remote}))}catch{}
-    if(view==='home'||view==='catalog')render();
-  }
- }catch(e){console.debug('Recommendations cache kept:',String(e))}
- finally{bu44Loading=false}
-}
+async function bu44FetchRecommendations(){return false;}
 function bu44AddMenu(){
  modal='<h3>Bücher hinzufügen</h3><p>Wähle, welches Buch du hinzufügen möchtest.</p><div class="bu44-add-menu"><button class="next-setting-row" onclick="modal=null;addType=\'physical\';view=\'add\';draft={};render()">📖 Physisches Buch</button><button class="next-setting-row" onclick="modal=null;addType=\'digital\';view=\'add\';draft={};render()">▣ Digitales Buch / PDF / EPUB</button><button class="next-setting-row" onclick="modal=null;batchChoose()">＋ Mehrere digitale Dateien importieren</button></div><button class="chip" onclick="modal=null;render()">Schließen</button>';
  render();
