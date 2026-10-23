@@ -38,7 +38,7 @@ async function run(){
      const viewportWidth=document.documentElement.clientWidth;
      return {body:document.body.scrollWidth,document:pageWidth,viewport:viewportWidth,
       heading:document.querySelector('h1,h2')?.textContent?.slice(0,80),
-      hasError:document.body.textContent.includes('Etwas ist schiefgelaufen'),errorMessage:document.body.textContent.includes('Etwas ist schiefgelaufen')?document.body.innerText.slice(0,360):null};
+      hasError:document.querySelector('#app')?.innerText.includes('Etwas ist schiefgelaufen')||false,errorMessage:document.querySelector('#app')?.innerText.includes('Etwas ist schiefgelaufen')?document.querySelector('#app').innerText.slice(0,360):null};
     },screen);
     if(result.error||result.hasError||result.document>result.viewport+3){
      failures.push(JSON.stringify({size,screen,result}));
@@ -47,9 +47,9 @@ async function run(){
    for(const mode of [0,1,2]){
     const result=await page.evaluate(mode=>{
      S.mode=mode;window.go('settings');
-     return document.documentElement.dataset.theme;
+     return {theme:document.documentElement.dataset.theme, mode:S.mode, error:document.querySelector('#app')?.innerText.slice(0,180)};
     },mode);
-    if(result!==(mode===2?'dark':'light'))failures.push(JSON.stringify({size,mode,theme:result}));
+    if(result.theme!==(mode===2?'dark':'light'))failures.push(JSON.stringify({size,mode,theme:result}));
    }
    if(exceptions.length)failures.push(JSON.stringify({size,exceptions:exceptions.slice(0,5)}));
    await context.close();
