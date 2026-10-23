@@ -38,7 +38,7 @@ async function run(){
      const viewportWidth=document.documentElement.clientWidth;
      return {body:document.body.scrollWidth,document:pageWidth,viewport:viewportWidth,
       heading:document.querySelector('h1,h2')?.textContent?.slice(0,80),
-      hasError:document.body.textContent.includes('Etwas ist schiefgelaufen')};
+      hasError:document.body.textContent.includes('Etwas ist schiefgelaufen'),errorMessage:document.body.textContent.includes('Etwas ist schiefgelaufen')?document.body.innerText.slice(0,360):null};
     },screen);
     if(result.error||result.hasError||result.document>result.viewport+3){
      failures.push(JSON.stringify({size,screen,result}));
