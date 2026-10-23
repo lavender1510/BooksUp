@@ -325,7 +325,7 @@ function applyLanguage(){
    }
   });
  }finally{localeBusy=false;}
- if(lang!=='de')window.BooksUpTranslationService?.translateUI(app,lang);
+
 }
 let languageObservation;
 function observeLanguage(){
@@ -337,122 +337,6 @@ function observeLanguage(){
  });
  languageObservation.observe(root,{childList:true,subtree:true});
 }
-// Central privacy-filtered fallback for UI strings not present in the five static dictionaries.
-// User-entered notes, profile data, book titles, reader content and identifiers stay local.
-const LT_LANGS=new Set(['de','en','fr','es','it']);
-const LT_STORAGE='booksup.libretranslate.ui.v1',LT_CAP=400;
-let ltCache={};try{const parsed=JSON.parse(localStorage.getItem(LT_STORAGE)||'{}');if(parsed&&typeof parsed==='object'&&!Array.isArray(parsed))ltCache=parsed;}catch{}
-const ltPending=new Map(),ltRejected=new Map();
-let ltDebounce=null,ltBusy=false,ltCooldown=0;
-const ltCacheKey=(lang,source)=>lang+'|'+source;
-const ltSafeText=text=>{
- const s=String(text||'').trim();
- return s.length>=4&&s.length<=160&&/[a-zäöüàèéêñìòù]/i.test(s)&&
-  !/\d|@|https?:|www\.|\.(?:com|de|net|org)\b|[{}<>]|\b(?:ISBN|EAN|E-?Mail|PDF-Datei)\b/i.test(s);
-};
-const ltPrivate=el=>!!el?.closest?.(
- '.next-detail,.next-book-information,.next-book-card,.next-note,.next-cover,.bu45-cover,.bu45-library-detail,'+
- '.bu49-article,.bu49-news-article,.news-article,.bu47-note,.bu50-note,.bu45-list-items,'+
- '.next-annotations .next-note,.next-profile,.bu43-profile,.profile,.rdscroll,.txt,.book-title,'+
- '[contenteditable],[data-user-content],input,textarea,pre,code'
-);
-// Translation is opt-in for developer-authored UI fragments. Never scan user content.
-const ltAllowed=el=>!ltPrivate(el)&&!!el?.closest?.('[data-bu-ui-translate]');
-function ltRemember(key,value){
- ltCache[key]=value;
- const keys=Object.keys(ltCache);for(const old of keys.slice(0,Math.max(0,keys.length-LT_CAP)))delete ltCache[old];
- try{localStorage.setItem(LT_STORAGE,JSON.stringify(ltCache));}catch{}
-}
-async function ltRequest(texts,source,target){
- if(!(source==='auto'||LT_LANGS.has(source))||!LT_LANGS.has(target)||texts.length>12||texts.some(x=>!ltSafeText(x)))throw Error('Invalid UI translation');
- const configured=String(window.BOOKSUP_LIBRETRANSLATE_URL||'');
- if(!configured&&!window.booksupTranslation?.translateMany)throw Error('LibreTranslate must be configured for Android/browser');
- const endpoint=configured||'https://de.libretranslate.com/translate';
- let url;try{url=new URL(endpoint);}catch{throw Error('Invalid translation URL');}
- if(url.protocol!=='https:'||url.username||url.password||url.pathname!=='/translate')throw Error('Invalid translation URL');
- if(window.booksupTranslation?.translateMany)return window.booksupTranslation.translateMany({texts,source,target});
- const native=window.Capacitor?.Plugins?.BooksUpNetwork;
- if(native?.translateText)return native.translateText({texts,source,target,url:endpoint});
- // Browser-only development uses public no-key instances; CORS and key restrictions may apply.
- const controller=new AbortController(),timeout=setTimeout(()=>controller.abort(),12000);
- try{
-  const response=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},
-   body:JSON.stringify({q:texts,source,target,format:'text'}),signal:controller.signal});
-  if(!response.ok)throw Error('LibreTranslate HTTP '+response.status);
-  return await response.json();
- }finally{clearTimeout(timeout);}
-}
-function ltQueue(source,lang,apply){
- if(!ltSafeText(source)||lang==='de'||!LT_LANGS.has(lang))return;
- const canonicalTerm=canonical.get(source.toLowerCase());
- if(canonicalTerm&&knownTranslations.get(canonicalTerm)?.[localeIndex[lang]])return;
- const key=ltCacheKey(lang,source);
- if(typeof ltCache[key]==='string'&&ltCache[key])return apply(ltCache[key]);
- if(Date.now()<(ltRejected.get(key)||0)||navigator.onLine===false)return;
- if(!ltPending.has(key))ltPending.set(key,{source,lang,apply:[]});
- ltPending.get(key).apply.push(apply);
- clearTimeout(ltDebounce);ltDebounce=setTimeout(ltFlush,450);
-}
-async function ltFlush(){
- if(ltBusy||Date.now()<ltCooldown||navigator.onLine===false)return;
- const first=ltPending.values().next().value;if(!first)return;
- const records=[...ltPending.entries()].filter(([,x])=>x.lang===first.lang).slice(0,12);
- records.forEach(([key])=>ltPending.delete(key));
- ltBusy=true;
- try{
-  const result=await ltRequest(records.map(([,x])=>x.source),'auto',first.lang),values=result?.translatedText;
-  if(!Array.isArray(values)||values.length!==records.length||values.some(v=>typeof v!=='string'||!v.trim()))throw Error('Invalid LibreTranslate response');
-  records.forEach(([key,x],i)=>{const output=values[i].trim().slice(0,220);
-   ltRemember(key,output);x.apply.forEach(callback=>{try{callback(output);}catch{}});
-  });
- }catch(error){
-  // Keep the static translation or last known text. Avoid hammering a key-restricted/offline instance.
-  ltCooldown=Date.now()+60000;
-  records.forEach(([key])=>ltRejected.set(key,Date.now()+5*60000));
-  console.debug('LibreTranslate unavailable; static UI text retained:',String(error?.message||error));
- }finally{
-  ltBusy=false;
-  if(ltPending.size&&Date.now()>=ltCooldown){clearTimeout(ltDebounce);ltDebounce=setTimeout(ltFlush,900);}
- }
-}
-function ltTranslateUI(root,lang){
- if(!root||!LT_LANGS.has(lang)||lang==='de')return;
- if(typeof NodeFilter==='undefined'||typeof document.createTreeWalker!=='function')return;
- const walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);
- const nodes=[];
- while(walker.nextNode()){
-  const n=walker.currentNode,p=n.parentElement;
-  if(!p||!ltAllowed(p)||['SCRIPT','STYLE','OPTION','TEXTAREA','INPUT','CODE','PRE'].includes(p.tagName))continue;
-  if(!ltSafeText(n.nodeValue))continue;
-  nodes.push(n);if(nodes.length>=120)break;
- }
- for(const node of nodes){
-  const original=node.nodeValue,trimmed=original.trim(),at=original.indexOf(trimmed);
-  ltQueue(trimmed,lang,translated=>{
-   if(!node.isConnected||node.nodeValue!==original||typeof nextLanguage==='function'&&nextLanguage()!==lang)return;
-   node.nodeValue=original.slice(0,at)+translated+original.slice(at+trimmed.length);
-  });
- }
- const targets=root.querySelectorAll('button[aria-label],input[placeholder],textarea[placeholder]');
- for(const element of targets){
-  if(ltPrivate(element.parentElement)||!element.hasAttribute('data-bu-ui-translate'))continue;
-  for(const attr of ['aria-label','placeholder']){
-   const original=element.getAttribute(attr);if(!ltSafeText(original))continue;
-   ltQueue(original.trim(),lang,translated=>{
-    if(element.isConnected&&element.getAttribute(attr)===original&&nextLanguage()===lang)element.setAttribute(attr,translated);
-   });
-  }
- }
-}
-window.BooksUpTranslationService=Object.freeze({
- translateUI:ltTranslateUI,
- translateMany:async(texts,lang)=>{if(!Array.isArray(texts)||!LT_LANGS.has(lang))throw Error('Invalid translation');
-  const safe=texts.filter(ltSafeText).slice(0,12);
-  return (await ltRequest(safe,'auto',lang)).translatedText;
- },
- cacheSize:()=>Object.keys(ltCache).length
-});
-
 const after=window.nextAfterRender;
 window.nextAfterRender=function(){
  after?.apply(this,arguments);
@@ -461,57 +345,6 @@ window.nextAfterRender=function(){
  else{applyLanguage();observeLanguage();}
 };
 window.bu53ApplyLanguage=applyLanguage;
-
-/* Real transfer progress is not an animation: only bytes reported by the
- * Android native downloader and Windows electron-updater advance this bar. */
-let updateStart=0;
-let downloadLast={bytes:0,time:0};
-function fmtBytes(bytes){return Number(bytes)>0?(Number(bytes)/1048576).toFixed(1)+' MB':'0 MB';}
-function fmtTime(seconds){const s=Math.max(0,Math.ceil(seconds));return s>=60?Math.floor(s/60)+' min '+s%60+' s':s+' s';}
-function progressUpdate(data){
- const panel=document.getElementById('bu53-update-progress');if(!panel)return;
- const bytes=Number(data?.transferred||data?.downloadedBytes||0);
- const total=Number(data?.total||data?.totalBytes||0);
- const now=Date.now();
- if(!updateStart){updateStart=now;downloadLast={bytes:0,time:now};}
- const seconds=Math.max(.001,(now-updateStart)/1000);
- const speed=Number(data?.bytesPerSecond||0)||(bytes>0?bytes/seconds:0);
- const rawPct=total>0?Math.round(bytes/total*100):data?.percent;
- const pct=Number.isFinite(Number(rawPct))&&rawPct!==null?Math.max(0,Math.min(100,Number(rawPct))):null;
- const bar=panel.querySelector('progress'),label=panel.querySelector('.bu53-update-progress-label');
- if(bar){if(pct===null)bar.removeAttribute('value');else bar.value=pct;}
- if(label){
-  const eta=total>bytes&&speed>100?fmtTime((total-bytes)/speed):'wird berechnet';
-  label.textContent=(data?.message||'Update wird heruntergeladen …')+
-    (pct!==null?' · '+pct+'%':'')+
-    (bytes>0?' · '+fmtBytes(bytes)+(total>0?' / '+fmtBytes(total):''):'')+
-    (speed>100?' · '+fmtBytes(speed)+'/s':'')+
-    (total>bytes?' · Restzeit ca. '+eta:'');
- }
- panel.hidden=false;
- if(pct===100||/aktuell|fehlgeschlagen|blockiert|Abgeschlossen/i.test(String(data?.message||''))){downloadLast={bytes:0,time:0};updateStart=0;}
-}
-const prevSettingsDetail=window.nextSettingsDetail;
-window.nextSettingsDetail=function(){
- const html=prevSettingsDetail.apply(this,arguments);
- if(nextSettingCategory!=='updates')return html;
- const progress='<div id="bu53-update-progress" class="bu53-update-progress" aria-live="polite" hidden>'+
- '<progress max="100" value="0" aria-label="Update-Download"></progress>'+
- '<div class="bu53-update-progress-label">Update wird vorbereitet …</div></div>';
- return /id="bu50-update-status"/.test(html)?html.replace(/(<p[^>]*id="bu50-update-status"[^>]*>[\s\S]*?<\/p>)/,'$1'+progress):html.replace(/<\/div>\s*$/,progress+'</div>');
-};
-try{
- window.booksupUpdateEvents?.subscribe?.(progressUpdate);
- window.Capacitor?.Plugins?.BooksUpUpdater?.addListener?.('downloadProgress',progressUpdate);
-}catch(error){console.debug('Update progress setup',error);}
-const oldUpdate=window.bu50CheckAppUpdate;
-window.bu50CheckAppUpdate=async function(){
- updateStart=0;downloadLast={bytes:0,time:0};
- const box=document.getElementById('bu53-update-progress');
- if(box){box.hidden=false;const t=box.querySelector('.bu53-update-progress-label');if(t)t.textContent='Prüfe auf neue Versionen …';}
- try{return await oldUpdate.apply(this,arguments);}
- catch(error){progressUpdate({message:'Update fehlgeschlagen: '+String(error.message||error)});throw error;}
-};
 
 /* Check local LAN reachability separately from WebRTC ICE. This distinguishes
  * Android HTTP policy, wrong PIN and Windows firewall before pairing starts. */
