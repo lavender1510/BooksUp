@@ -1,6 +1,7 @@
 name: BooksUp Android Source and Native QA
 on:
   pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
     paths:
       - 'mobile/**'
       - 'tools/android-init.cjs'
@@ -23,7 +24,7 @@ jobs:
         with:
           node-version: '22'
       - run: npm run test:static
-      - run: node tools/test-android-48.cjs
+      - run: node tools/test-offline.cjs
       - run: node tools/test-54.cjs
       - run: node --check mobile/booksup-android-48.js
       - run: node --check tools/android-init.cjs
