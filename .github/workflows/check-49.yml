@@ -16,7 +16,7 @@ permissions:
 jobs:
   verify:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 40
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -36,6 +36,17 @@ jobs:
           node tools/test-55-behavior.cjs
           node tools/test-56-functional.cjs
           node tools/test-offline.cjs
+      - name: Install browser-only UI test runtime
+        run: |
+          npm install --no-save --no-audit --no-fund playwright@1.56.0
+          npx playwright install --with-deps chromium
+      - name: Check offline responsive UI in Chromium
+        shell: bash
+        run: |
+          python3 -m http.server 8765 --bind 127.0.0.1 --directory www >/tmp/booksup-http.log 2>&1 &
+          SERVER_PID=$!
+          trap 'kill "$SERVER_PID" || true' EXIT
+          node tools/test-offline-layout.cjs
       - name: Check native and shared JavaScript
         run: |
           node --check electron/main.cjs
