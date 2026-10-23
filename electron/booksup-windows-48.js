@@ -1,7 +1,7 @@
 /* BooksUp 4.8 – Windows fixes only. Injected by Electron after 4.7. */
 (function () {
 'use strict';
-if (!window.booksupDesktopUpdate) return;
+if (!window.booksupBackupFile) return;
 window.booksupWindows48 = true;
 
 const safe = value => esc(value == null ? '' : String(value));
