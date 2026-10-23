@@ -84,90 +84,6 @@ if(!window.bu50RefreshBackground){
   if(window.bu51TempWallpaper)html.style.setProperty('--bu50-bg-image','url("'+window.bu51TempWallpaper+'")');
  };
 }
-// Catalog normalization; a failed backend must not turn a legitimate query into an empty list.
-const catalogRows=(raw)=>{
- const result=[];
- for(const g of raw?.google||[]){
-  const v=g.volumeInfo||{};if(!v.title)continue;
-  result.push({...metadataGoogle(v,g),description:v.description||'',title:v.title,author:(v.authors||[]).join(', '),year:v.publishedDate?.slice(0,4)||'',source:'Google Books'});
- }
- for(const o of raw?.open||[]){
-  if(!o.title)continue;
-  result.push({id:o.key,title:o.title,author:(o.author_name||[]).join(', '),isbn:(o.isbn||[])[0]||'',
-   year:o.first_publish_year||'',genre:(o.subject||[])[0]||'',tags:(o.subject||[]).slice(0,5).join(', '),
-   cover:o.cover_i?'https://covers.openlibrary.org/b/id/'+Number(o.cover_i)+'-L.jpg':'',language:(o.language||[])[0]||'',source:'Open Library'});
- }
- return result;
-};
-async function catalogQuery(term,author=''){
- const errors=[],results=[];
- if(window.booksupCatalog?.search){
-  try{
-   const r=await window.booksupCatalog.search({title:term,author,isbn:/^(?:\d{10}|\d{13})$/.test(term.replace(/[^0-9X]/gi,''))?term:''});
-   results.push(...catalogRows(r));errors.push(...(r.errors||[]));
-  }catch(e){errors.push('Native Buchsuche: '+String(e.message||e));}
- }
- if(!results.length){
-  const isbn=term.replace(/[^\dX]/gi,'');
-  const q=/^(?:\d{10}|\d{13})$/.test(isbn)?'isbn:'+isbn:term+(author?' '+author:'');
-  const endpoints=[
-   'https://www.googleapis.com/books/v1/volumes?q='+encodeURIComponent(q)+'&maxResults=40',
-   'https://openlibrary.org/search.json?'+(q.startsWith('isbn:')?'isbn='+encodeURIComponent(isbn):'q='+encodeURIComponent(q))+'&limit=35&fields=key,title,author_name,isbn,first_publish_year,cover_i,subject,language'
-  ];
-  const responses=await Promise.allSettled(endpoints.map(async u=>{
-   const r=await fetch(u,{signal:AbortSignal.timeout(12000)});if(!r.ok)throw Error('HTTP '+r.status);return r.json();
-  }));
-  responses.forEach((x,i)=>{if(x.status==='fulfilled')results.push(...catalogRows(i===0?{google:x.value.items||[]}:{open:x.value.docs||[]}));
-   else errors.push(['Google Books','Open Library'][i]+': '+String(x.reason?.message||x.reason));});
- }
- const found=new Set();
- return {books:results.filter(b=>{const k=normalize(b.title)+'|'+normalize(b.author);if(!k||found.has(k))return false;found.add(k);return true;}),errors};
-}
-let discoveryToken=0;
-window.bu46Search=async function(term,reset=true){
- const value=String(term??document.getElementById('bu46-search-input')?.value??'').trim();
- if(value.length<2)return toast('Bitte mindestens zwei Zeichen eingeben.');
- const token=++discoveryToken;bu46SearchSeq++;bu46SearchTerm=value;
- if(reset)bu46SearchResults=[];
- bu46SearchBusy=true;
- const status=()=>document.getElementById('bu46-search-status');
- if(status())status().textContent='Suche in Google Books und Open Library …';
- try{
-  const result=await catalogQuery(value);
-  if(token!==discoveryToken)return;
-  const items=result.books.filter(b=>typeof bu46Allowed!=='function'||bu46Allowed(b));
-  bu46SearchResults=items.slice(0,90);
-  const list=document.getElementById('bu46-search-items');
-  if(list)list.innerHTML=bu46SearchResults.map((b,i)=>bu46SearchCard(b,i)).join('');
-  if(status())status().textContent=items.length?items.length+' Bücher gefunden'+(result.errors.length?' · eine Quelle ist eingeschränkt':''):
-    'Keine Treffer. '+(result.errors.length?'Verbindungsproblem: '+result.errors.join(' | ').slice(0,220):'Versuche Titel, Autor oder ISBN.');
-  if(typeof bu43LoadCovers==='function')bu43LoadCovers();
- }catch(e){if(token===discoveryToken&&status())status().textContent='Buchsuche fehlgeschlagen: '+String(e.message||e);}
- finally{if(token===discoveryToken)bu46SearchBusy=false;}
-};
-const beforeLookup=window.bu48Lookup;
-window.bu48Lookup=async function(id,options={}){
- const b=[...S.books,...bu45Extra()].find(x=>String(x.id)===String(id));if(!b)return null;
- const first=await beforeLookup.apply(this,arguments);
- if(!b.title || (first?.candidates?.length&&b.description&&b.publisher))return first;
- const result=await catalogQuery(String(b.isbn||b.title),b.isbn?'':b.author||'');
- const wanted=normalize(b.title),author=normalize(b.author);
- const scored=result.books.map(c=>({...c,confidence:(normalize(c.title)===wanted?80:normalize(c.title).includes(wanted)&&wanted.length>5?58:0)+(author&&(normalize(c.author).includes(author)||author.includes(normalize(c.author)))?18:0)})).filter(c=>c.confidence>=70).sort((a,b)=>b.confidence-a.confidence);
- let changes=0;
- const pick=scored[0];
- if(pick){for(const k of ['author','year','publisher','pages','language','description','genre','tags']){
-  if(!b[k]&&pick[k]){b[k]=k==='description'?String(pick[k]).replace(/<[^>]+>/g,' ').slice(0,7000):pick[k];changes++;}
- }
- if(!b.covers?.length&&!b.cover&&pick.cover){b.covers=[pick.cover];changes++;}
- const editions=new Set(scored.map(x=>String(x.isbn||'').replace(/[^\dX]/gi,'')).filter(x=>x.length===13));
- if(!b.isbn&&editions.size===1&&pick.confidence>=95){b.isbn=[...editions][0];changes++;}
- }
- if(changes){persist();if(['detail','libraryDetail'].includes(view))render();}
- if(!options.silent && !changes && !first?.candidates?.length)toast(result.errors.length?'Online-Buchdaten: '+result.errors.join(' | ').slice(0,180):'Kein eindeutiger Treffer. Prüfe Titel und Autor.');
- return first?.candidates?.length?first:{candidates:scored,suggestions:scored.filter(x=>x.isbn),errors:result.errors};
-};
-window.bu46EnrichBook=function(id){return window.bu48Lookup(id,{silent:false});};
-window.bu47EnrichOwnedBook=function(id,silent=false){return window.bu48Lookup(id,{silent});};
 const defaultRecs=window.buRecs;
 if(typeof defaultRecs==='function'){
  window.buRecs=function(){
@@ -177,34 +93,6 @@ if(typeof defaultRecs==='function'){
   return {...obj,list:[...list.slice(shift),...list.slice(0,shift)]};
  };
 }
-let recommendationBusy=false;
-window.bu46MoreBooks=async function(){
- if(recommendationBusy)return;
- recommendationBusy=true;ALL.recCycle=(Number(ALL.recCycle)||0)+1;persist();
- if(view==='home')render();toast('Suche nach anderen Büchern …');
- try{
-  // Rotate categories and request broader results; use native catalog search if WebView CORS fails.
-  if(typeof bu44FetchRecommendations==='function')await bu44FetchRecommendations(true);
-  if(window.booksupCatalog?.search){
-   const words=sp==='manga'?['manga','comic','graphic novel','webtoon','shonen','manhwa']:
-     ['fantasy','mystery','science fiction','literature','romance','history','nonfiction','biography','adventure'];
-   const picked=[words[ALL.recCycle%words.length],words[(ALL.recCycle*3+1)%words.length]];
-   const responses=await Promise.allSettled(picked.map(title=>window.booksupCatalog.search({title})));
-   const old=new Set(bu44Remote.map(b=>normalize(b.title)+'|'+normalize(b.author)));
-   const additions=responses.flatMap(x=>x.status==='fulfilled'?catalogRows(x.value):[]).filter(b=>{
-    const key=normalize(b.title)+'|'+normalize(b.author);
-    if(!b.title||old.has(key)||typeof bu46Allowed==='function'&&!bu46Allowed(b))return false;
-    old.add(key);return true;
-   }).slice(0,65);
-   if(additions.length){bu44Remote=[...additions,...bu44Remote].slice(0,400);
-    bu44LastFetch=Date.now();
-    try{localStorage.setItem(BU44_REC_KEY,JSON.stringify({time:bu44LastFetch,items:bu44Remote}))}catch{}
-   }
-  }
-  render();toast('Neue Empfehlungen geladen. Weitere Bücher entdecken wechselt die Auswahl.');
- }catch(e){render();toast('Online-Bücher konnten nicht geladen werden. Lokale Empfehlungen wurden neu gemischt.');}
- finally{recommendationBusy=false;}
-};
 // Extended UI translations. Do not rewrite user-entered names, reading text or article bodies.
 const translations={
  'Mehr Bücher entdecken':['Discover more books','Découvrir plus de livres','Descubrir más libros','Scopri altri libri'],
