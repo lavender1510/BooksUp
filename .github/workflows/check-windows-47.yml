@@ -1,6 +1,7 @@
 name: BooksUp Windows 4.8 verification
 on:
   pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
     paths:
       - 'electron/**'
       - 'tools/**'
@@ -21,8 +22,8 @@ jobs:
         with:
           node-version: '22'
       - run: npm run test:static
-      - run: node tools/test-windows-47.cjs
-      - run: node tools/test-windows-48.cjs
+      - run: node tools/test-offline.cjs
+      - run: node tools/test-54.cjs
       - run: node --check electron/booksup-windows-48.js
       - run: node --check electron/main.cjs
       - run: node --check electron/preload.cjs
