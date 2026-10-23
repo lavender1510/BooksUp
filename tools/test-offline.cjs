@@ -24,7 +24,7 @@ assert.match(preload,/booksupLan/);
 assert.match(android,/private static final Pattern PRIVATE_IP/);
 assert.doesNotMatch(android,/translateText|searchCatalog|api\.momox|libretranslate/);
 assert.doesNotMatch(read('www/booksup-53.js'),/\/translate|BooksUpTranslationService/);
-assert.doesNotMatch(read('www/booksup-44.js'),/medimops-prices\.json|MediMops-Preisalarm/);
+assert.doesNotMatch(read('www/booksup-44.js'),/medimops-prices\.json|MediMops-Preisalarm|bu44Watches\(/);
 assert.match(read('tools/android-init.cjs'),/BooksUpNetworkPlugin\.java/);
 assert.doesNotMatch(read('tools/android-init.cjs'),/BooksUpUpdaterPlugin|configure-public-translation/);
 assert.ok(html.includes("transfer:bu45TransferHub"),'LAN transfer screen must remain');
