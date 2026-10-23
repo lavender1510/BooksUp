@@ -62,11 +62,7 @@ jobs:
           BOOKSUP_RELEASE_STORE_PASSWORD: ${{ secrets.BOOKSUP_ANDROID_RELEASE_STORE_PASSWORD }}
           BOOKSUP_RELEASE_KEY_ALIAS: ${{ secrets.BOOKSUP_ANDROID_RELEASE_KEY_ALIAS }}
           BOOKSUP_RELEASE_KEY_PASSWORD: ${{ secrets.BOOKSUP_ANDROID_RELEASE_KEY_PASSWORD }}
-          BOOKSUP_GOOGLE_WEB_CLIENT_ID: ${{ secrets.BOOKSUP_GOOGLE_WEB_CLIENT_ID }}
-          BOOKSUP_PUBLIC_TRANSLATION_URL: ${{ vars.BOOKSUP_PUBLIC_TRANSLATION_URL }}
         run: |
-          node -e "const fs=require('fs');fs.writeFileSync('www/cloud-drive-config.js','window.BOOKSUP_GOOGLE_WEB_CLIENT_ID='+JSON.stringify(process.env.BOOKSUP_GOOGLE_WEB_CLIENT_ID||'')+';\n')"
-          node tools/configure-public-translation.cjs
           node tools/build-android-release.cjs
       - name: Verify signed release and LAN policy
         shell: bash
