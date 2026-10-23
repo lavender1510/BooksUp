@@ -187,6 +187,7 @@ function visibleNav(){
  return visible.length?visible:navDefault;
 }
 window.bu55SetNav=function(id,enabled){
+ if(!navDefault.includes(id))return;
  let arr=visibleNav();
  arr=enabled?[...new Set([...arr,id])]:arr.filter(x=>x!==id);
  if(!arr.length){toast('Mindestens ein Navigationspunkt muss sichtbar bleiben.');return;}
