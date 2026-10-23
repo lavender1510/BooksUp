@@ -64,7 +64,6 @@ function nextRefreshReader(){if(view!=='reader')return;const b=S.books.find(x=>x
 function currentChapter(){const c=typeof curChaps!=='undefined'&&Array.isArray(curChaps)?curChaps:[],n=Number(S.books.find(x=>x.id===cur)?.page||1);return [...c].reverse().find(x=>x.p<=n)||null}
 function nextCaptureHighlight(){const b=S.books.find(x=>x.id===cur);if(!b)return;let selected=window.getSelection?.().toString().trim()||'';selected=selected.slice(0,1200);const message=selected?'Kommentar zu dieser Markierung (optional):':'Deine Notiz zur aktuellen Seite:';const comment=prompt(message,'');if(comment===null)return;if(!selected&&!comment.trim())return;const a={page:Number(b.page)||1,chapter:b.chapter||1,text:selected,comment:comment.trim().slice(0,2000),created:Date.now()};b.annotations??=[];b.annotations.push(a);persist();toast('Markierung / Notiz gespeichert.');if(selected){try{const sel=window.getSelection();if(sel.rangeCount){const range=sel.getRangeAt(0);if(document.getElementById('rdscroll')?.contains(range.commonAncestorContainer)){const mark=document.createElement('mark');mark.className='next-highlight';range.surroundContents(mark);sel.removeAllRanges()}}}catch(e){}}}
 const NEXT_SETTINGS=[
- ['friends','Konto / Profil','♧','Profile und Freunde-Server'],
  ['appearance','Darstellung','◐','Themes, Schriften und Oberfläche'],
  ['language','Sprache','文','Deutsch, English, Français, Español, Italiano'],
  ['reading','Leseeinstellungen','Aa','Lesemodus, Text und Lesetempo'],
