@@ -129,55 +129,6 @@ window.bu48Lookup=async function(id,opts={}){
 /* New results are sampled from actual catalog responses, not the repeating
  * static demo catalog. User-owned and previously shown items are excluded. */
 const oldRecs=window.buRecs;
-let recent=[];try{recent=JSON.parse(localStorage.getItem('bu52.recent')||'[]');if(!Array.isArray(recent))recent=[]}catch{}
-let extraRecs=[];
-function applyRecommendationPool(){
- const result=oldRecs(),pool=[...extraRecs,...(result?.list||[])];
- const owned=new Set([...ALL.book.books,...ALL.manga.books,...(ALL.book.libraryBooks||[]),...(ALL.manga.libraryBooks||[])].map(keyOf));
- const uniq=new Set(),valid=pool.filter(b=>{
-  const k=keyOf(b);
-  if(!b?.title||uniq.has(k)||owned.has(k)||typeof bu46Allowed==='function'&&!bu46Allowed(b))return false;
-  uniq.add(k);return true;
- });
- const fresh=valid.filter(b=>!recent.includes(keyOf(b)));
- const back=valid.filter(b=>recent.includes(keyOf(b)));
- const cycle=Number(ALL.recCycle||0),step=Math.max(1,Math.floor(fresh.length/5)),offset=fresh.length?cycle*step%fresh.length:0;
- return {...result,list:[...fresh.slice(offset),...fresh.slice(0,offset),...back].slice(0,100)};
-}
-window.buRecs=applyRecommendationPool;
-let busy=false;
-window.bu46MoreBooks=async function(){
- if(busy)return;
- busy=true;ALL.recCycle=(Number(ALL.recCycle)||0)+1;persist();
- const last=window.buRecs().list.slice(0,24).map(keyOf);
- recent=[...new Set([...recent,...last])].slice(-200);
- try{localStorage.setItem('bu52.recent',JSON.stringify(recent))}catch{}
- const themes=sp==='manga'?['manga','graphic novels','manhwa','comics','shonen','seinen','webtoons','fantasy']:
- ['fantasy','historical fiction','science fiction','romance','thriller','biography','crime','nonfiction','adventure','classics','humor','mystery'];
- const start=(ALL.recCycle*3)%themes.length;
- const terms=[themes[start],themes[(start+4)%themes.length],themes[(start+7)%themes.length]];
- const errors=[],discovered=[];
- await Promise.all(terms.map(async topic=>{
-  try{
-   const response=await window.booksupCatalog.search({title:topic,topic});
-   errors.push(...(response.errors||[]));
-   for(const row of response.google||[]){
-    const v=row.volumeInfo||{};if(!v.title)continue;
-    discovered.push({...metadataGoogle(v,row),title:v.title,author:(v.authors||[]).join(', '),description:v.description||'',genre:v.categories?.[0]||topic});
-   }
-   for(const row of response.open||[])if(row.title)discovered.push({title:row.title,author:(row.author_name||[]).join(', '),isbn:row.isbn?.[0]||'',year:row.first_publish_year||'',genre:row.subject?.[0]||topic,cover:row.cover_i?'https://covers.openlibrary.org/b/id/'+row.cover_i+'-L.jpg':''});
-  }catch(e){errors.push(topic+': '+String(e.message||e));}
- }));
- const known=new Set(extraRecs.map(keyOf));
- for(const b of discovered){
-  const k=keyOf(b);if(known.has(k)||!b.title)continue;known.add(k);extraRecs.unshift(b);
- }
- extraRecs=extraRecs.slice(0,600);
- if(view==='home')render();
- const n=discovered.length;
- toast(n?Math.min(n,600)+' neue Online-Empfehlungen geprüft.':errors.length?'Keine neuen Empfehlungen: '+errors.join(' | ').slice(0,180):'Keine neuen Titel in den gewählten Genres gefunden.');
- busy=false;
-};
 /* Reliable LAN native join: no insecure mixed-content WebView requests. */
 if(onAndroid()){
  window.booksupLan??={};
