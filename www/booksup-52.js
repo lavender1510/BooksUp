@@ -10,19 +10,7 @@ const native=async(method,data)=>{
  if(typeof window.Capacitor?.nativePromise==='function')return window.Capacitor.nativePromise('BooksUpNetwork',method,data);
  throw Error('BooksUp 5.2 Netzwerkdienst nicht registriert. Bitte die aktuelle APK installieren.');
 };
-if(onAndroid()){
- const oldCatalog=window.booksupCatalog?.search;
- window.booksupCatalog??={};
- window.booksupCatalog.search=async request=>{
-   try{return await native('searchCatalog',request||{});}
-   catch(e){
-    if(oldCatalog){const result=await oldCatalog(request);result.errors=[...(result.errors||[]),'Android-Netzwerkdienst: '+String(e.message||e)];return result;}
-    throw e;
-   }
- };
- window.booksupLan??={};
- window.booksupLan.signal=async args=>native('signal',args);
-}
+if(onAndroid()){window.booksupLan??={};window.booksupLan.signal=data=>native('signal',data);}
 /* Gestures: trackpad pinch is Ctrl/Meta+wheel. Touch pinch commits once after
  * fingers release, rather than remounting the entire PDF on every touchmove. */
 let gesture=null,zoomCommit=null;
@@ -89,46 +77,6 @@ window.nextAfterRender=function(){
    }
  }
 };
-/* Real catalog sources: Android uses a native HTTPS client; desktop uses the
- * Electron main-process gateway. CORS fallbacks only when native isn't usable. */
-const oldLookup=window.bu48Lookup;
-window.bu48Lookup=async function(id,opts={}){
- const b=[...S.books,...(typeof bu45Extra==='function'?bu45Extra():[])].find(x=>String(x.id)===String(id));
- if(!b)return null;
- const old=await oldLookup.apply(this,arguments);
- if((b.description&&b.publisher&&b.covers?.length)||!(b.title||b.isbn))return old;
- let result,errors=[];
- try{result=await window.booksupCatalog.search({title:b.title||'',author:b.author||'',isbn:b.isbn||''});errors=result.errors||[];}
- catch(e){if(!opts.silent)toast('Buchdaten: '+String(e.message||e));return old;}
- const items=[];
- for(const row of result.google||[]){
-  const v=row.volumeInfo||{};if(!v.title)continue;
-  items.push({title:v.title,author:(v.authors||[]).join(', '),publisher:v.publisher||'',year:(v.publishedDate||'').slice(0,4),pages:v.pageCount||0,genre:v.categories?.[0]||'',description:v.description||'',cover:v.imageLinks?.thumbnail?.replace(/^http:/,'https:')||'',isbn:v.industryIdentifiers?.find(x=>x.type==='ISBN_13')?.identifier||''});
- }
- for(const row of result.open||[]){
-  if(!row.title)continue;
-  items.push({title:row.title,author:(row.author_name||[]).join(', '),publisher:row.publisher?.[0]||'',year:row.first_publish_year||'',genre:row.subject?.[0]||'',cover:row.cover_i?'https://covers.openlibrary.org/b/id/'+Number(row.cover_i)+'-L.jpg':'',isbn:row.isbn?.[0]||''});
- }
- const simplify=s=>String(s||'').normalize('NFKD').toLowerCase().replace(/[^\p{L}\p{N}]+/gu,' ').trim();
- const q=simplify(b.title),a=simplify(b.author),isbn=String(b.isbn||'').replace(/[^\dX]/gi,'');
- const ranked=items.map(x=>{
-  const t=simplify(x.title),author=simplify(x.author),exactISBN=isbn&&x.isbn&&isbn===String(x.isbn).replace(/[^\dX]/gi,'');
-  const match=exactISBN?130:(t===q?85:q.length>6&&(t.includes(q)||q.includes(t))?55:0)+(!a?0:author===a?20:author&&a&&(author.includes(a)||a.includes(author))?12:0);
-  return {...x,match};
- }).filter(x=>x.match>=75).sort((x,y)=>y.match-x.match);
- const best=ranked[0];let changed=0;
- if(best)for(const field of ['description','publisher','year','pages','genre']){
-  if(!b[field]&&best[field]){b[field]=field==='description'?String(best[field]).replace(/<[^>]*>/g,' ').slice(0,7000):best[field];changed++;}
- }
- if(best?.cover&&!b.cover&&!b.covers?.length){b.covers=[best.cover];changed++;}
- if(!b.isbn&&best?.match>=105&&ranked.filter(x=>x.isbn).every(x=>x.isbn===best.isbn)&&best.isbn){b.isbn=best.isbn;changed++;}
- if(changed){persist();if(['detail','libraryDetail'].includes(view))render();}
- if(!opts.silent)toast(changed?changed+' zusätzliche Buchinformationen gefunden.':errors.length?'Katalogquellen: '+errors.join(' | ').slice(0,200):'Keine weiteren passenden Angaben.');
- return old?.candidates?.length?old:{candidates:ranked,suggestions:ranked.filter(x=>x.isbn),errors};
-};
-/* New results are sampled from actual catalog responses, not the repeating
- * static demo catalog. User-owned and previously shown items are excluded. */
-const oldRecs=window.buRecs;
 /* Reliable LAN native join: no insecure mixed-content WebView requests. */
 if(onAndroid()){
  window.booksupLan??={};
