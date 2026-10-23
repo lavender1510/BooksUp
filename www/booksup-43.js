@@ -9,64 +9,9 @@ function bu43CoverHtml(b){
  const attrs=' data-cover-title="'+esc(title)+'" data-cover-author="'+esc(author)+'" data-cover-isbn="'+esc(isbn)+'"';
  if(src&&(/^https?:\/\//i.test(src)||/^data:image\//.test(src)||/^blob:/.test(src)))
   return '<img'+attrs+' src="'+esc(src)+'" loading="lazy" decoding="async" alt="'+esc(title)+'" onerror="bu44BrokenCover(this)">';
- return '<span class="bu43-cover-slot"'+attrs+'><span class="bu43-cover-placeholder">'+esc(title.slice(0,2)||'BU')+'</span><small>'+(navigator.onLine===false?'Offline · Cover nicht geladen':'Cover wird gesucht …')+'</small></span>';
+ return '<span class="bu43-cover-slot"'+attrs+'><span class="bu43-cover-placeholder">'+esc(title.slice(0,2)||'BU')+'</span><small>'+('Kein Cover hinterlegt')+'</small></span>';
 }
-function bu43ImageWorks(url){
- return new Promise(resolve=>{
-  if(!bu43IsHttp(url))return resolve(false);
-  const img=new Image();let done=false;
-  const finish=v=>{if(done)return;done=true;img.onload=img.onerror=null;resolve(v)};
-  img.onload=()=>finish(img.naturalWidth>48&&img.naturalHeight>48);
-  img.onerror=()=>finish(false);img.src=url;setTimeout(()=>finish(false),6500);
- });
-}
-async function bu43FindCover(title,author,isbn){
- const key=isbn||bu43Norm(title+' '+author);
- if(bu43CoverCache.get(key))return bu43CoverCache.get(key);
- if(bu43Pending.has(key))return bu43Pending.get(key);
- const task=(async()=>{
-  if(navigator.onLine===false)return null;
-  const candidates=[];
-  if(isbn.length===10||isbn.length===13)candidates.push('https://covers.openlibrary.org/b/isbn/'+encodeURIComponent(isbn)+'-L.jpg?default=false');
-  try{
-    const query=isbn?'isbn:'+isbn:'intitle:'+title+(author?' inauthor:'+author:'');
-    const j=await fetchMetaUrl('https://www.googleapis.com/books/v1/volumes?q='+encodeURIComponent(query)+'&maxResults=8');
-    for(const x of j.items||[]){
-      const links=x.volumeInfo?.imageLinks||{},u=links.extraLarge||links.large||links.medium||links.thumbnail||links.smallThumbnail;
-      if(u)candidates.push(u.replace(/^http:/,'https:').replace(/zoom=\d+/,'zoom=0'));
-    }
-  }catch{}
-  try{
-    const q=isbn?'isbn='+encodeURIComponent(isbn):'title='+encodeURIComponent(title)+(author?'&author='+encodeURIComponent(author):'');
-    const j=await fetchMetaUrl('https://openlibrary.org/search.json?'+q+'&limit=6&fields=cover_i,isbn,title,author_name');
-    for(const x of j.docs||[])if(x.cover_i)candidates.push('https://covers.openlibrary.org/b/id/'+x.cover_i+'-L.jpg');
-  }catch{}
-  let found=null;
-  const pool=[...new Set(candidates)].slice(0,8);
-  for(let i=0;i<pool.length;i+=4){const tests=await Promise.all(pool.slice(i,i+4).map(bu43ImageWorks));const first=tests.findIndex(Boolean);if(first>=0){found=pool[i+first];break}}
-  if(found)bu43CoverCache.set(key,found);return found;
- })();
- bu43Pending.set(key,task);try{return await task}finally{bu43Pending.delete(key)}
-}
-let bu43CoverObserver=null;
-function bu43LoadCovers(){
- if(bu43CoverObserver)bu43CoverObserver.disconnect();
- const nodes=[...document.querySelectorAll('.bu43-cover-slot')];
- if(!nodes.length)return;
- bu43CoverObserver=new IntersectionObserver(entries=>{
-  for(const e of entries)if(e.isIntersecting){
-   const el=e.target;bu43CoverObserver?.unobserve(el);
-   if(navigator.onLine===false){const t=el.querySelector('small');if(t)t.textContent='Offline · Cover nicht geladen';continue}
-   bu43FindCover(el.dataset.coverTitle||'',el.dataset.coverAuthor||'',el.dataset.coverIsbn||'').then(url=>{
-    if(!el.isConnected)return;
-    if(!url){const m=el.querySelector('small');if(m)m.textContent='Kein Online-Cover gefunden';return}
-    const img=new Image();img.alt=el.dataset.coverTitle||'Cover';img.loading='lazy';img.decoding='async';img.src=url;
-    el.replaceChildren(img);
-   });
-  }
- },{root:null,rootMargin:'550px'});
- nodes.forEach(x=>bu43CoverObserver.observe(x));
-}
+function bu43LoadCovers(){/* User-provided and cached covers render locally; no network request. */}
 function bu43RestoreProfileLists(){
  return '<div class="card bu43-profile-lists"><div class="bu43-panel-head"><div><h3>Meine Leselisten</h3><p class="hint">Deine eigenen Listen und Wunschbücher.</p></div><button class="btn o" onclick="go(\'lists\')">Alle Leselisten →</button></div><div class="bu43-profile-grid">'+buListsData().slice(0,4).map(l=>'<button class="bu43-panel-card" onclick="go(\'lists\')"><b>'+esc(l.name)+'</b><small>'+(l.items||[]).length+' Bücher</small></button>').join('')+'<button class="bu43-panel-card" onclick="buNewList()">＋ Neue Leseliste</button></div></div>';
 }
