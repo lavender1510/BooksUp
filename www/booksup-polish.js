@@ -125,79 +125,8 @@ function buFastNav(target){
  if(view===target&&!modal)return;
  buNavQueued=setTimeout(()=>{buNavQueued=null;go(target)},0);
 }
-function buOpenNewsLink(index){
- const item=buNewsArticles[index];if(!item)return;
- const url=String(item.url||'');if(!/^https:\/\//i.test(url))return;
- if(window.Capacitor?.Plugins?.Browser?.open)window.Capacitor.Plugins.Browser.open({url}).catch(()=>{});
- else window.open(url,'_blank','noopener,noreferrer');
-}
-function buNewsView(){
- const age=buNewsUpdated?new Date(buNewsUpdated).toLocaleString(buLocale()==='de'?'de-DE':'en-US'):'';
- return '<section class="bu-news"><header class="bu-news-header"><div><span class="next-overline">BOOKSUP / STORIES</span><h1>'+buTranslate('Nachrichten',buLocale())+'</h1><p class="hint">Buchwelt, Neuerscheinungen, Autorinnen und Autoren – direkt von den Originalquellen.</p></div><button class="btn o" onclick="buLoadNews(true)">↻ '+buTranslate('Neu laden',buLocale())+'</button></header>'+
- (age?'<p class="hint">Aktualisiert: '+esc(age)+'</p>':'')+
- (buNewsArticles.length?'<div class="bu-news-grid">'+buNewsArticles.map((a,i)=>'<article class="bu-news-card">'+(a.image&&/^https:\/\//i.test(a.image)?'<img class="bu-news-img" src="'+esc(a.image)+'" loading="lazy" alt="" onerror="this.remove()">':'<div class="bu-news-image-fallback">BOOKSUP <span>✦</span></div>')+'<div class="bu-news-content"><div class="bu-news-meta"><span>'+esc(a.source||'')+'</span><time>'+esc(a.date?new Date(a.date).toLocaleDateString(buLocale()==='de'?'de-DE':'en-US'):'')+'</time></div><h2>'+esc(a.title||'')+'</h2><p>'+esc(a.summary||'')+'</p><div class="bu-news-footer"><button class="btn o" onclick="buOpenNewsLink('+i+')">'+buTranslate('Artikel öffnen',buLocale())+' ↗</button><details class="bu-news-menu"><summary aria-label="Artikeloptionen">⋯</summary><div><button onclick="buOpenNewsLink('+i+')">'+buTranslate('Zur Originalquelle',buLocale())+'</button>'+(a.newsletter&&/^https:\/\//i.test(a.newsletter)?'<button onclick="window.open('+JSON.stringify(a.newsletter).replace(/"/g,'&quot;')+',\'_blank\')">Newsletter ↗</button>':'')+'</div></details></div></div></article>').join('')+'</div>':
- '<div class="card bu-news-empty"><p>'+buTranslate('Keine Nachrichten verfügbar.',buLocale())+'</p><p class="hint">Bitte stelle eine Internetverbindung her und versuche es erneut. Es werden keine erfundenen Meldungen angezeigt.</p></div>')+'</section>';
-}
-async function buLoadNews(force=false){
- if(view!=='news'||buNewsLoading)return;
- const now=Date.now();
- if(!force&&buNewsLastError&&now-buNewsRequest<30000)return;
- if(!force&&buNewsArticles.length&&now-buNewsRequest<6*3600000)return;
- buNewsLoading=true;buNewsRequest=now;
- try{
-  if(navigator.onLine===false)throw Error('Keine Internetverbindung.');
-  const ctrl=new AbortController(),timeout=setTimeout(()=>ctrl.abort(),12000);
-  let response;try{response=await fetch(BU_NEWS_URL+'?t='+Math.floor(Date.now()/3600000),{cache:'no-store',signal:ctrl.signal});}finally{clearTimeout(timeout);}
-  if(!response.ok)throw Error('News-Server: HTTP '+response.status);
-  const data=await response.json();
-  if(!Array.isArray(data.articles))throw Error('News-Server liefert ein ungültiges Datenformat.');
-  const articles=data.articles.filter(a=>a&&typeof a.title==='string'&&/^https:\/\//i.test(a.url||'')).slice(0,28);
-  if(!articles.length)throw Error('Die News-Antwort enthält keine gültigen Artikel.');
-  buNewsArticles=articles;buNewsUpdated=data.updatedAt||Date.now();buNewsLastError='';
-  try{if(typeof bu46ApplyEditorial==='function')bu46ApplyEditorial();}catch(error){console.warn('Optional editorial enrichment failed',error);}
-  try{localStorage.setItem('booksup.news.cache',JSON.stringify({articles:buNewsArticles,updatedAt:buNewsUpdated}));}catch(error){console.warn('News cache unavailable',error);}
-  if(view==='news')render();
- }catch(error){
-  buNewsLastError=error?.name==='AbortError'?'Zeitüberschreitung beim Laden der News.':String(error?.message||error);
-  if(view==='news')render();
-  if(force)toast('News konnten nicht geladen werden: '+buNewsLastError);
- }finally{buNewsLoading=false;}
-}
-try{const n=JSON.parse(localStorage.getItem('booksup.news.cache')||'null');if(n&&Array.isArray(n.articles)){buNewsArticles=n.articles;buNewsUpdated=n.updatedAt||0}}catch{}
-function buPolishAfterRender(){
- buTranslateUI();
- if(view==='news'){buLoadNews().catch(()=>{});}
-}
-/* Lightweight async metadata lookups – never overwrite fields the user already filled. */
-let buMetaDebounce=null;
-async function buEnrichDraft(){
- if(view!=='add')return;
- try{
-  keep();
-  const isbn=String(draft.isbn||'').replace(/[^0-9X]/gi,''),title=String(draft.title||'').trim();
-  if(!isbn&&title.length<3)return;
-  const results=await Promise.allSettled([
-   isbn&&isbnValid(isbn)?lookupIsbn(isbn):Promise.reject('no ISBN'),
-   fetchMetaUrl('https://www.googleapis.com/books/v1/volumes?q='+encodeURIComponent(isbn?'isbn:'+isbn:'intitle:'+title+(draft.author?' inauthor:'+draft.author:''))+'&maxResults=3'),
-   fetchMetaUrl('https://openlibrary.org/search.json?'+(isbn?'isbn='+encodeURIComponent(isbn):'title='+encodeURIComponent(title))+'&limit=3&fields=title,author_name,first_publish_year,cover_i,first_sentence,subject,isbn')
-  ]);
-  if(view!=='add')return;
-  const candidates=[];
-  if(results[0].status==='fulfilled'&&results[0].value)candidates.push(results[0].value);
-  if(results[1].status==='fulfilled'){const j=results[1].value;const x=j.items?.[0];if(x)candidates.push(metadataGoogle(x.volumeInfo||{},x))}
-  if(results[2].status==='fulfilled'){const x=results[2].value.docs?.[0];if(x)candidates.push({title:x.title,author:(x.author_name||[]).join(', '),year:x.first_publish_year,genre:x.subject?.[0],tags:(x.subject||[]).slice(0,6).join(', '),isbn:x.isbn?.[0],cover:x.cover_i?'https://covers.openlibrary.org/b/id/'+x.cover_i+'-L.jpg':null})}
-  if(!candidates.length){toast('Keine zusätzlichen Online-Daten gefunden.');return}
-  keep();
-  let touched=false;
-  for(const c of candidates)for(const key of ['title','author','isbn','language','format','edition','year','pages','genre','tags','publisher','series','seriesNumber','price']){
-   if((draft[key]===undefined||draft[key]===null||draft[key]==='')&&c[key]!=null&&c[key]!==''){draft[key]=String(c[key]);touched=true}
-  }
-  for(const c of candidates)if(c.cover&&/^https:\/\//i.test(c.cover)&&!(draft.covers||[]).length){draft.covers=[c.cover];touched=true;break}
-  if(touched){render();toast('Buchdaten ergänzt. Du kannst alle Felder ändern.')}
- }catch(e){console.debug('Metadatensuche',e)}
-}
-function buScheduleMeta(){clearTimeout(buMetaDebounce);buMetaDebounce=setTimeout(buEnrichDraft,250)}
-
+function buPolishAfterRender(){buTranslateUI();}
+function buScheduleMeta(){/* Manual book details are edited locally. */}
 /* Progress is based on completed stages; visual animation is easing-only. */
 let buBackupUi=null,buBackupVisual=0,buBackupTarget=0,buBackupFrame=0;
 function buBackupStart(){
