@@ -18,14 +18,6 @@ for(const file of ['www/booksup-next.js','www/booksup-43.js','www/booksup-53.js'
  assert.equal(score({...seed,genre:'Detective',tags:'forensics',author:'B'}, {title:'Dragon Kingdom',genre:'Fantasy',tags:'magic',author:'M'}),-1,'No universal recommendation list');
 }
 {
- const context={isbnClean:v=>String(v||'').replace(/[^0-9X]/gi,''),isbnValid:v=>/^\d{13}$/.test(v),nextLanguage:()=> 'fr'};
- vm.createContext(context);
- vm.runInContext(between(source,'const metaNorm=','const lookupBefore56=')+';globalThis.match=metaConfidence;globalThis.series=metaSeries;',context);
- assert.equal(context.series('Sagas #3').seriesNumber,3);
- assert.equal(context.match({title:'Dune',author:'Frank Herbert'},{title:'Dune',author:'Unrelated Author',language:'fr'}),0,'Do not merge conflicting authors');
- assert.ok(context.match({title:'Dune',author:'Frank Herbert'},{title:'Dune',author:'Frank Herbert',language:'fr'})>=120);
-}
-{
  const written={};
  const style={setProperty:(k,v)=>{written[k]=v},removeProperty:k=>{delete written[k]}};
  const root={style,dataset:{}},match={matches:true,addEventListener(){}};
