@@ -94,19 +94,14 @@ function buRecs(){
  list.sort((a,b)=>score(b)-score(a)||tie(a)-tie(b));
  return {list:list.slice(0,100),last};
 }
-function buCatalogDetails(i){buCatalogIndex=Number(i);const b=buRecs().list[buCatalogIndex];go('catalog');const isbn=bu44EditionIsbn(b?.isbn);if(isbn&&b&&!bu44WatchState(b)){const k='bu44-watch-asked-'+isbn;try{if(sessionStorage.getItem(k))return;sessionStorage.setItem(k,'1')}catch{}setTimeout(()=>{if(view==='catalog'&&bu44EditionIsbn(buRecs().list[buCatalogIndex]?.isbn)===isbn)bu44WatchPrompt(b)},650)}}
+function buCatalogDetails(i){buCatalogIndex=Number(i);go('catalog')}
 function buCatalogView(){
  const b=buRecs().list[buCatalogIndex];if(!b)return bar('Empfehlung','home')+'<div class="card">Empfehlung nicht mehr verfügbar.</div>';
  const isbn=esc(b.isbn||''),year=esc(b.year||''),publisher=esc(b.publisher||''),genre=esc(b.genre||'');
- return bar('Buch entdecken','home')+'<section class="next-detail"><div class="next-detail-main"><div class="next-detail-cover">'+nextCover(b)+'</div><div class="next-detail-intro"><span class="next-overline">BOOKSUP DISCOVER</span><h1>'+esc(b.title)+'</h1><p>'+esc(b.author||'')+'</p><p class="hint">'+genre+'</p><button class="btn" onclick="buCatalogAdd('+buCatalogIndex+')">Zur Bibliothek hinzufügen</button><button class="btn o" onclick="bu44WatchCatalog('+buCatalogIndex+')">🔔 MediMops-Preisalarm</button></div></div><section class="next-book-information"><h2>Über das Buch</h2><div class="next-info-grid"><div><small>Autor</small><b>'+esc(b.author||'–')+'</b></div><div><small>Jahr</small><b>'+year+'</b></div><div><small>Verlag</small><b>'+publisher+'</b></div><div><small>ISBN</small><b>'+isbn+'</b></div><div><small>Genre</small><b>'+genre+'</b></div><div><small>Reihe</small><b>'+esc(b.series||'–')+'</b></div></div><p class="hint">Weitere Angaben werden über die Online-Buchdatenbanken ergänzt, wenn sie vorhanden sind.</p><div id="bu-catalog-meta" class="hint">Online-Informationen werden geprüft …</div></section>'+bu46SimilarHtml(b)+'</section>';
+ return bar('Buch entdecken','home')+'<section class="next-detail"><div class="next-detail-main"><div class="next-detail-cover">'+nextCover(b)+'</div><div class="next-detail-intro"><span class="next-overline">BOOKSUP DISCOVER</span><h1>'+esc(b.title)+'</h1><p>'+esc(b.author||'')+'</p><p class="hint">'+genre+'</p><button class="btn" onclick="buCatalogAdd('+buCatalogIndex+')">Zur Bibliothek hinzufügen</button></div></div><section class="next-book-information"><h2>Über das Buch</h2><div class="next-info-grid"><div><small>Autor</small><b>'+esc(b.author||'–')+'</b></div><div><small>Jahr</small><b>'+year+'</b></div><div><small>Verlag</small><b>'+publisher+'</b></div><div><small>ISBN</small><b>'+isbn+'</b></div><div><small>Genre</small><b>'+genre+'</b></div><div><small>Reihe</small><b>'+esc(b.series||'–')+'</b></div></div></section>'+bu46SimilarHtml(b)+'</section>';
 }
 function buCatalogAdd(i){const b=buRecs().list[Number(i)];if(!b)return;draft={title:b.title,author:b.author,genre:b.genre,year:b.year,publisher:b.publisher,isbn:b.isbn,series:b.series,seriesNumber:b.seriesNumber,covers:[...(b.covers||[]),...(b.cover?[b.cover]:[])].filter(Boolean)};addType='physical';view='add';render()}
-async function buCatalogEnrich(){
- if(view!=='catalog')return;const b=buRecs().list[buCatalogIndex],target=$('bu-catalog-meta');if(!b||!target)return;
- try{const q=b.isbn?'isbn:'+b.isbn:'intitle:'+b.title+' inauthor:'+b.author;const j=await fetchMetaUrl('https://www.googleapis.com/books/v1/volumes?q='+encodeURIComponent(q)+'&maxResults=3');const item=j.items?.[0];if(!item||view!=='catalog')return;
- const m=metadataGoogle(item.volumeInfo,item);target.innerHTML='<b>Zusätzliche Online-Daten</b><p>'+[m.publisher,m.year,m.pages?m.pages+' Seiten':'',m.language,m.tags].filter(Boolean).map(esc).join(' · ')+'</p>';
- }catch(e){target.textContent='Weitere Daten derzeit nicht verfügbar (offline oder kein Treffer).'}
-}
+async function buCatalogEnrich(){return null}
 const buCoverCache=new Map();
 async function buLoadRecCovers(){
  if(view!=='home'||navigator.onLine===false)return;
