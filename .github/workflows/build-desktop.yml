@@ -28,10 +28,6 @@ jobs:
       - run: node tools/test-55.cjs
       - run: node tools/test-55-behavior.cjs
       - run: node tools/test-55-navigation-regression.cjs
-      - name: Configure public self-hosted LibreTranslate URL
-        env:
-          BOOKSUP_PUBLIC_TRANSLATION_URL: ${{ vars.BOOKSUP_PUBLIC_TRANSLATION_URL }}
-        run: node tools/configure-public-translation.cjs
       - run: npm run desktop:windows
         env:
           CSC_IDENTITY_AUTO_DISCOVERY: 'false'
